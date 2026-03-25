@@ -416,7 +416,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 var state = {
   currentRoom: localStorage.getItem('currentRoom') || '',
   rooms: JSON.parse(localStorage.getItem('rooms') || '["Guarita","Secretaria","Biblioteca","Laboratório","Sala dos Professores","Diretoria","Almoxarifado","Refeitório"]'),
-  scriptUrl: localStorage.getItem('scriptUrl') || '',
+  scriptUrl: localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbwH692tN_mtBmFF-_bPlkucI9dVkorAPqFJfAGhkHW-QhUe8CC3vppFpxDOLpLg5uijUA/exec',
   scans: JSON.parse(localStorage.getItem('scans') || '[]'),
   pendingSync: JSON.parse(localStorage.getItem('pendingSync') || '[]'),
   isOnline: navigator.onLine,
@@ -872,6 +872,10 @@ function saveScriptUrl() {
 
 function loadScriptUrl() {
   document.getElementById('scriptUrlInput').value = state.scriptUrl || '';
+  // Persist default if not yet saved
+  if (!localStorage.getItem('scriptUrl') && state.scriptUrl) {
+    localStorage.setItem('scriptUrl', state.scriptUrl);
+  }
 }
 
 function saveScans() { localStorage.setItem('scans', JSON.stringify(state.scans)); }
