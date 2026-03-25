@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f1117">
 <title>Inventário Campus</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -561,44 +561,37 @@ function startScanner() {
   startCamera();
 }
 
+var zxingReader = null;
+
 function startCamera() {
   if (quaggaRunning) return;
   var video = document.getElementById('scannerVideo');
 
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } })
-    .then(function(stream) {
-      scannerStream = stream;
-      video.srcObject = stream;
-
-      Quagga.init({
-        inputStream: { name: 'Live', type: 'LiveStream', target: video,
-          constraints: { facingMode: 'environment' } },
-        decoder: { readers: ['code_128_reader','ean_reader','ean_8_reader','code_39_reader','upc_reader','upc_e_reader','i2of5_reader'] },
-        locate: true,
-        frequency: 10,
-      }, function(err) {
-        if (err) { console.error(err); return; }
-        Quagga.start();
-        quaggaRunning = true;
-      });
-
-      Quagga.onDetected(function(result) {
-        var code = result.codeResult.code;
+  try {
+    zxingReader = new ZXing.BrowserMultiFormatReader();
+    zxingReader.decodeFromConstraints(
+      { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } },
+      video,
+      function(result, err) {
+        if (!result) return;
+        var code = result.getText();
         var now  = Date.now();
-        if (code === lastScanned && now - lastScannedTime < 2000) return;
+        // Debounce: ignora mesmo código por 2.5s
+        if (code === lastScanned && now - lastScannedTime < 2500) return;
         lastScanned     = code;
         lastScannedTime = now;
         processScan(code);
-      });
-    })
-    .catch(function(e) {
-      showToast('warn','Câmera indisponível','Use a entrada manual abaixo');
-    });
+      }
+    );
+    quaggaRunning = true;
+  } catch(e) {
+    showToast('warn','Câmera indisponível','Use a entrada manual abaixo');
+  }
 }
 
 function stopScanner() {
-  if (quaggaRunning) { try { Quagga.stop(); } catch(e){} quaggaRunning = false; }
-  if (scannerStream) { scannerStream.getTracks().forEach(function(t){ t.stop(); }); scannerStream = null; }
+  if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
+  quaggaRunning = false;
   goBack();
 }
 
