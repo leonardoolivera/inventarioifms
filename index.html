@@ -1,9 +1,908 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Index</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1117">
+<title>Inventário Campus</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3347;
+  --accent:#4f8cff;--accent2:#7c5cfc;--green:#22c55e;--yellow:#f59e0b;
+  --red:#ef4444;--orange:#f97316;
+  --text:#f0f2ff;--text2:#8891b0;--text3:#4a5068;
+  --r:14px;--r2:10px;--sh:0 4px 24px rgba(0,0,0,.4);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow:hidden}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;will-change:transform}
+.screen.hidden{transform:translateY(100%);opacity:0;pointer-events:none}
+.screen.slide-left{transform:translateX(-100%);opacity:0;pointer-events:none}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;padding-top:max(14px,env(safe-area-inset-top))}
+.topbar-title{font-size:15px;font-weight:700;flex:1}
+.topbar-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.back-btn{width:34px;height:34px;border:none;background:var(--surface);border-radius:8px;color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── SCROLL BODY ── */
+.sbody{flex:1;overflow-y:auto;padding:14px 16px;padding-bottom:max(20px,env(safe-area-inset-bottom))}
+
+/* ── HOME SCREEN ── */
+.home-header{background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:var(--r);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.home-header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.home-header h2{font-size:20px;font-weight:700;color:#fff;position:relative}
+.home-header p{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px;position:relative}
+
+.room-selector{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;cursor:pointer;transition:border-color .2s}
+.room-selector:active{border-color:var(--accent)}
+.rs-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:6px;font-weight:600}
+.rs-value{font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.rs-value span{color:var(--accent)}
+.rs-chevron{color:var(--text3);font-size:18px}
+
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.action-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;active:transform:scale(.97)}
+.action-card:active{transform:scale(.97)}
+.action-card.primary{border-color:var(--accent);background:linear-gradient(135deg,rgba(79,140,255,.15),rgba(124,92,252,.1))}
+.ac-icon{font-size:28px;margin-bottom:8px;display:block}
+.ac-title{font-size:13px;font-weight:700}
+.ac-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px;text-align:center}
+.stat-n{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.stat-n.g{color:var(--green)}.stat-n.y{color:var(--yellow)}.stat-n.b{color:var(--accent)}
+.stat-l{font-size:10px;color:var(--text2);margin-top:2px}
+
+/* sync banner */
+.sync-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer}
+.sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sync-dot.online{background:var(--green);box-shadow:0 0 8px var(--green)}
+.sync-dot.offline{background:var(--yellow)}
+.sync-dot.syncing{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sync-text{flex:1;font-size:12px;color:var(--text2)}
+.sync-count{font-size:12px;font-weight:700;color:var(--yellow)}
+
+/* ── ROOM PICKER ── */
+.room-list{display:flex;flex-direction:column;gap:8px}
+.room-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s}
+.room-item:active,.room-item.selected{border-color:var(--accent);background:rgba(79,140,255,.1)}
+.ri-icon{font-size:22px}
+.ri-info{flex:1}
+.ri-name{font-size:14px;font-weight:600}
+.ri-count{font-size:11px;color:var(--text2);margin-top:1px}
+.ri-check{color:var(--accent);font-size:18px;display:none}
+.room-item.selected .ri-check{display:block}
+.add-room-btn{background:transparent;border:2px dashed var(--border);border-radius:var(--r2);padding:14px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;width:100%;transition:border-color .2s}
+.add-room-btn:active{border-color:var(--accent);color:var(--accent)}
+
+/* ── SCANNER ── */
+.scanner-wrap{position:relative;background:#000;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#scannerVideo{width:100%;height:100%;object-fit:cover}
+.scanner-overlay{position:absolute;inset:0;pointer-events:none}
+.scan-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:72%;max-width:280px;aspect-ratio:1.8;border:2px solid rgba(255,255,255,.2);border-radius:12px}
+.scan-frame::before,.scan-frame::after{content:'';position:absolute;width:24px;height:24px;border-color:var(--accent);border-style:solid}
+.scan-frame::before{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+.scan-frame::after{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+.scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanline 2s ease-in-out infinite;top:20%}
+@keyframes scanline{0%{top:10%}100%{top:90%}}
+.scan-hint-bar{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:20px 16px 16px;text-align:center}
+.scan-hint-text{font-size:13px;color:rgba(255,255,255,.7)}
+.room-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,140,255,.25);border:1px solid rgba(79,140,255,.4);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--accent);margin-bottom:8px}
+
+/* scan result flash */
+.scan-flash{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .15s}
+.scan-flash.ok{background:rgba(34,197,94,.25)}
+.scan-flash.warn{background:rgba(245,158,11,.25)}
+.scan-flash.show{opacity:1}
+
+/* bottom scanner bar */
+.scanner-bottom{background:var(--bg);border-top:1px solid var(--border);padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));flex-shrink:0}
+.manual-row{display:flex;gap:8px}
+.manual-input{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none}
+.manual-input:focus{border-color:var(--accent)}
+.manual-btn{background:var(--accent);border:none;border-radius:8px;padding:10px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.nopat-btn{width:100%;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.nopat-btn:active{border-color:var(--orange);color:var(--orange)}
+
+/* ── RESULT TOAST ── */
+.result-toast{position:fixed;top:max(60px,env(safe-area-inset-top));left:12px;right:12px;z-index:999;border-radius:var(--r2);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;transform:translateY(-20px);opacity:0;transition:all .2s;pointer-events:none;box-shadow:var(--sh)}
+.result-toast.show{transform:translateY(0);opacity:1}
+.result-toast.ok{background:#14532d;border:1px solid var(--green)}
+.result-toast.warn{background:#451a03;border:1px solid var(--yellow)}
+.result-toast.dup{background:#1e1b4b;border:1px solid var(--accent2)}
+.rt-ico{font-size:18px;flex-shrink:0;margin-top:1px}
+.rt-title{font-size:13px;font-weight:700}
+.rt-sub{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* ── NO-PAT MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-bg.show{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px;padding-bottom:max(24px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.modal-bg.show .modal-sheet{transform:none}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.photo-area{background:var(--bg);border:2px dashed var(--border);border-radius:var(--r2);aspect-ratio:4/3;max-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin-bottom:12px;transition:border-color .2s;position:relative}
+.photo-area:active{border-color:var(--accent)}
+.photo-area img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo-placeholder{text-align:center;pointer-events:none}
+.photo-placeholder span{font-size:36px;display:block;margin-bottom:6px}
+.photo-placeholder p{font-size:12px;color:var(--text2)}
+#photoInput{display:none}
+.field-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);font-weight:600;margin-bottom:6px}
+.field-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;margin-bottom:12px;resize:none}
+.field-input:focus{border-color:var(--accent)}
+
+/* Estado chips */
+.estado-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.estado-chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.estado-chip.selected.excelente{border-color:var(--green);background:rgba(34,197,94,.15);color:var(--green)}
+.estado-chip.selected.bom{border-color:var(--accent);background:rgba(79,140,255,.15);color:var(--accent)}
+.estado-chip.selected.regular{border-color:var(--yellow);background:rgba(245,158,11,.15);color:var(--yellow)}
+.estado-chip.selected.ruim{border-color:var(--red);background:rgba(239,68,68,.15);color:var(--red)}
+
+.modal-save-btn{width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.modal-save-btn:active{opacity:.85}
+.modal-cancel{width:100%;background:transparent;border:none;padding:12px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;margin-top:4px}
+
+/* ── HISTORY ── */
+.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.hi-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.hi-dot.ok{background:var(--green)}.hi-dot.warn{background:var(--yellow)}.hi-dot.dup{background:var(--accent2)}
+.hi-info{flex:1;min-width:0}
+.hi-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi-meta{font-size:11px;color:var(--text2);margin-top:2px}
+.hi-time{font-size:10px;color:var(--text3);white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.hi-sync{font-size:10px;margin-top:3px}
+.hi-sync.pending{color:var(--yellow)}.hi-sync.done{color:var(--green)}
+
+.thumb{width:44px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0}
+
+/* ── SETTINGS ── */
+.sett-section{margin-bottom:20px}
+.sett-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600;margin-bottom:10px}
+.sett-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.si-icon{font-size:20px;flex-shrink:0}
+.si-info{flex:1}
+.si-title{font-size:13px;font-weight:600}
+.si-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.si-arrow{color:var(--text3)}
+
+/* ── URL CONFIG ── */
+.url-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-bottom:10px;word-break:break-all}
+.url-input:focus{border-color:var(--accent)}
+.cfg-btn{width:100%;background:var(--accent);border:none;border-radius:8px;padding:12px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.cfg-btn.sec{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+
+/* ── NAV BAR ── */
+.navbar{display:flex;background:var(--surface);border-top:1px solid var(--border);padding-bottom:max(8px,env(safe-area-inset-bottom));flex-shrink:0}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 6px;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:color .15s;font-family:'Space Grotesk',sans-serif}
+.nav-btn.active{color:var(--accent)}
+.nav-btn span:first-child{font-size:20px}
+.nav-btn span:last-child{font-size:10px;font-weight:600}
+
+/* ── MISC ── */
+.pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+.pill.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.pill.warn{background:rgba(245,158,11,.15);color:var(--yellow)}
+.pill.dup{background:rgba(124,92,252,.15);color:var(--accent2)}
+.empty{text-align:center;padding:40px 20px;color:var(--text2)}
+.empty-ico{font-size:3rem;margin-bottom:10px}
+hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
+.fab{position:fixed;bottom:max(80px,calc(60px + env(safe-area-inset-bottom)));right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(79,140,255,.5);z-index:50;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.fab:active{transform:scale(.92)}
+</style>
 </head>
 <body>
 
+<!-- ════════════════════════════════════════════
+     SCREEN: HOME
+═══════════════════════════════════════════════ -->
+<div class="screen" id="scHome">
+  <div class="sbody">
+    <div class="home-header">
+      <h2>📋 Inventário Campus</h2>
+      <p id="homeDate">Carregando...</p>
+    </div>
+
+    <div class="sync-banner" id="syncBanner" onclick="syncNow()">
+      <div class="sync-dot offline" id="syncDot"></div>
+      <div class="sync-text" id="syncText">Verificando conexão...</div>
+      <div class="sync-count" id="syncCount"></div>
+    </div>
+
+    <div class="room-selector" onclick="showScreen('scRooms')">
+      <div class="rs-label">📍 Local atual</div>
+      <div class="rs-value">
+        <span id="currentRoomLabel">Selecionar local</span>
+        <span class="rs-chevron">›</span>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-n g" id="statFound">0</div><div class="stat-l">Encontrados</div></div>
+      <div class="stat-box"><div class="stat-n y" id="statNoPat">0</div><div class="stat-l">Sem patrim.</div></div>
+      <div class="stat-box"><div class="stat-n b" id="statTotal">0</div><div class="stat-l">Total hoje</div></div>
+    </div>
+
+    <div class="action-grid">
+      <div class="action-card primary" onclick="startScanner()">
+        <span class="ac-icon">📷</span>
+        <div class="ac-title">Escanear</div>
+        <div class="ac-sub">Câmera + código</div>
+      </div>
+      <div class="action-card" onclick="showScreen('scHistory')">
+        <span class="ac-icon">📋</span>
+        <div class="ac-title">Histórico</div>
+        <div class="ac-sub">Scans da sessão</div>
+      </div>
+      <div class="action-card" onclick="openNoPatModal(null)">
+        <span class="ac-icon">📸</span>
+        <div class="ac-title">Sem patrim.</div>
+        <div class="ac-sub">Foto + descrição</div>
+      </div>
+      <div class="action-card" onclick="showScreen('scSettings')">
+        <span class="ac-icon">⚙️</span>
+        <div class="ac-title">Configurar</div>
+        <div class="ac-sub">API e salas</div>
+      </div>
+    </div>
+  </div>
+  <div class="navbar">
+    <button class="nav-btn active" onclick="showScreen('scHome')"><span>🏠</span><span>Início</span></button>
+    <button class="nav-btn" onclick="startScanner()"><span>📷</span><span>Scanner</span></button>
+    <button class="nav-btn" onclick="showScreen('scHistory')"><span>📋</span><span>Histórico</span></button>
+    <button class="nav-btn" onclick="showScreen('scSettings')"><span>⚙️</span><span>Config</span></button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN: ROOM PICKER
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scRooms">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">‹</button>
+    <div><div class="topbar-title">Selecionar Local</div><div class="topbar-sub">Onde você está agora?</div></div>
+  </div>
+  <div class="sbody">
+    <div class="room-list" id="roomList"></div>
+    <button class="add-room-btn" onclick="addRoom()">+ Adicionar novo local</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN: SCANNER
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scScanner">
+  <div class="topbar">
+    <button class="back-btn" onclick="stopScanner()">‹</button>
+    <div>
+      <div class="topbar-title">Scanner</div>
+      <div class="topbar-sub" id="scannerRoomLabel">—</div>
+    </div>
+  </div>
+  <div class="scanner-wrap">
+    <video id="scannerVideo" autoplay playsinline muted></video>
+    <div class="scanner-overlay">
+      <div class="scan-frame">
+        <div class="scan-line"></div>
+      </div>
+      <div class="scan-hint-bar">
+        <div class="room-badge" id="scanRoomBadge">📍 —</div>
+        <div class="scan-hint-text">Aponte para o código de barras</div>
+      </div>
+    </div>
+    <div class="scan-flash" id="scanFlash"></div>
+  </div>
+  <div class="scanner-bottom">
+    <div class="manual-row">
+      <input class="manual-input" id="manualInput" placeholder="Digitar código manualmente..." autocomplete="off">
+      <button class="manual-btn" onclick="processManual()">OK</button>
+    </div>
+    <button class="nopat-btn" onclick="openNoPatModal(null)">📸 Item sem patrimônio</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN: HISTORY
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scHistory">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">‹</button>
+    <div><div class="topbar-title">Histórico</div><div class="topbar-sub" id="histSub">Sessão atual</div></div>
+  </div>
+  <div class="sbody">
+    <div id="histList"><div class="empty"><div class="empty-ico">📭</div>Nenhum scan ainda.</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN: SETTINGS
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scSettings">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">‹</button>
+    <div><div class="topbar-title">Configurações</div></div>
+  </div>
+  <div class="sbody">
+    <div class="sett-section">
+      <div class="sett-title">🔗 Google Sheets (Apps Script)</div>
+      <div class="field-label">URL do Web App</div>
+      <textarea class="url-input" id="scriptUrlInput" rows="3" placeholder="https://script.google.com/macros/s/..."></textarea>
+      <button class="cfg-btn" onclick="saveScriptUrl()">Salvar URL</button>
+      <button class="cfg-btn sec" onclick="testConnection()">Testar conexão</button>
+    </div>
+
+    <div class="sett-section">
+      <div class="sett-title">📍 Locais cadastrados</div>
+      <div id="settRoomList"></div>
+      <button class="add-room-btn" onclick="addRoom()">+ Adicionar local</button>
+    </div>
+
+    <div class="sett-section">
+      <div class="sett-title">🗂 Dados</div>
+      <div class="sett-item" onclick="exportCSV()">
+        <span class="si-icon">📥</span>
+        <div class="si-info"><div class="si-title">Exportar CSV</div><div class="si-sub">Todos os scans desta sessão</div></div>
+        <span class="si-arrow">›</span>
+      </div>
+      <div class="sett-item" onclick="confirmClear()">
+        <span class="si-icon">🗑️</span>
+        <div class="si-info"><div class="si-title">Limpar sessão</div><div class="si-sub">Apaga histórico local</div></div>
+        <span class="si-arrow">›</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3)">
+      Inventário Campus v2.0<br>PWA · Offline First
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: SEM PATRIMÔNIO
+═══════════════════════════════════════════════ -->
+<div class="modal-bg" id="noPatModal" onclick="closeNoPatModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📸 Item Sem Patrimônio</div>
+
+    <div class="photo-area" id="photoArea" onclick="document.getElementById('photoInput').click()">
+      <div class="photo-placeholder">
+        <span>📷</span>
+        <p>Toque para fotografar o item</p>
+      </div>
+    </div>
+    <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhoto(event)">
+
+    <div class="field-label">Descrição do item</div>
+    <textarea class="field-input" id="noPatDesc" rows="2" placeholder="Ex: Cadeira giratória preta, impressora, monitor 19'..."></textarea>
+
+    <div class="field-label">Estado de conservação</div>
+    <div class="estado-row" id="estadoRow">
+      <button class="estado-chip excelente selected" onclick="selectEstado('Excelente',this)">Excelente</button>
+      <button class="estado-chip bom" onclick="selectEstado('Bom',this)">Bom</button>
+      <button class="estado-chip regular" onclick="selectEstado('Regular',this)">Regular</button>
+      <button class="estado-chip ruim" onclick="selectEstado('Ruim',this)">Ruim</button>
+    </div>
+
+    <div class="field-label">Local</div>
+    <div style="font-size:13px;color:var(--accent);margin-bottom:16px;font-weight:600" id="noPatRoom">—</div>
+
+    <button class="modal-save-btn" onclick="saveNoPat()">💾 Registrar Item</button>
+    <button class="modal-cancel" onclick="closeNoPatModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="result-toast" id="toast">
+  <div class="rt-ico" id="toastIco"></div>
+  <div><div class="rt-title" id="toastTitle"></div><div class="rt-sub" id="toastSub"></div></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+var state = {
+  currentRoom: localStorage.getItem('currentRoom') || '',
+  rooms: JSON.parse(localStorage.getItem('rooms') || '["Guarita","Secretaria","Biblioteca","Laboratório","Sala dos Professores","Diretoria","Almoxarifado","Refeitório"]'),
+  scriptUrl: localStorage.getItem('scriptUrl') || '',
+  scans: JSON.parse(localStorage.getItem('scans') || '[]'),
+  pendingSync: JSON.parse(localStorage.getItem('pendingSync') || '[]'),
+  isOnline: navigator.onLine,
+};
+
+var screenHistory = [];
+var scannerStream = null;
+var quaggaRunning = false;
+var lastScanned = '';
+var lastScannedTime = 0;
+var noPatPhoto = null;
+var noPatEstado = 'Excelente';
+var toastTimer = null;
+var syncTimer = null;
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('load', function() {
+  updateHomeDate();
+  updateRoomLabel();
+  updateStats();
+  updateSyncBanner();
+  renderRoomList();
+  renderHistList();
+  renderSettRooms();
+  loadScriptUrl();
+
+  window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); syncNow(); });
+  window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); });
+
+  // Auto sync every 30s
+  setInterval(function(){ if(state.isOnline && state.pendingSync.length) syncNow(); }, 30000);
+});
+
+function updateHomeDate() {
+  var d = new Date();
+  document.getElementById('homeDate').textContent =
+    d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+}
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
+function showScreen(id) {
+  var cur = document.querySelector('.screen:not(.hidden):not(.slide-left)');
+  if (cur && cur.id !== id) {
+    screenHistory.push(cur.id);
+    cur.classList.add('slide-left');
+  }
+  var next = document.getElementById(id);
+  next.classList.remove('hidden','slide-left');
+
+  // refresh on show
+  if (id === 'scHistory') renderHistList();
+  if (id === 'scRooms')   renderRoomList();
+  if (id === 'scSettings'){ renderSettRooms(); loadScriptUrl(); }
+  if (id === 'scHome')    { updateStats(); updateSyncBanner(); }
+}
+
+function goBack() {
+  var prev = screenHistory.pop() || 'scHome';
+  var cur  = document.querySelector('.screen:not(.hidden):not(.slide-left)');
+  if (cur) { cur.classList.add('hidden'); cur.classList.remove('slide-left'); }
+  document.getElementById(prev).classList.remove('hidden','slide-left');
+}
+
+// ═══════════════════════════════════════════════
+//  ROOMS
+// ═══════════════════════════════════════════════
+var ROOM_ICONS = ['🏛️','📚','🔬','🍽️','🏥','🏠','📦','🚪','🖥️','⚙️'];
+function roomIcon(i){ return ROOM_ICONS[i % ROOM_ICONS.length]; }
+
+function renderRoomList() {
+  var el = document.getElementById('roomList');
+  el.innerHTML = state.rooms.map(function(r, i) {
+    var cnt = state.scans.filter(function(s){ return s.room === r; }).length;
+    return '<div class="room-item'+(state.currentRoom===r?' selected':'')+'" onclick="selectRoom(\''+escJ(r)+'\')">'
+      +'<span class="ri-icon">'+roomIcon(i)+'</span>'
+      +'<div class="ri-info"><div class="ri-name">'+esc(r)+'</div>'
+      +(cnt?'<div class="ri-count">'+cnt+' itens escaneados</div>':'<div class="ri-count">Nenhum scan</div>')+'</div>'
+      +'<span class="ri-check">✓</span></div>';
+  }).join('');
+}
+
+function renderSettRooms() {
+  var el = document.getElementById('settRoomList');
+  el.innerHTML = state.rooms.map(function(r, i) {
+    return '<div class="sett-item"><span class="si-icon">'+roomIcon(i)+'</span>'
+      +'<div class="si-info"><div class="si-title">'+esc(r)+'</div></div>'
+      +'<span style="color:var(--red);cursor:pointer;padding:4px 8px" onclick="removeRoom(\''+escJ(r)+'\')">✕</span></div>';
+  }).join('');
+}
+
+function selectRoom(name) {
+  state.currentRoom = name;
+  localStorage.setItem('currentRoom', name);
+  updateRoomLabel();
+  goBack();
+}
+
+function updateRoomLabel() {
+  var lbl = state.currentRoom || 'Selecionar local';
+  document.getElementById('currentRoomLabel').textContent = lbl;
+  document.getElementById('scannerRoomLabel').textContent = lbl;
+  document.getElementById('scanRoomBadge').textContent = '📍 ' + lbl;
+  document.getElementById('noPatRoom').textContent = lbl || '(sem local)';
+}
+
+function addRoom() {
+  var name = prompt('Nome do local:');
+  if (!name || !name.trim()) return;
+  name = name.trim();
+  if (state.rooms.indexOf(name) > -1) { alert('Local já existe.'); return; }
+  state.rooms.push(name);
+  saveRooms();
+  renderRoomList();
+  renderSettRooms();
+}
+
+function removeRoom(name) {
+  if (!confirm('Remover "'+name+'"?')) return;
+  state.rooms = state.rooms.filter(function(r){ return r !== name; });
+  if (state.currentRoom === name) { state.currentRoom = ''; localStorage.removeItem('currentRoom'); updateRoomLabel(); }
+  saveRooms();
+  renderRoomList();
+  renderSettRooms();
+}
+
+function saveRooms() { localStorage.setItem('rooms', JSON.stringify(state.rooms)); }
+
+// ═══════════════════════════════════════════════
+//  SCANNER
+// ═══════════════════════════════════════════════
+function startScanner() {
+  if (!state.currentRoom) {
+    showToast('warn','📍 Selecione um local','Escolha onde você está antes de escanear');
+    showScreen('scRooms');
+    return;
+  }
+  showScreen('scScanner');
+  startCamera();
+}
+
+function startCamera() {
+  if (quaggaRunning) return;
+  var video = document.getElementById('scannerVideo');
+
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } })
+    .then(function(stream) {
+      scannerStream = stream;
+      video.srcObject = stream;
+
+      Quagga.init({
+        inputStream: { name: 'Live', type: 'LiveStream', target: video,
+          constraints: { facingMode: 'environment' } },
+        decoder: { readers: ['code_128_reader','ean_reader','ean_8_reader','code_39_reader','upc_reader','upc_e_reader','i2of5_reader'] },
+        locate: true,
+        frequency: 10,
+      }, function(err) {
+        if (err) { console.error(err); return; }
+        Quagga.start();
+        quaggaRunning = true;
+      });
+
+      Quagga.onDetected(function(result) {
+        var code = result.codeResult.code;
+        var now  = Date.now();
+        if (code === lastScanned && now - lastScannedTime < 2000) return;
+        lastScanned     = code;
+        lastScannedTime = now;
+        processScan(code);
+      });
+    })
+    .catch(function(e) {
+      showToast('warn','Câmera indisponível','Use a entrada manual abaixo');
+    });
+}
+
+function stopScanner() {
+  if (quaggaRunning) { try { Quagga.stop(); } catch(e){} quaggaRunning = false; }
+  if (scannerStream) { scannerStream.getTracks().forEach(function(t){ t.stop(); }); scannerStream = null; }
+  goBack();
+}
+
+function processManual() {
+  var v = document.getElementById('manualInput').value.trim();
+  if (!v) return;
+  document.getElementById('manualInput').value = '';
+  processScan(v);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var inp = document.getElementById('manualInput');
+    if (document.activeElement === inp) processManual();
+  }
+});
+
+// ═══════════════════════════════════════════════
+//  CORE SCAN LOGIC
+// ═══════════════════════════════════════════════
+function normCod(c) { return String(c).replace(/^0+/, '') || '0'; }
+
+function processScan(rawCode) {
+  var code = normCod(rawCode);
+  var room = state.currentRoom || '(sem local)';
+  var now  = new Date();
+
+  // Duplicado nesta sessão?
+  var dup = state.scans.find(function(s){ return s.type==='scan' && normCod(s.code)===code; });
+  if (dup) {
+    flashScan('warn');
+    showToast('dup','⚠️ Já escaneado',''+dup.room+' · '+fmtTime(new Date(dup.ts)));
+    return;
+  }
+
+  var entry = { id: uid(), type:'scan', code:code, room:room, ts:now.toISOString(), synced:false };
+  state.scans.push(entry);
+  saveScans();
+  addToPendingSync(entry);
+  updateStats();
+  renderHistList();
+
+  flashScan('ok');
+  showToast('ok','✅ Código '+code,'📍 '+room);
+  navigator.vibrate && navigator.vibrate(60);
+}
+
+// ═══════════════════════════════════════════════
+//  NO-PAT MODAL
+// ═══════════════════════════════════════════════
+function openNoPatModal() {
+  noPatPhoto = null;
+  noPatEstado = 'Excelente';
+  document.getElementById('noPatDesc').value = '';
+  document.getElementById('noPatRoom').textContent = state.currentRoom || '(sem local)';
+  // Reset foto
+  var pa = document.getElementById('photoArea');
+  var img = pa.querySelector('img');
+  if (img) img.remove();
+  pa.querySelector('.photo-placeholder').style.display = '';
+  // Reset estado
+  document.querySelectorAll('.estado-chip').forEach(function(c){ c.classList.remove('selected'); });
+  document.querySelector('.estado-chip.excelente').classList.add('selected');
+  document.getElementById('noPatModal').classList.add('show');
+}
+
+function closeNoPatModal(e) {
+  if (e && e.target !== document.getElementById('noPatModal')) return;
+  document.getElementById('noPatModal').classList.remove('show');
+}
+
+function handlePhoto(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    noPatPhoto = ev.target.result;
+    var pa = document.getElementById('photoArea');
+    pa.querySelector('.photo-placeholder').style.display = 'none';
+    var img = pa.querySelector('img') || document.createElement('img');
+    img.src = noPatPhoto;
+    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+    pa.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+}
+
+function selectEstado(val, btn) {
+  noPatEstado = val;
+  document.querySelectorAll('.estado-chip').forEach(function(c){ c.classList.remove('selected'); });
+  btn.classList.add('selected');
+}
+
+function saveNoPat() {
+  var desc = document.getElementById('noPatDesc').value.trim();
+  if (!desc) { document.getElementById('noPatDesc').focus(); return; }
+
+  var entry = {
+    id:     uid(),
+    type:   'nopat',
+    room:   state.currentRoom || '(sem local)',
+    desc:   desc,
+    estado: noPatEstado,
+    photo:  noPatPhoto,
+    ts:     new Date().toISOString(),
+    synced: false,
+  };
+
+  state.scans.push(entry);
+  saveScans();
+  addToPendingSync(entry);
+  updateStats();
+  renderHistList();
+  document.getElementById('noPatModal').classList.remove('show');
+  showToast('ok','📸 Item registrado','Estado: '+noPatEstado+' · '+entry.room);
+  navigator.vibrate && navigator.vibrate([60,30,60]);
+}
+
+// ═══════════════════════════════════════════════
+//  SYNC
+// ═══════════════════════════════════════════════
+function addToPendingSync(entry) {
+  state.pendingSync.push(entry.id);
+  localStorage.setItem('pendingSync', JSON.stringify(state.pendingSync));
+  updateSyncBanner();
+  if (state.isOnline) {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(syncNow, 1500); // debounce
+  }
+}
+
+function syncNow() {
+  if (!state.scriptUrl || !state.isOnline || !state.pendingSync.length) return;
+  var toSync = state.scans.filter(function(s){ return state.pendingSync.indexOf(s.id) > -1; });
+  if (!toSync.length) return;
+
+  setSyncState('syncing');
+
+  // Envia em batch
+  fetch(state.scriptUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'batchSync', items: toSync.map(function(s){
+      return {
+        id:     s.id,
+        type:   s.type,
+        code:   s.code || '',
+        room:   s.room,
+        desc:   s.desc || '',
+        estado: s.estado || '',
+        photo:  s.photo ? '[FOTO]' : '',
+        ts:     s.ts,
+      };
+    })})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res) {
+    if (res.ok) {
+      toSync.forEach(function(s){ s.synced = true; });
+      state.pendingSync = [];
+      saveScans();
+      localStorage.setItem('pendingSync', '[]');
+      setSyncState('online');
+      renderHistList();
+    } else {
+      setSyncState('offline');
+    }
+  })
+  .catch(function() { setSyncState('offline'); });
+}
+
+function setSyncState(state_) {
+  var dot  = document.getElementById('syncDot');
+  var text = document.getElementById('syncText');
+  var cnt  = document.getElementById('syncCount');
+  var n    = state.pendingSync.length;
+
+  dot.className  = 'sync-dot ' + state_;
+  if (state_ === 'online')  { text.textContent = 'Conectado · tudo sincronizado'; cnt.textContent = ''; }
+  if (state_ === 'offline') { text.textContent = 'Sem conexão · dados salvos localmente'; cnt.textContent = n ? n+' pendentes' : ''; }
+  if (state_ === 'syncing') { text.textContent = 'Sincronizando...'; cnt.textContent = ''; }
+}
+
+function updateSyncBanner() {
+  var n = state.pendingSync.length;
+  if (!state.isOnline) { setSyncState('offline'); }
+  else if (n) { setSyncState('offline'); document.getElementById('syncCount').textContent = n+' pendentes'; }
+  else { setSyncState('online'); }
+}
+
+function testConnection() {
+  var url = document.getElementById('scriptUrlInput').value.trim();
+  if (!url) { alert('Cole a URL primeiro.'); return; }
+  fetch(url + '?action=ping')
+    .then(function(r){ return r.json(); })
+    .then(function(d){ alert(d.ok ? '✅ Conexão OK!' : '⚠️ Resposta inesperada: '+JSON.stringify(d)); })
+    .catch(function(){ alert('❌ Não foi possível conectar. Verifique a URL.'); });
+}
+
+// ═══════════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════════
+function renderHistList() {
+  var el = document.getElementById('histList');
+  var sub = document.getElementById('histSub');
+  sub.textContent = state.scans.length + ' registros';
+
+  if (!state.scans.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ico">📭</div>Nenhum scan ainda.</div>';
+    return;
+  }
+
+  var sorted = state.scans.slice().reverse();
+  el.innerHTML = sorted.map(function(s) {
+    var dot   = s.type === 'nopat' ? 'warn' : 'ok';
+    var title = s.type === 'nopat' ? (s.desc || 'Item sem patrimônio') : 'Cód. ' + s.code;
+    var meta  = '📍 ' + s.room + (s.type==='nopat' ? ' · ' + s.estado : '');
+    var sync  = s.synced ? '<div class="hi-sync done">☁ sincronizado</div>' : '<div class="hi-sync pending">⏳ pendente</div>';
+    var thumb = s.type==='nopat' && s.photo ? '<img class="thumb" src="'+s.photo+'">' : '';
+    return '<div class="hist-item">'
+      +'<div class="hi-dot '+dot+'"></div>'
+      +'<div class="hi-info"><div class="hi-title">'+esc(title)+'</div>'
+      +'<div class="hi-meta">'+esc(meta)+'</div>'
+      +sync+'</div>'
+      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
+      +'<div class="hi-time">'+fmtTime(new Date(s.ts))+'</div>'
+      +thumb+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════
+function updateStats() {
+  var found = state.scans.filter(function(s){ return s.type==='scan'; }).length;
+  var nopat = state.scans.filter(function(s){ return s.type==='nopat'; }).length;
+  document.getElementById('statFound').textContent = found;
+  document.getElementById('statNoPat').textContent = nopat;
+  document.getElementById('statTotal').textContent = found + nopat;
+}
+
+// ═══════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════
+function showToast(type, title, sub) {
+  var el = document.getElementById('toast');
+  document.getElementById('toastIco').textContent   = type==='ok'?'✅':type==='warn'?'⚠️':'🔁';
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastSub').textContent   = sub||'';
+  el.className = 'result-toast ' + type + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2800);
+}
+
+function flashScan(type) {
+  var el = document.getElementById('scanFlash');
+  el.className = 'scan-flash ' + type + ' show';
+  setTimeout(function(){ el.classList.remove('show'); }, 300);
+}
+
+// ═══════════════════════════════════════════════
+//  SETTINGS / PERSIST
+// ═══════════════════════════════════════════════
+function saveScriptUrl() {
+  var url = document.getElementById('scriptUrlInput').value.trim();
+  state.scriptUrl = url;
+  localStorage.setItem('scriptUrl', url);
+  showToast('ok','URL salva','Conexão configurada');
+}
+
+function loadScriptUrl() {
+  document.getElementById('scriptUrlInput').value = state.scriptUrl || '';
+}
+
+function saveScans() { localStorage.setItem('scans', JSON.stringify(state.scans)); }
+
+function exportCSV() {
+  var h = 'ID,Tipo,Código,Local,Descrição,Estado,Data,Sincronizado\n';
+  var rows = state.scans.map(function(s) {
+    return [s.id,s.type,s.code||'',s.room,s.desc||'',s.estado||'',s.ts,s.synced?'Sim':'Não'].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');
+  }).join('\n');
+  var blob = new Blob([h+rows], {type:'text/csv;charset=utf-8;'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'inventario_'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.csv';
+  a.click();
+}
+
+function confirmClear() {
+  if (!confirm('Apagar todos os dados da sessão? Esta ação não pode ser desfeita.')) return;
+  state.scans = []; state.pendingSync = [];
+  saveScans(); localStorage.setItem('pendingSync','[]');
+  updateStats(); renderHistList(); updateSyncBanner();
+  showToast('ok','Sessão limpa','Histórico apagado');
+}
+
+// ═══════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escJ(s){ return String(s||'').replace(/'/g,"\\'"); }
+function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+</script>
 </body>
 </html>
