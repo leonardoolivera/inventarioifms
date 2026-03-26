@@ -790,6 +790,16 @@ function openNoPatModal() {
   var img = pa.querySelector('img');
   if (img) img.remove();
   pa.querySelector('.photo-placeholder').style.display = '';
+  // Recria o input de arquivo — garante que onchange dispara sempre no mobile
+  var oldInp = document.getElementById('photoInput');
+  var newInp = document.createElement('input');
+  newInp.type    = 'file';
+  newInp.id      = 'photoInput';
+  newInp.accept  = 'image/*';
+  newInp.setAttribute('capture', 'environment');
+  newInp.style.display = 'none';
+  newInp.addEventListener('change', function(e){ handlePhoto(e); });
+  oldInp.parentNode.replaceChild(newInp, oldInp);
   // Reset estado
   document.querySelectorAll('.estado-chip').forEach(function(c){ c.classList.remove('selected'); });
   document.querySelector('.estado-chip.excelente').classList.add('selected');
