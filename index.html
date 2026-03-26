@@ -372,7 +372,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
 
     <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3)">
-      Inventário Campus v3.1<br>PWA · Offline First
+      Inventário Campus v3.2<br>PWA · Offline First
     </div>
   </div>
 </div>
@@ -902,54 +902,31 @@ function syncNow() {
     };
   });
 
-  // Separa itens com foto (nopat) dos sem foto (scan)
-  // Scans: form POST simples (sem CORS)
-  // Nopat com foto: JSON POST separado por item
-  var semFoto = items.filter(function(i){ return !i.photo; });
-  var comFoto = items.filter(function(i){ return !!i.photo; });
-
-  var promises = [];
-
-  // Scans e nopat sem foto — form POST
-  if (semFoto.length) {
-    var body = 'action=batchSync&data=' + encodeURIComponent(JSON.stringify(semFoto));
-    promises.push(
-      fetch(state.scriptUrl, {
-        method: 'POST', redirect: 'follow',
-        body: body,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }).then(function(r){ return r.text(); }).catch(function(){ return '{}'; })
-    );
-  }
-
-  // Nopat com foto — envia um a um como JSON (foto base64 é grande demais pra form)
-  comFoto.forEach(function(item) {
-    promises.push(
-      fetch(state.scriptUrl, {
-        method: 'POST', redirect: 'follow',
-        body: JSON.stringify({ action: 'batchSync', items: [item] }),
-        headers: { 'Content-Type': 'text/plain' }, // text/plain não dispara preflight
-      }).then(function(r){ return r.text(); }).catch(function(){ return '{}'; })
-    );
-  });
-
-  Promise.all(promises)
-    .then(function() {
-      toSync.forEach(function(s){
-        s.synced = true;
-        delete photoCache[s.id]; // libera memória após sync
-      });
-      state.pendingSync = [];
-      saveScans();
-      localStorage.setItem('pendingSync', '[]');
-      setSyncState('online');
-      renderHistList();
-      updateSyncBanner();
-    })
-    .catch(function(e) {
-      console.error('sync error', e);
-      setSyncState('offline');
+  // Envia tudo num único POST com text/plain (sem preflight CORS)
+  // text/plain aceita body grande o suficiente para fotos base64
+  fetch(state.scriptUrl, {
+    method:  'POST',
+    redirect: 'follow',
+    body:    JSON.stringify({ action: 'batchSync', items: items }),
+    headers: { 'Content-Type': 'text/plain' },
+  })
+  .then(function(r) { return r.text(); })
+  .then(function() {
+    toSync.forEach(function(s) {
+      s.synced = true;
+      delete photoCache[s.id];
     });
+    state.pendingSync = [];
+    saveScans();
+    localStorage.setItem('pendingSync', '[]');
+    setSyncState('online');
+    renderHistList();
+    updateSyncBanner();
+  })
+  .catch(function(e) {
+    console.error('sync error', e);
+    setSyncState('offline');
+  });
 }
 
 function setSyncState(state_) {
