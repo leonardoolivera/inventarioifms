@@ -372,7 +372,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
 
     <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3)">
-      Inventário Campus v2.0<br>PWA · Offline First
+      Inventário Campus v3.1<br>PWA · Offline First
     </div>
   </div>
 </div>
@@ -445,7 +445,8 @@ var scannerStream = null;
 var quaggaRunning = false;
 var lastScanned = '';
 var lastScannedTime = 0;
-var noPatPhoto = null;
+var noPatPhoto  = null;
+var photoCache  = {}; // id -> base64, só memória, nunca localStorage
 var noPatEstado = 'Excelente';
 var toastTimer = null;
 var syncTimer = null;
@@ -840,19 +841,22 @@ function saveNoPat() {
   var desc = document.getElementById('noPatDesc').value.trim();
   if (!desc) { document.getElementById('noPatDesc').focus(); return; }
 
+  var entryId = uid();
+  if (noPatPhoto) photoCache[entryId] = noPatPhoto; // guarda foto só em memória
+
   var entry = {
-    id:     uid(),
+    id:     entryId,
     type:   'nopat',
     room:   state.currentRoom || '(sem local)',
     desc:   desc,
     estado: noPatEstado,
-    photo:  noPatPhoto,
+    photo:  noPatPhoto || '', // em memória; saveScans não vai persistir isso
     ts:     new Date().toISOString(),
     synced: false,
   };
 
   state.scans.push(entry);
-  saveScans();
+  saveScans(); // salva sem a foto base64
   addToPendingSync(entry);
   updateStats();
   renderHistList();
@@ -884,6 +888,8 @@ function syncNow() {
   // Envia como GET com ?action=batchSync&data=JSON
   // Evita preflight CORS que o Apps Script não suporta
   var items = toSync.map(function(s) {
+    // Restaura foto do cache em memória se disponível
+    var foto = (s.type === 'nopat' && photoCache[s.id]) ? photoCache[s.id] : (s.photo || '');
     return {
       id:     s.id,
       type:   s.type,
@@ -891,7 +897,7 @@ function syncNow() {
       room:   s.room   || '',
       desc:   s.desc   || '',
       estado: s.estado || '',
-      photo:  s.photo  || '',
+      photo:  foto,
       ts:     s.ts,
     };
   });
@@ -929,7 +935,10 @@ function syncNow() {
 
   Promise.all(promises)
     .then(function() {
-      toSync.forEach(function(s){ s.synced = true; });
+      toSync.forEach(function(s){
+        s.synced = true;
+        delete photoCache[s.id]; // libera memória após sync
+      });
       state.pendingSync = [];
       saveScans();
       localStorage.setItem('pendingSync', '[]');
@@ -1068,7 +1077,23 @@ function loadScriptUrl() {
   }
 }
 
-function saveScans() { localStorage.setItem('scans', JSON.stringify(state.scans)); }
+function saveScans() {
+  // Não salva fotos base64 no localStorage (limite 5MB)
+  // Fotos ficam só em memória e são enviadas ao Drive na sync
+  var semFoto = state.scans.map(function(s) {
+    if (s.type !== 'nopat' || !s.photo) return s;
+    var copia = JSON.parse(JSON.stringify(s));
+    copia.photo = s.synced ? '' : '__PENDENTE__'; // marca pendente sem guardar o base64
+    return copia;
+  });
+  try {
+    localStorage.setItem('scans', JSON.stringify(semFoto));
+  } catch(e) {
+    // localStorage cheio — limpa entradas antigas sincronizadas
+    state.scans = state.scans.filter(function(s){ return !s.synced; });
+    localStorage.setItem('scans', JSON.stringify(semFoto.filter(function(s){ return !s.synced; })));
+  }
+}
 
 function exportCSV() {
   var h = 'ID,Tipo,Código,Local,Descrição,Estado,Data,Sincronizado\n';
