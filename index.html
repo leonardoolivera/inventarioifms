@@ -883,22 +883,32 @@ function syncNow() {
     };
   });
 
-  var url = state.scriptUrl
-    + '?action=batchSync&data='
-    + encodeURIComponent(JSON.stringify(items));
+  // Envia como form POST (application/x-www-form-urlencoded)
+  // Não dispara preflight CORS — Apps Script recebe em doPost via e.parameter
+  var body = 'action=batchSync&data=' + encodeURIComponent(JSON.stringify(items));
 
-  fetch(url, { method: 'GET', mode: 'no-cors' })
-    .then(function() {
-      // no-cors não retorna body — assumimos sucesso se não jogou erro
-      toSync.forEach(function(s){ s.synced = true; });
-      state.pendingSync = [];
-      saveScans();
-      localStorage.setItem('pendingSync', '[]');
-      setSyncState('online');
-      renderHistList();
-      updateSyncBanner();
-    })
-    .catch(function() { setSyncState('offline'); });
+  fetch(state.scriptUrl, {
+    method:   'POST',
+    redirect: 'follow',
+    body:     body,
+    headers:  { 'Content-Type': 'application/x-www-form-urlencoded' },
+  })
+  .then(function(r) { return r.text(); })
+  .then(function(txt) {
+    var res;
+    try { res = JSON.parse(txt); } catch(e) { res = { ok: true }; } // Apps Script às vezes retorna HTML no redirect
+    toSync.forEach(function(s){ s.synced = true; });
+    state.pendingSync = [];
+    saveScans();
+    localStorage.setItem('pendingSync', '[]');
+    setSyncState('online');
+    renderHistList();
+    updateSyncBanner();
+  })
+  .catch(function(e) {
+    console.error('sync error', e);
+    setSyncState('offline');
+  });
 }
 
 function setSyncState(state_) {
@@ -931,14 +941,19 @@ function testConnection() {
   var url = document.getElementById('scriptUrlInput').value.trim();
   if (!url) { alert('Cole a URL primeiro.'); return; }
   // Usa no-cors pois Apps Script não envia headers CORS no ping
-  fetch(url + '?action=ping', { mode: 'no-cors' })
-    .then(function() {
-      state.scriptUrl = url;
-      localStorage.setItem('scriptUrl', url);
-      updateSyncBanner();
-      alert('✅ Conexão OK! URL salva.');
+  fetch(url + '?action=ping')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ok) {
+        state.scriptUrl = url;
+        localStorage.setItem('scriptUrl', url);
+        updateSyncBanner();
+        showToast('ok','✅ Conexão OK!','URL salva com sucesso');
+      } else {
+        showToast('warn','⚠️ Resposta inesperada', JSON.stringify(d));
+      }
     })
-    .catch(function(){ alert('❌ Não foi possível conectar. Verifique a URL e a conexão.'); });
+    .catch(function(){ showToast('warn','❌ Erro de conexão','Verifique a URL'); });
 }
 
 // ═══════════════════════════════════════════════
