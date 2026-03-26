@@ -501,7 +501,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v4.4';
+var APP_VERSION = 'v4.5';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -1071,6 +1071,12 @@ function syncNow() {
       ts:     s.ts,
     };
   });
+
+  // Restaura fotos do IndexedDB para itens nopat sem foto em memória
+  var nopats = toSync.filter(function(s){ return s.type==='nopat' && !photoCache[s.id]; });
+  Promise.all(nopats.map(function(s) {
+    return idbCarregarFoto(s.id).then(function(foto) { if (foto) photoCache[s.id] = foto; });
+  })).then(function() {
 
   // Envia em lotes de 10 para evitar payload muito grande
   var LOTE = 10;
