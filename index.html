@@ -210,6 +210,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .undo-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .undo-btn:active{background:var(--red);border-color:var(--red);color:#fff}
 
+/* ── UPDATE BANNER ── */
+.update-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(79,140,255,.1));border:1px solid rgba(34,197,94,.4);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px}
+.update-banner.show{display:flex}
+.update-info{flex:1}
+.update-title{font-size:13px;font-weight:700;color:var(--green)}
+.update-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.update-btn{background:var(--green);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.update-btn:active{opacity:.85}
+
 /* ── INSTALL BANNER ── */
 .install-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(79,140,255,.15),rgba(124,92,252,.1));border:1px solid rgba(79,140,255,.3);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px;cursor:pointer}
 .install-banner.show{display:flex}
@@ -256,6 +265,16 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   </div>
   <button class="install-btn" onclick="doInstall()">Instalar</button>
   <button class="install-close" onclick="dismissInstall()" title="Fechar">✕</button>
+</div>
+
+<!-- Update banner -->
+<div class="update-banner" id="updateBanner">
+  <div style="font-size:22px">🔄</div>
+  <div class="update-info">
+    <div class="update-title" id="updateTitle">Nova versão disponível!</div>
+    <div class="update-sub" id="updateSub">Atualize para continuar usando</div>
+  </div>
+  <button class="update-btn" onclick="doUpdate()">Atualizar</button>
 </div>
 
 <div class="sync-banner" id="syncBanner" onclick="syncNow()">
@@ -486,7 +505,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v3.7';
+var APP_VERSION = 'v3.9';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -559,6 +578,14 @@ window.addEventListener('load', function() {
 
   // Auto sync every 30s
   setInterval(function(){ if(state.isOnline && state.pendingSync.length) syncNow(); }, 30000);
+
+  // Verifica atualização após 3s (deixa o app carregar primeiro) e a cada 5min
+  setTimeout(function() {
+    if (state.isOnline) checkForUpdate();
+  }, 3000);
+  setInterval(function() {
+    if (state.isOnline) checkForUpdate();
+  }, 5 * 60 * 1000);
 });
 
 function updateHomeDate() {
@@ -691,6 +718,12 @@ function startCamera() {
     return video.play();
   }).then(function() {
     quaggaRunning = true;
+    // Mostra guia se modal estiver aberto (modo sem patrimônio)
+    var modal = document.getElementById('noPatModal');
+    if (modal && modal.classList.contains('show')) {
+      var guide = document.getElementById('photoGuide');
+      if (guide) guide.style.display = 'block';
+    }
 
     if (hasBarcodeDetector) {
       // ── MODO 1: BarcodeDetector (ML Kit nativo) ──────────────
@@ -871,10 +904,7 @@ function commitScan(code) {
 //  NO-PAT MODAL
 // ═══════════════════════════════════════════════
 function openNoPatModal() {
-  // Mostra guia visual se câmera estiver ativa
-  var guide = document.getElementById('photoGuide');
-  if (guide) guide.style.display = 'block';
-  // Abre câmera direto
+  // Abre câmera direto — guia aparece após inicializar
   abrirCamera();
   noPatPhoto = null;
   noPatEstado = 'Excelente';
@@ -1322,6 +1352,65 @@ function sugerirDescricao() {
     btn.textContent = '✨ Sugerir';
     btn.disabled = false;
   });
+}
+
+// ── Verificação de atualização ───────────────────────────────
+var UPDATE_URL = 'https://leonardoolivera.github.io/inventarioifms/index.html';
+var checkUpdateTimer = null;
+
+function checkForUpdate() {
+  // Busca o HTML publicado e extrai a versão
+  fetch(UPDATE_URL + '?nocache=' + Date.now(), { cache: 'no-store' })
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      var match = html.match(/APP_VERSION[^'"]*['"]([^'"]+)['"]/);
+      if (!match) return;
+      var remoteVersion = match[1];
+      var localVersion  = APP_VERSION;
+
+      if (remoteVersion !== localVersion) {
+        document.getElementById('updateTitle').textContent = '🆕 Versão ' + remoteVersion + ' disponível!';
+        document.getElementById('updateSub').textContent   = 'Você está na ' + localVersion + ' · Toque para atualizar';
+        document.getElementById('updateBanner').classList.add('show');
+      }
+    })
+    .catch(function() {}); // silencioso se offline
+}
+
+function doUpdate() {
+  var pendentes = state.pendingSync.length;
+  if (pendentes > 0) {
+    // Sincroniza primeiro, depois atualiza
+    showToast('ok', '⬆ Sincronizando ' + pendentes + ' itens...', 'Aguarde para atualizar');
+    setSyncState('syncing');
+    // Força sync e aguarda
+    var toSync = state.scans.filter(function(s){ return state.pendingSync.indexOf(s.id) > -1; });
+    var items = toSync.map(function(s) {
+      return { id:s.id, type:s.type, code:s.code||'', room:s.room||'',
+               desc:s.desc||'', estado:s.estado||'',
+               photo: s.type==='nopat' && photoCache[s.id] ? photoCache[s.id] : (s.photo||''),
+               ts:s.ts };
+    });
+    fetch(state.scriptUrl, {
+      method: 'POST', redirect: 'follow',
+      body: JSON.stringify({ action: 'batchSync', items: items }),
+      headers: { 'Content-Type': 'text/plain' }
+    })
+    .finally(function() { recarregarApp(); });
+  } else {
+    recarregarApp();
+  }
+}
+
+function recarregarApp() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      regs.forEach(function(reg) { reg.unregister(); });
+      window.location.reload(true);
+    });
+  } else {
+    window.location.reload(true);
+  }
 }
 
 // ── PWA Install prompt ────────────────────────────────────────
