@@ -878,37 +878,56 @@ function syncNow() {
       room:   s.room   || '',
       desc:   s.desc   || '',
       estado: s.estado || '',
-      photo:  s.photo  ? 'sim' : '',  // não envia base64 — muito grande
+      photo:  s.photo  || '',
       ts:     s.ts,
     };
   });
 
-  // Envia como form POST (application/x-www-form-urlencoded)
-  // Não dispara preflight CORS — Apps Script recebe em doPost via e.parameter
-  var body = 'action=batchSync&data=' + encodeURIComponent(JSON.stringify(items));
+  // Separa itens com foto (nopat) dos sem foto (scan)
+  // Scans: form POST simples (sem CORS)
+  // Nopat com foto: JSON POST separado por item
+  var semFoto = items.filter(function(i){ return !i.photo; });
+  var comFoto = items.filter(function(i){ return !!i.photo; });
 
-  fetch(state.scriptUrl, {
-    method:   'POST',
-    redirect: 'follow',
-    body:     body,
-    headers:  { 'Content-Type': 'application/x-www-form-urlencoded' },
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(txt) {
-    var res;
-    try { res = JSON.parse(txt); } catch(e) { res = { ok: true }; } // Apps Script às vezes retorna HTML no redirect
-    toSync.forEach(function(s){ s.synced = true; });
-    state.pendingSync = [];
-    saveScans();
-    localStorage.setItem('pendingSync', '[]');
-    setSyncState('online');
-    renderHistList();
-    updateSyncBanner();
-  })
-  .catch(function(e) {
-    console.error('sync error', e);
-    setSyncState('offline');
+  var promises = [];
+
+  // Scans e nopat sem foto — form POST
+  if (semFoto.length) {
+    var body = 'action=batchSync&data=' + encodeURIComponent(JSON.stringify(semFoto));
+    promises.push(
+      fetch(state.scriptUrl, {
+        method: 'POST', redirect: 'follow',
+        body: body,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      }).then(function(r){ return r.text(); }).catch(function(){ return '{}'; })
+    );
+  }
+
+  // Nopat com foto — envia um a um como JSON (foto base64 é grande demais pra form)
+  comFoto.forEach(function(item) {
+    promises.push(
+      fetch(state.scriptUrl, {
+        method: 'POST', redirect: 'follow',
+        body: JSON.stringify({ action: 'batchSync', items: [item] }),
+        headers: { 'Content-Type': 'text/plain' }, // text/plain não dispara preflight
+      }).then(function(r){ return r.text(); }).catch(function(){ return '{}'; })
+    );
   });
+
+  Promise.all(promises)
+    .then(function() {
+      toSync.forEach(function(s){ s.synced = true; });
+      state.pendingSync = [];
+      saveScans();
+      localStorage.setItem('pendingSync', '[]');
+      setSyncState('online');
+      renderHistList();
+      updateSyncBanner();
+    })
+    .catch(function(e) {
+      console.error('sync error', e);
+      setSyncState('offline');
+    });
 }
 
 function setSyncState(state_) {
