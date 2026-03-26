@@ -407,6 +407,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="field-label">Chave da API — aistudio.google.com</div>
       <input type="password" class="url-input" id="geminiKeyInput" placeholder="AIza..." style="font-family:monospace;font-size:12px;padding:10px">
       <button class="cfg-btn" onclick="saveGeminiKey()">Salvar chave</button>
+      <button class="cfg-btn sec" id="testIABtn" onclick="testarIA()">🧪 Testar IA</button>
     </div>
 
     <div class="sett-section">
@@ -494,7 +495,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v4.0';
+var APP_VERSION = 'v4.1';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -1285,6 +1286,31 @@ function saveGeminiKey() {
   if (!key) return;
   localStorage.setItem('geminiKey', key);
   showToast('ok','✅ Chave Gemini salva!','Botão ✨ Sugerir disponível após tirar foto');
+}
+
+function testarIA() {
+  if (!state.scriptUrl) { showToast('warn','Configure a URL do Apps Script primeiro',''); return; }
+  var btn = document.getElementById('testIABtn');
+  btn.textContent = '⏳ Testando...';
+  btn.disabled = true;
+
+  fetch(state.scriptUrl, {
+    method: 'POST',
+    redirect: 'follow',
+    body: JSON.stringify({ action: 'testIA' }),
+    headers: { 'Content-Type': 'text/plain' },
+  })
+  .then(function(r) { return r.text(); })
+  .then(function(txt) {
+    var res; try { res = JSON.parse(txt); } catch(e) { res = { ok: false, erro: txt }; }
+    if (res.ok) {
+      showToast('ok', '✅ IA funcionando! Modelo: ' + res.modelo, 'Resposta: ' + res.texto);
+    } else {
+      showToast('warn', '❌ ' + (res.erro || 'Falhou'), 'Veja aba "Log IA" na planilha');
+    }
+  })
+  .catch(function(e) { showToast('warn','Erro de conexão', e.toString()); })
+  .finally(function() { btn.textContent = '🧪 Testar IA'; btn.disabled = false; });
 }
 
 function loadGeminiKey() {
