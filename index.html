@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f1117">
 <title>Inventário Campus</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -199,6 +202,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .undo-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .undo-btn:active{background:var(--red);border-color:var(--red);color:#fff}
 
+/* ── INSTALL BANNER ── */
+.install-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(79,140,255,.15),rgba(124,92,252,.1));border:1px solid rgba(79,140,255,.3);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px;cursor:pointer}
+.install-banner.show{display:flex}
+.install-icon{font-size:24px;flex-shrink:0}
+.install-info{flex:1}
+.install-title{font-size:13px;font-weight:700;color:var(--text)}
+.install-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.install-btn{background:var(--accent);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.install-close{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0}
+
 /* ── MISC ── */
 .pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
 .pill.ok{background:rgba(34,197,94,.15);color:var(--green)}
@@ -223,7 +236,18 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <p id="homeDate">Carregando...</p>
     </div>
 
-    <div class="sync-banner" id="syncBanner" onclick="syncNow()">
+    <!-- Install banner -->
+<div class="install-banner" id="installBanner">
+  <div class="install-icon">📲</div>
+  <div class="install-info">
+    <div class="install-title">Instalar como app</div>
+    <div class="install-sub">Acesso rápido sem abrir o navegador</div>
+  </div>
+  <button class="install-btn" onclick="doInstall()">Instalar</button>
+  <button class="install-close" onclick="dismissInstall()" title="Fechar">✕</button>
+</div>
+
+<div class="sync-banner" id="syncBanner" onclick="syncNow()">
       <div class="sync-dot offline" id="syncDot"></div>
       <div class="sync-text" id="syncText">Verificando conexão...</div>
       <div class="sync-count" id="syncCount"></div>
@@ -372,7 +396,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
 
     <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3)">
-      Inventário Campus v3.2<br>PWA · Offline First
+      Inventário Campus v3.3<br>PWA · Offline First
     </div>
   </div>
 </div>
@@ -454,6 +478,12 @@ var syncTimer = null;
 // ═══════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════
+// Registra Service Worker para PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/inventarioifms/sw.js')
+    .catch(function(e){ console.warn('SW:', e); });
+}
+
 window.addEventListener('load', function() {
   updateHomeDate();
   updateRoomLabel();
@@ -1099,6 +1129,40 @@ function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escJ(s){ return String(s||'').replace(/'/g,"\\'"); }
 function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+
+// ── PWA Install prompt ────────────────────────────────────────
+var deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // Só mostra se nunca dispensou
+  if (!localStorage.getItem('installDismissed')) {
+    document.getElementById('installBanner').classList.add('show');
+  }
+});
+
+window.addEventListener('appinstalled', function() {
+  document.getElementById('installBanner').classList.remove('show');
+  deferredInstallPrompt = null;
+  showToast('ok','✅ App instalado!','Acesse pela tela inicial do celular');
+});
+
+function doInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(function(choice) {
+    if (choice.outcome === 'accepted') {
+      document.getElementById('installBanner').classList.remove('show');
+    }
+    deferredInstallPrompt = null;
+  });
+}
+
+function dismissInstall() {
+  document.getElementById('installBanner').classList.remove('show');
+  localStorage.setItem('installDismissed', '1');
+}
 </script>
 </body>
 </html>
