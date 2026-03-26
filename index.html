@@ -396,8 +396,9 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 <!-- ════════════════════════════════════════════
      MODAL: SEM PATRIMÔNIO
 ═══════════════════════════════════════════════ -->
-<div class="modal-bg" id="noPatModal" onclick="closeNoPatModal(event)">
-  <div class="modal-sheet">
+<div class="modal-bg" id="noPatModal">
+  <div class="modal-backdrop" onclick="closeNoPatModal()" style="position:absolute;inset:0;z-index:0"></div>
+  <div class="modal-sheet" style="position:relative;z-index:1">
     <div class="modal-handle"></div>
     <div class="modal-title">📸 Item Sem Patrimônio</div>
 
@@ -618,23 +619,40 @@ function startCamera() {
 
   try {
     zxingReader = new ZXing.BrowserMultiFormatReader();
-    zxingReader.decodeFromConstraints(
-      { video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } },
-      video,
-      function(result, err) {
+    // Lista câmeras e prefere a traseira
+    zxingReader.listVideoInputDevices().then(function(devices) {
+      var deviceId = undefined;
+      // Procura câmera traseira
+      for (var i = 0; i < devices.length; i++) {
+        var label = (devices[i].label || '').toLowerCase();
+        if (label.indexOf('back') > -1 || label.indexOf('rear') > -1 || label.indexOf('tras') > -1 || label.indexOf('environment') > -1) {
+          deviceId = devices[i].deviceId;
+          break;
+        }
+      }
+      // Se não achou pelo nome, pega a última (geralmente é a traseira)
+      if (!deviceId && devices.length > 0) {
+        deviceId = devices[devices.length - 1].deviceId;
+      }
+
+      return zxingReader.decodeFromVideoDevice(deviceId, video, function(result, err) {
         if (!result) return;
         var code = result.getText();
         var now  = Date.now();
-        // Debounce: ignora mesmo código por 2.5s
         if (code === lastScanned && now - lastScannedTime < 2500) return;
         lastScanned     = code;
         lastScannedTime = now;
         processScan(code);
-      }
-    );
-    quaggaRunning = true;
+      });
+    }).then(function() {
+      quaggaRunning = true;
+    }).catch(function(e) {
+      showToast('warn','Câmera indisponível','Use a entrada manual abaixo');
+      console.error('ZXing error:', e);
+    });
   } catch(e) {
     showToast('warn','Câmera indisponível','Use a entrada manual abaixo');
+    console.error('Camera error:', e);
   }
 }
 
@@ -807,7 +825,6 @@ function openNoPatModal() {
 }
 
 function closeNoPatModal(e) {
-  if (e && e.target !== document.getElementById('noPatModal')) return;
   document.getElementById('noPatModal').classList.remove('show');
 }
 
