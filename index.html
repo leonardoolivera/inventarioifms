@@ -293,7 +293,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       </div>
     </div>
 
-    <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace">v3.4 · Inventário Campus</div>
+    <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter">v3.4 · Inventário Campus</div>
   </div>
   <div class="navbar">
     <button class="nav-btn active" onclick="showScreen('scHome')"><span>🏠</span><span>Início</span></button>
@@ -401,7 +401,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
 
     <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3)">
-      Inventário Campus v3.4<br>PWA · Offline First
+      Inventário Campus <span id="versionSettings"></span><br>PWA · Offline First
     </div>
   </div>
 </div>
@@ -461,6 +461,9 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 </div>
 
 <script>
+// ── VERSÃO — altere aqui a cada deploy ──────────────────────
+var APP_VERSION = 'v3.5';
+
 // ═══════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════
@@ -517,6 +520,14 @@ window.addEventListener('load', function() {
   renderHistList();
   renderSettRooms();
   loadScriptUrl();
+
+  // Aplica versão em todos os elementos
+  ['versionFooter','versionBadge','versionSettings'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = el.id === 'versionFooter'
+      ? APP_VERSION + ' · Inventário Campus'
+      : APP_VERSION;
+  });
 
   window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); syncNow(); });
   window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); });
@@ -860,6 +871,25 @@ function closeNoPatModal(e) {
   document.getElementById('noPatModal').classList.remove('show');
 }
 
+// Redimensiona imagem para miniatura antes de salvar (~50KB)
+function resizeImage(base64, maxW, maxH, quality) {
+  return new Promise(function(resolve) {
+    var img = new Image();
+    img.onload = function() {
+      var w = img.width, h = img.height;
+      // Mantém proporção
+      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+      if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality || 0.75));
+    };
+    img.onerror = function() { resolve(base64); }; // fallback
+    img.src = base64;
+  });
+}
+
 // Cria um input novo a cada toque — único jeito garantido no mobile
 function abrirCamera() {
   var inp = document.createElement('input');
@@ -874,13 +904,18 @@ function abrirCamera() {
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function(ev) {
-      noPatPhoto = ev.target.result;
+      var fullPhoto = ev.target.result;
+      // Mostra preview imediato em tamanho original
       var pa  = document.getElementById('photoArea');
       pa.querySelector('.photo-placeholder').style.display = 'none';
-      var img = pa.querySelector('img') || document.createElement('img');
-      img.src = noPatPhoto;
-      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px';
-      if (!pa.querySelector('img')) pa.appendChild(img);
+      var previewImg = pa.querySelector('img') || document.createElement('img');
+      previewImg.src = fullPhoto;
+      previewImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px';
+      if (!pa.querySelector('img')) pa.appendChild(previewImg);
+      // Redimensiona em background para envio (400x400 max, 75% qualidade ~50-80KB)
+      resizeImage(fullPhoto, 400, 400, 0.75).then(function(resized) {
+        noPatPhoto = resized;
+      });
     };
     reader.readAsDataURL(file);
   });
