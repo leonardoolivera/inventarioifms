@@ -1,46 +1,37 @@
-// Service Worker — Inventário Campus v3.3
-const CACHE = 'inventario-v3.3';
-const ASSETS = [
-  '/inventarioifms/',
-  '/inventarioifms/index.html',
-  '/inventarioifms/manifest.json',
-];
+// Service Worker — Inventário Campus
+// Estratégia: Network First — sempre busca versão nova, cache só para offline
+
+const CACHE = 'inventario-v1';
 
 self.addEventListener('install', function(e) {
-  e.waitUntil(
-    caches.open(CACHE).then(function(cache) {
-      return cache.addAll(ASSETS);
-    })
-  );
-  self.skipWaiting();
+  self.skipWaiting(); // ativa imediatamente sem esperar fechar abas antigas
 });
 
 self.addEventListener('activate', function(e) {
+  // Limpa caches antigos
   e.waitUntil(
     caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(k){ return k !== CACHE; })
-            .map(function(k){ return caches.delete(k); })
-      );
-    })
+      return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+    }).then(function() { return self.clients.claim(); })
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', function(e) {
-  // Não intercepta chamadas ao Apps Script
+  // Não intercepta Apps Script
   if (e.request.url.indexOf('script.google.com') > -1) return;
+  if (e.request.url.indexOf('unpkg.com') > -1) return;
 
   e.respondWith(
-    caches.match(e.request).then(function(cached) {
-      return cached || fetch(e.request).then(function(res) {
-        // Atualiza cache com versão mais nova
+    fetch(e.request)
+      .then(function(res) {
+        // Salva no cache para uso offline
         var clone = res.clone();
-        caches.open(CACHE).then(function(cache){ cache.put(e.request, clone); });
+        caches.open(CACHE).then(function(c) { c.put(e.request, clone); });
         return res;
-      });
-    }).catch(function() {
-      return caches.match('/inventarioifms/');
-    })
+      })
+      .catch(function() {
+        // Sem rede — usa cache
+        return caches.match(e.request);
+      })
   );
 });
