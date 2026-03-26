@@ -611,54 +611,96 @@ function startScanner() {
   startCamera();
 }
 
-var zxingReader = null;
+var zxingReader  = null;
+var mlkitCanvas  = document.createElement('canvas');
+var mlkitCtx     = null;
+var mlkitLoop    = null;
+var barcodeDetector = null;
+
+// Verifica suporte ao BarcodeDetector (ML Kit nativo do Chrome Android)
+var hasBarcodeDetector = ('BarcodeDetector' in window);
 
 function startCamera() {
   if (quaggaRunning) return;
   var video = document.getElementById('scannerVideo');
 
-  try {
-    zxingReader = new ZXing.BrowserMultiFormatReader();
-    // Lista câmeras e prefere a traseira
-    zxingReader.listVideoInputDevices().then(function(devices) {
-      var deviceId = undefined;
-      // Procura câmera traseira
-      for (var i = 0; i < devices.length; i++) {
-        var label = (devices[i].label || '').toLowerCase();
-        if (label.indexOf('back') > -1 || label.indexOf('rear') > -1 || label.indexOf('tras') > -1 || label.indexOf('environment') > -1) {
-          deviceId = devices[i].deviceId;
-          break;
-        }
-      }
-      // Se não achou pelo nome, pega a última (geralmente é a traseira)
-      if (!deviceId && devices.length > 0) {
-        deviceId = devices[devices.length - 1].deviceId;
-      }
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+  }).then(function(stream) {
+    scannerStream = stream;
+    video.srcObject = stream;
+    return video.play();
+  }).then(function() {
+    quaggaRunning = true;
 
-      return zxingReader.decodeFromVideoDevice(deviceId, video, function(result, err) {
-        if (!result) return;
-        var code = result.getText();
-        var now  = Date.now();
-        if (code === lastScanned && now - lastScannedTime < 2500) return;
-        lastScanned     = code;
-        lastScannedTime = now;
-        processScan(code);
+    if (hasBarcodeDetector) {
+      // ── MODO 1: BarcodeDetector (ML Kit nativo) ──────────────
+      // Suportado no Chrome Android 83+ — muito mais preciso em metal
+      barcodeDetector = new BarcodeDetector({
+        formats: ['code_128','ean_13','ean_8','code_39','upc_a','upc_e','itf','pdf417','aztec','data_matrix','qr_code']
       });
-    }).then(function() {
-      quaggaRunning = true;
-    }).catch(function(e) {
-      showToast('warn','Câmera indisponível','Use a entrada manual abaixo');
-      console.error('ZXing error:', e);
-    });
-  } catch(e) {
-    showToast('warn','Câmera indisponível','Use a entrada manual abaixo');
-    console.error('Camera error:', e);
-  }
+      mlkitCanvas.width  = video.videoWidth  || 1280;
+      mlkitCanvas.height = video.videoHeight || 720;
+      mlkitCtx = mlkitCanvas.getContext('2d');
+      mlkitLoop = setInterval(function() {
+        if (!quaggaRunning || video.paused || video.ended) return;
+        mlkitCtx.drawImage(video, 0, 0, mlkitCanvas.width, mlkitCanvas.height);
+        barcodeDetector.detect(mlkitCanvas).then(function(barcodes) {
+          if (!barcodes.length) return;
+          var code = barcodes[0].rawValue;
+          var now  = Date.now();
+          if (code === lastScanned && now - lastScannedTime < 2500) return;
+          lastScanned     = code;
+          lastScannedTime = now;
+          processScan(code);
+        }).catch(function(){});
+      }, 150); // 6-7 fps de detecção — equilibra bateria e velocidade
+
+    } else {
+      // ── MODO 2: ZXing fallback ────────────────────────────────
+      try {
+        zxingReader = new ZXing.BrowserMultiFormatReader();
+        zxingReader.listVideoInputDevices().then(function(devices) {
+          var deviceId;
+          for (var i = 0; i < devices.length; i++) {
+            var lbl = (devices[i].label || '').toLowerCase();
+            if (lbl.indexOf('back') > -1 || lbl.indexOf('rear') > -1 || lbl.indexOf('environment') > -1) {
+              deviceId = devices[i].deviceId; break;
+            }
+          }
+          if (!deviceId && devices.length) deviceId = devices[devices.length - 1].deviceId;
+          return zxingReader.decodeFromVideoDevice(deviceId, video, function(result) {
+            if (!result) return;
+            var code = result.getText();
+            var now  = Date.now();
+            if (code === lastScanned && now - lastScannedTime < 2500) return;
+            lastScanned = code; lastScannedTime = now;
+            processScan(code);
+          });
+        }).catch(function(e){ showToast('warn','Erro no scanner','Tente a entrada manual'); });
+      } catch(e) { showToast('warn','Scanner indisponível','Use entrada manual'); }
+    }
+
+    // Mostra qual engine está ativa (debug visual discreto)
+    var hint = document.querySelector('.scan-hint-text');
+    if (hint) hint.textContent = hasBarcodeDetector
+      ? 'ML Kit ativo — aponte para o código'
+      : 'ZXing ativo — aponte para o código';
+
+  }).catch(function(e) {
+    showToast('warn','Câmera negada','Permita o acesso à câmera nas configurações');
+    console.error(e);
+  });
 }
 
 function stopScanner() {
-  if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
   quaggaRunning = false;
+  // Para ML Kit loop
+  if (mlkitLoop) { clearInterval(mlkitLoop); mlkitLoop = null; }
+  // Para ZXing
+  if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
+  // Para stream da câmera
+  if (scannerStream) { scannerStream.getTracks().forEach(function(t){ t.stop(); }); scannerStream = null; }
   goBack();
 }
 
