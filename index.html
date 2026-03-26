@@ -501,7 +501,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v4.3';
+var APP_VERSION = 'v4.4';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -521,7 +521,7 @@ var quaggaRunning = false;
 var lastScanned = '';
 var lastScannedTime = 0;
 var noPatPhoto  = null;
-var photoCache  = {}; // id -> base64, só memória, nunca localStorage
+var photoCache  = {}; // espelho em memória do IndexedDB (rápido)
 var noPatEstado = 'Excelente';
 var toastTimer = null;
 var syncTimer = null;
@@ -551,6 +551,12 @@ if ('serviceWorker' in navigator) {
 }
 
 window.addEventListener('load', function() {
+  // Restaura fotos do IndexedDB para o cache em memória
+  idbCarregarTodas().then(function(todas) {
+    todas.forEach(function(r) { photoCache[r.id] = r.foto; });
+    if (todas.length) console.log('IDB: ' + todas.length + ' fotos restauradas');
+  });
+
   updateHomeDate();
   updateRoomLabel();
   updateStats();
@@ -571,6 +577,11 @@ window.addEventListener('load', function() {
 
   window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); syncNow(); });
   window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); });
+
+  // Sync imediato ao abrir se tiver pendentes
+  if (state.isOnline && state.pendingSync.length) {
+    setTimeout(syncNow, 2000);
+  }
 
   // Auto sync every 30s
   setInterval(function(){ if(state.isOnline && state.pendingSync.length) syncNow(); }, 30000);
@@ -989,7 +1000,10 @@ function saveNoPat() {
   if (!desc) { document.getElementById('noPatDesc').focus(); return; }
 
   var entryId = uid();
-  if (noPatPhoto) photoCache[entryId] = noPatPhoto; // guarda foto só em memória
+  if (noPatPhoto) {
+    photoCache[entryId] = noPatPhoto; // espelho em memória para sync imediato
+    idbSalvarFoto(entryId, noPatPhoto); // persiste no IndexedDB (sobrevive ao fechar)
+  }
 
   var entry = {
     id:     entryId,
@@ -1028,11 +1042,14 @@ function addToPendingSync(entry) {
   }
 }
 
-var syncRunning = false;
+var syncRunning    = false;
+var syncRunningTs  = 0;
 function syncNow() {
   if (!state.scriptUrl || !state.isOnline || !state.pendingSync.length) return;
-  if (syncRunning) return; // evita sync em paralelo
-  syncRunning = true;
+  // Se syncRunning há mais de 30s, considera travado e reseta
+  if (syncRunning && (Date.now() - syncRunningTs) < 30000) return;
+  syncRunning   = true;
+  syncRunningTs = Date.now();
   var toSync = state.scans.filter(function(s){ return state.pendingSync.indexOf(s.id) > -1; });
   if (!toSync.length) return;
 
@@ -1041,7 +1058,7 @@ function syncNow() {
   // Envia como GET com ?action=batchSync&data=JSON
   // Evita preflight CORS que o Apps Script não suporta
   var items = toSync.map(function(s) {
-    // Restaura foto do cache em memória se disponível
+    // Restaura foto do cache em memória (ou IndexedDB via __idb__ marker)
     var foto = (s.type === 'nopat' && photoCache[s.id]) ? photoCache[s.id] : (s.photo || '');
     return {
       id:     s.id,
@@ -1070,7 +1087,11 @@ function syncNow() {
       // Fim — atualiza estado
       sincronizados.forEach(function(id) {
         var scan = state.scans.find(function(s){ return s.id === id; });
-        if (scan) { scan.synced = true; delete photoCache[scan.id]; }
+        if (scan) {
+          scan.synced = true;
+          delete photoCache[scan.id];
+          idbDeletarFoto(scan.id); // libera espaço no IndexedDB
+        }
         var pi = state.pendingSync.indexOf(id);
         if (pi > -1) state.pendingSync.splice(pi, 1);
       });
@@ -1116,6 +1137,7 @@ function syncNow() {
   }
 
   enviarLote(0);
+  }); // fim Promise.all IDB
 }
 
 function setSyncState(state_) {
@@ -1316,6 +1338,64 @@ function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:
 
 // ── Gemini IA ─────────────────────────────────────────────────
 var GEMINI_KEY_DEFAULT = ''; // chave gerenciada pelo Apps Script
+
+// ── IndexedDB — armazena fotos persistentemente no celular ────
+var DB_NAME    = 'inventarioCampus';
+var DB_VERSION = 1;
+var DB_STORE   = 'fotos';
+var idb        = null;
+
+function abrirIDB() {
+  return new Promise(function(resolve, reject) {
+    if (idb) { resolve(idb); return; }
+    var req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = function(e) {
+      e.target.result.createObjectStore(DB_STORE, { keyPath: 'id' });
+    };
+    req.onsuccess = function(e) { idb = e.target.result; resolve(idb); };
+    req.onerror   = function(e) { reject(e.target.error); };
+  });
+}
+
+function idbSalvarFoto(id, base64) {
+  return abrirIDB().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx  = db.transaction(DB_STORE, 'readwrite');
+      var req = tx.objectStore(DB_STORE).put({ id: id, foto: base64, ts: Date.now() });
+      req.onsuccess = resolve;
+      req.onerror   = reject;
+    });
+  });
+}
+
+function idbCarregarFoto(id) {
+  return abrirIDB().then(function(db) {
+    return new Promise(function(resolve) {
+      var req = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get(id);
+      req.onsuccess = function(e) { resolve(e.target.result ? e.target.result.foto : null); };
+      req.onerror   = function()  { resolve(null); };
+    });
+  });
+}
+
+function idbDeletarFoto(id) {
+  return abrirIDB().then(function(db) {
+    return new Promise(function(resolve) {
+      db.transaction(DB_STORE, 'readwrite').objectStore(DB_STORE).delete(id);
+      resolve();
+    });
+  });
+}
+
+function idbCarregarTodas() {
+  return abrirIDB().then(function(db) {
+    return new Promise(function(resolve) {
+      var req = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).getAll();
+      req.onsuccess = function(e) { resolve(e.target.result || []); };
+      req.onerror   = function()  { resolve([]); };
+    });
+  });
+}
 
 function getGeminiKey() {
   return localStorage.getItem('geminiKey') || GEMINI_KEY_DEFAULT;
