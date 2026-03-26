@@ -868,37 +868,37 @@ function syncNow() {
 
   setSyncState('syncing');
 
-  // Envia em batch
-  fetch(state.scriptUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'batchSync', items: toSync.map(function(s){
-      return {
-        id:     s.id,
-        type:   s.type,
-        code:   s.code || '',
-        room:   s.room,
-        desc:   s.desc || '',
-        estado: s.estado || '',
-        photo:  s.photo ? '[FOTO]' : '',
-        ts:     s.ts,
-      };
-    })})
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(res) {
-    if (res.ok) {
+  // Envia como GET com ?action=batchSync&data=JSON
+  // Evita preflight CORS que o Apps Script não suporta
+  var items = toSync.map(function(s) {
+    return {
+      id:     s.id,
+      type:   s.type,
+      code:   s.code   || '',
+      room:   s.room   || '',
+      desc:   s.desc   || '',
+      estado: s.estado || '',
+      photo:  s.photo  ? 'sim' : '',  // não envia base64 — muito grande
+      ts:     s.ts,
+    };
+  });
+
+  var url = state.scriptUrl
+    + '?action=batchSync&data='
+    + encodeURIComponent(JSON.stringify(items));
+
+  fetch(url, { method: 'GET', mode: 'no-cors' })
+    .then(function() {
+      // no-cors não retorna body — assumimos sucesso se não jogou erro
       toSync.forEach(function(s){ s.synced = true; });
       state.pendingSync = [];
       saveScans();
       localStorage.setItem('pendingSync', '[]');
       setSyncState('online');
       renderHistList();
-    } else {
-      setSyncState('offline');
-    }
-  })
-  .catch(function() { setSyncState('offline'); });
+      updateSyncBanner();
+    })
+    .catch(function() { setSyncState('offline'); });
 }
 
 function setSyncState(state_) {
@@ -915,18 +915,30 @@ function setSyncState(state_) {
 
 function updateSyncBanner() {
   var n = state.pendingSync.length;
-  if (!state.isOnline) { setSyncState('offline'); }
-  else if (n) { setSyncState('offline'); document.getElementById('syncCount').textContent = n+' pendentes'; }
-  else { setSyncState('online'); }
+  if (!state.isOnline) {
+    setSyncState('offline');
+  } else if (n) {
+    // Online mas com pendentes — inicia sync
+    setSyncState('offline');
+    document.getElementById('syncCount').textContent = n + ' pendentes';
+    syncNow();
+  } else {
+    setSyncState('online');
+  }
 }
 
 function testConnection() {
   var url = document.getElementById('scriptUrlInput').value.trim();
   if (!url) { alert('Cole a URL primeiro.'); return; }
-  fetch(url + '?action=ping')
-    .then(function(r){ return r.json(); })
-    .then(function(d){ alert(d.ok ? '✅ Conexão OK!' : '⚠️ Resposta inesperada: '+JSON.stringify(d)); })
-    .catch(function(){ alert('❌ Não foi possível conectar. Verifique a URL.'); });
+  // Usa no-cors pois Apps Script não envia headers CORS no ping
+  fetch(url + '?action=ping', { mode: 'no-cors' })
+    .then(function() {
+      state.scriptUrl = url;
+      localStorage.setItem('scriptUrl', url);
+      updateSyncBanner();
+      alert('✅ Conexão OK! URL salva.');
+    })
+    .catch(function(){ alert('❌ Não foi possível conectar. Verifique a URL e a conexão.'); });
 }
 
 // ═══════════════════════════════════════════════
