@@ -385,13 +385,12 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="modal-handle"></div>
     <div class="modal-title">📸 Item Sem Patrimônio</div>
 
-    <div class="photo-area" id="photoArea" onclick="document.getElementById('photoInput').click()">
+    <div class="photo-area" id="photoArea" onclick="abrirCamera()">
       <div class="photo-placeholder">
         <span>📷</span>
         <p>Toque para fotografar o item</p>
       </div>
     </div>
-    <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhoto(event)">
 
     <div class="field-label">Descrição do item</div>
     <textarea class="field-input" id="noPatDesc" rows="2" placeholder="Ex: Cadeira giratória preta, impressora, monitor 19'..."></textarea>
@@ -790,16 +789,7 @@ function openNoPatModal() {
   var img = pa.querySelector('img');
   if (img) img.remove();
   pa.querySelector('.photo-placeholder').style.display = '';
-  // Recria o input de arquivo — garante que onchange dispara sempre no mobile
-  var oldInp = document.getElementById('photoInput');
-  var newInp = document.createElement('input');
-  newInp.type    = 'file';
-  newInp.id      = 'photoInput';
-  newInp.accept  = 'image/*';
-  newInp.setAttribute('capture', 'environment');
-  newInp.style.display = 'none';
-  newInp.addEventListener('change', function(e){ handlePhoto(e); });
-  oldInp.parentNode.replaceChild(newInp, oldInp);
+  // foto será criada via abrirCamera() sob demanda
   // Reset estado
   document.querySelectorAll('.estado-chip').forEach(function(c){ c.classList.remove('selected'); });
   document.querySelector('.estado-chip.excelente').classList.add('selected');
@@ -810,21 +800,35 @@ function closeNoPatModal(e) {
   document.getElementById('noPatModal').classList.remove('show');
 }
 
-function handlePhoto(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    noPatPhoto = ev.target.result;
-    var pa = document.getElementById('photoArea');
-    pa.querySelector('.photo-placeholder').style.display = 'none';
-    var img = pa.querySelector('img') || document.createElement('img');
-    img.src = noPatPhoto;
-    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
-    pa.appendChild(img);
-  };
-  reader.readAsDataURL(file);
+// Cria um input novo a cada toque — único jeito garantido no mobile
+function abrirCamera() {
+  var inp = document.createElement('input');
+  inp.type    = 'file';
+  inp.accept  = 'image/*';
+  inp.setAttribute('capture', 'environment');
+  inp.style.display = 'none';
+  document.body.appendChild(inp);
+  inp.addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    document.body.removeChild(inp); // limpa o DOM
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      noPatPhoto = ev.target.result;
+      var pa  = document.getElementById('photoArea');
+      pa.querySelector('.photo-placeholder').style.display = 'none';
+      var img = pa.querySelector('img') || document.createElement('img');
+      img.src = noPatPhoto;
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px';
+      if (!pa.querySelector('img')) pa.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+  // Pequeno delay antes de clicar — necessário em alguns Android
+  setTimeout(function() { inp.click(); }, 50);
 }
+
+function handlePhoto(e) {} // mantido por compatibilidade
 
 function selectEstado(val, btn) {
   noPatEstado = val;
