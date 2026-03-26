@@ -1167,11 +1167,13 @@ function escJ(s){ return String(s||'').replace(/'/g,"\\'"); }
 function toggleRoomPicker() {
   var picker = document.getElementById('miniRoomPicker');
   if (picker.style.display === 'none') {
-    // Renderiza lista de salas
     picker.innerHTML = state.rooms.map(function(r) {
       var sel = r === (noPatRoom_selected || state.currentRoom);
-      return '<div class="mini-room-item'+(sel?' selected':'')+'" onclick="selectNoPatRoom(''+escJ(r)+'')">'
-        + (sel ? '✓ ' : '') + esc(r) + '</div>';
+      var div = document.createElement('div');
+      div.className = 'mini-room-item' + (sel ? ' selected' : '');
+      div.textContent = (sel ? '✓ ' : '') + r;
+      div.setAttribute('onclick', 'selectNoPatRoom(' + JSON.stringify(r) + ')');
+      return div.outerHTML;
     }).join('');
     picker.style.display = 'block';
   } else {
