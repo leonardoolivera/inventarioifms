@@ -380,9 +380,8 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 <!-- ════════════════════════════════════════════
      MODAL: SEM PATRIMÔNIO
 ═══════════════════════════════════════════════ -->
-<div class="modal-bg" id="noPatModal">
-  <div class="modal-backdrop" onclick="closeNoPatModal()" style="position:absolute;inset:0;z-index:0"></div>
-  <div class="modal-sheet" style="position:relative;z-index:1">
+<div class="modal-bg" id="noPatModal" onclick="if(event.target===this)closeNoPatModal()">
+  <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">📸 Item Sem Patrimônio</div>
 
