@@ -1127,14 +1127,16 @@ function syncNow() {
     // Restaura foto do cache em memória (ou IndexedDB via __idb__ marker)
     var foto = (s.type === 'nopat' && photoCache[s.id]) ? photoCache[s.id] : (s.photo || '');
     return {
-      id:     s.id,
-      type:   s.type,
-      code:   s.code   || '',
-      room:   s.room   || '',
-      desc:   s.desc   || '',
+      id: s.id,
+      type: s.type,
+      code: s.code || '',
+      room: s.room || '',
+      desc: s.desc || '',
       estado: s.estado || '',
-      photo:  foto,
-      ts:     s.ts,
+      photo: foto,
+      ts: s.ts,
+      funcionario: s.funcionario || '',
+      siape: s.siape || ''
     };
   });
 
