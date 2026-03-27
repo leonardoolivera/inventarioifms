@@ -1463,7 +1463,7 @@ function fazerLogin() {
         }
         showToast('ok', 'Olá, ' + res.nome.split(' ')[0] + '!', 'SIAPE ' + siape);
       } else {
-        document.getElementById('loginError').textContent = res.erro || 'SIAPE não encontrado. Fale com o gestor.';
+        document.getElementById('loginError').textContent = (res.erro || 'SIAPE não encontrado') + ' [raw: ' + JSON.stringify(res).substring(0,80) + ']';
       }
     })
     .catch(function(e) {
