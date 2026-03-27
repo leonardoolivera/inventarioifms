@@ -544,6 +544,16 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   <div style="font-size:11px;color:var(--text3);text-align:center">
     Use seu número SIAPE para acessar
   </div>
+  <!-- Update banner no login -->
+  <div class="update-banner" id="updateBannerLogin" style="display:none;max-width:360px;width:100%">
+    <div style="font-size:18px">🔄</div>
+    <div class="update-info">
+      <div class="update-title" id="updateTitleLogin">Nova versão!</div>
+      <div class="update-sub" id="updateSubLogin"></div>
+    </div>
+    <button class="update-btn" onclick="doUpdate()">Atualizar</button>
+  </div>
+  <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionLogin"></div>
 </div>
 
 <!-- Toast -->
@@ -554,7 +564,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v5.5';
+var APP_VERSION = 'v5.6';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -652,6 +662,8 @@ window.addEventListener('load', function() {
       ? APP_VERSION + ' · Inventário Campus'
       : APP_VERSION;
   });
+  var vl = document.getElementById('versionLogin');
+  if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
 
   window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); syncNow(); });
   window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); });
@@ -1656,9 +1668,14 @@ function checkForUpdate() {
       var localVersion  = APP_VERSION;
 
       if (remoteVersion !== localVersion) {
-        document.getElementById('updateTitle').textContent = '🆕 Versão ' + remoteVersion + ' disponível!';
-        document.getElementById('updateSub').textContent   = 'Você está na ' + localVersion + ' · Toque para atualizar';
+        var msg1 = '🆕 Versão ' + remoteVersion + ' disponível!';
+        var msg2 = 'Você está na ' + localVersion + ' · Toque para atualizar';
+        document.getElementById('updateTitle').textContent = msg1;
+        document.getElementById('updateSub').textContent   = msg2;
         document.getElementById('updateBanner').classList.add('show');
+        // Também mostra no login se estiver visível
+        var bl = document.getElementById('updateBannerLogin');
+        if (bl) { bl.style.display='flex'; document.getElementById('updateTitleLogin').textContent=msg1; document.getElementById('updateSubLogin').textContent=msg2; }
       }
     })
     .catch(function() {}); // silencioso se offline
