@@ -1429,8 +1429,15 @@ function fazerLogin() {
   document.getElementById('loginError').textContent = '';
 
   // Consulta planilha
-  fetch(state.scriptUrl + '?action=login&siape=' + encodeURIComponent(siape))
-    .then(function(r) { return r.json(); })
+  fetch(state.scriptUrl + '?action=login&siape=' + encodeURIComponent(siape), {
+    redirect: 'follow',
+    cache: 'no-store'
+  })
+    .then(function(r) { return r.text(); })
+    .then(function(txt) {
+      var res; try { res = JSON.parse(txt); } catch(e) { res = { ok: false, erro: 'Resposta inválida: ' + txt.substring(0,100) }; }
+      return res;
+    })
     .then(function(res) {
       if (res.ok && res.nome) {
         var user = { siape: siape, nome: res.nome };
@@ -1447,8 +1454,8 @@ function fazerLogin() {
         document.getElementById('loginError').textContent = res.erro || 'SIAPE não encontrado. Fale com o gestor.';
       }
     })
-    .catch(function() {
-      document.getElementById('loginError').textContent = 'Erro de conexão. Verifique a internet.';
+    .catch(function(e) {
+      document.getElementById('loginError').textContent = 'Erro de conexão: ' + e.toString();
     })
     .finally(function() {
       btn.innerHTML = 'Entrar';
