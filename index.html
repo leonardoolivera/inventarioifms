@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
-<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -355,22 +355,12 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
   </div>
   <div class="scanner-wrap">
-    <video id="scannerVideo" autoplay playsinline muted></video>
+    <div id="scannerVideo" style="width:100%;height:100%"></div>
     <div class="scanner-overlay">
       <div class="scan-frame">
         <div class="scan-line"></div>
       </div>
-      <!-- Botão nativo iOS (só aparece no Safari) -->
-  <div id="iosScanBtn" style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.85);z-index:10">
-    <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:20px;text-align:center;padding:0 30px">iOS Safari detectado<br>Use o botão abaixo para escanear</div>
-    <label for="iosBarcodeInput" style="background:var(--accent);border-radius:12px;padding:16px 32px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px">
-      📷 Escanear código
-    </label>
-    <input type="file" id="iosBarcodeInput" accept="image/*" capture="environment"
-      style="display:none" onchange="processarFotoIOS(event)">
-    <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:16px">O iOS lerá o código automaticamente</div>
-  </div>
-
+      
   <div class="scan-hint-bar">
         <div class="room-badge" id="scanRoomBadge">📍 —</div>
         <div class="scan-hint-text">Aponte para o código de barras</div>
@@ -512,7 +502,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v4.8';
+var APP_VERSION = 'v4.9';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -739,69 +729,39 @@ function startScanner() {
   startCamera();
 }
 
-var zxingReader  = null;
-var mlkitCanvas  = document.createElement('canvas');
-var mlkitCtx     = null;
-var mlkitLoop    = null;
-var barcodeDetector = null;
-
-// Verifica suporte ao BarcodeDetector (ML Kit nativo do Chrome Android)
-var hasBarcodeDetector = ('BarcodeDetector' in window);
+var html5Scanner = null;
 
 function startCamera() {
   if (quaggaRunning) return;
-  var video = document.getElementById('scannerVideo');
 
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
-  }).then(function(stream) {
-    scannerStream = stream;
-    video.srcObject = stream;
-    return video.play();
-  }).then(function() {
+  // Prepara o div onde o html5-qrcode vai renderizar
+  var scannerDiv = document.getElementById('scannerVideo');
+  scannerDiv.style.display = 'block';
+
+  var config = {
+    fps: 10,
+    qrbox: { width: 280, height: 160 },
+    aspectRatio: 1.7,
+    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+    videoConstraints: { facingMode: { ideal: 'environment' } }
+  };
+
+  html5Scanner = new Html5Qrcode('scannerVideo');
+  html5Scanner.start(
+    { facingMode: { ideal: 'environment' } },
+    config,
+    function(code) {
+      // Sucesso — código lido
+      var now = Date.now();
+      if (code === lastScanned && now - lastScannedTime < 2500) return;
+      lastScanned     = code;
+      lastScannedTime = now;
+      quaggaRunning   = true;
+      processScan(code);
+    },
+    function(err) { /* erro de leitura — silencioso */ }
+  ).then(function() {
     quaggaRunning = true;
-    if (hasBarcodeDetector) {
-      // ── MODO 1: BarcodeDetector (ML Kit nativo) ──────────────
-      // Suportado no Chrome Android 83+ — muito mais preciso em metal
-      barcodeDetector = new BarcodeDetector({
-        formats: ['code_128','ean_13','ean_8','code_39','upc_a','upc_e','itf','pdf417','aztec','data_matrix','qr_code']
-      });
-      mlkitCanvas.width  = video.videoWidth  || 1280;
-      mlkitCanvas.height = video.videoHeight || 720;
-      mlkitCtx = mlkitCanvas.getContext('2d');
-      mlkitLoop = setInterval(function() {
-        if (!quaggaRunning || video.paused || video.ended) return;
-        mlkitCtx.drawImage(video, 0, 0, mlkitCanvas.width, mlkitCanvas.height);
-        barcodeDetector.detect(mlkitCanvas).then(function(barcodes) {
-          if (!barcodes.length) return;
-          var code = barcodes[0].rawValue;
-          var now  = Date.now();
-          if (code === lastScanned && now - lastScannedTime < 2500) return;
-          lastScanned     = code;
-          lastScannedTime = now;
-          processScan(code);
-        }).catch(function(){});
-      }, 150); // 6-7 fps de detecção — equilibra bateria e velocidade
-
-    } else {
-      // ── MODO 2: iOS Safari — câmera nativa via input file ────────
-      // O iOS usa o scanner nativo que lê código de barras automaticamente
-      quaggaRunning = true; // marca como ativo para evitar reinicialização
-
-      // Esconde o video (não é usado no iOS)
-      video.style.display = 'none';
-
-      // Mostra botão de escanear para iOS
-      var iosBtn = document.getElementById('iosScanBtn');
-      if (iosBtn) iosBtn.style.display = 'flex';
-
-      var hint = document.querySelector('.scan-hint-text');
-      if (hint) hint.textContent = 'Toque em 📷 Escanear para ler o código';
-    }
-
-    // Hint de acordo com engine ativa
-    var hint = document.querySelector('.scan-hint-text');
-    if (hint && hasBarcodeDetector) hint.textContent = 'Aponte para o código de barras';
 
   }).catch(function(e) {
     showToast('warn','Câmera negada','Permita o acesso à câmera nas configurações');
@@ -811,60 +771,15 @@ function startCamera() {
 
 function stopScanner() {
   quaggaRunning = false;
-  if (mlkitLoop) { clearInterval(mlkitLoop); mlkitLoop = null; }
-  if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
-  if (scannerStream) { scannerStream.getTracks().forEach(function(t){ t.stop(); }); scannerStream = null; }
-  // Reseta UI do iOS
-  var iosBtn = document.getElementById('iosScanBtn');
-  if (iosBtn) iosBtn.style.display = 'none';
-  var video = document.getElementById('scannerVideo');
-  if (video) video.style.display = '';
+  if (html5Scanner) {
+    html5Scanner.stop().then(function() {
+      html5Scanner.clear();
+      html5Scanner = null;
+    }).catch(function(){});
+  }
   goBack();
 }
 
-// ── iOS: processa foto tirada pela câmera nativa ─────────────
-// O iOS já lê o código de barras automaticamente na câmera
-// Aqui só precisamos pegar o nome do arquivo que contém o código
-// Mas na prática o iOS retorna a imagem — usamos ZXing só para decodificar essa imagem estática
-function processarFotoIOS(e) {
-  var file = e.target.files[0];
-  // Reseta input para permitir escanear de novo
-  e.target.value = '';
-  if (!file) return;
-
-  // Tenta ler código de barras da imagem usando ZXing
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var img = new Image();
-    img.onload = function() {
-      var canvas = document.createElement('canvas');
-      canvas.width  = img.width;
-      canvas.height = img.height;
-      canvas.getContext('2d').drawImage(img, 0, 0);
-
-      try {
-        var zxing = new ZXing.BrowserMultiFormatReader();
-        zxing.decodeFromCanvas(canvas).then(function(result) {
-          if (result) {
-            var code = result.getText();
-            var now  = Date.now();
-            if (code === lastScanned && now - lastScannedTime < 2500) return;
-            lastScanned = code; lastScannedTime = now;
-            processScan(code);
-          } else {
-            showToast('warn','Código não encontrado','Tente novamente mais perto');
-          }
-        }).catch(function() {
-          showToast('warn','Não consegui ler','Tente novamente com melhor iluminação');
-        });
-      } catch(err) {
-        showToast('warn','Erro no scanner','Use a entrada manual');
-      }
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-}
 
 function processManual() {
   var v = document.getElementById('manualInput').value.trim();
