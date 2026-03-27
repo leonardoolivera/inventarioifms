@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -90,6 +90,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 
 /* ── SCANNER ── */
 .scanner-wrap{position:relative;background:#000;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center}
+
 #scannerVideo{width:100%;height:100%;object-fit:cover}
 .scanner-overlay{position:absolute;inset:0;pointer-events:none}
 .scan-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:72%;max-width:280px;aspect-ratio:1.8;border:2px solid rgba(255,255,255,.2);border-radius:12px}
@@ -355,7 +356,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
   </div>
   <div class="scanner-wrap">
-    <div id="scannerVideo" style="width:100%;height:100%"></div>
+    <video id="scannerVideo" autoplay playsinline muted></video>
     <div class="scanner-overlay">
       <div class="scan-frame">
         <div class="scan-line"></div>
@@ -502,7 +503,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v4.9';
+var APP_VERSION = 'v5.4';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -731,52 +732,70 @@ function startScanner() {
 
 var html5Scanner = null;
 
+var zxingReader  = null;
+var mlkitCanvas  = document.createElement('canvas');
+var mlkitCtx     = null;
+var mlkitLoop    = null;
+var barcodeDetector = null;
+var hasBarcodeDetector = ('BarcodeDetector' in window);
+
 function startCamera() {
   if (quaggaRunning) return;
+  var video = document.getElementById('scannerVideo');
 
-  // Prepara o div onde o html5-qrcode vai renderizar
-  var scannerDiv = document.getElementById('scannerVideo');
-  scannerDiv.style.display = 'block';
-
-  var config = {
-    fps: 10,
-    qrbox: { width: 280, height: 160 },
-    aspectRatio: 1.7,
-    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-    videoConstraints: { facingMode: { ideal: 'environment' } }
-  };
-
-  html5Scanner = new Html5Qrcode('scannerVideo');
-  html5Scanner.start(
-    { facingMode: { ideal: 'environment' } },
-    config,
-    function(code) {
-      // Sucesso — código lido
-      var now = Date.now();
-      if (code === lastScanned && now - lastScannedTime < 2500) return;
-      lastScanned     = code;
-      lastScannedTime = now;
-      quaggaRunning   = true;
-      processScan(code);
-    },
-    function(err) { /* erro de leitura — silencioso */ }
-  ).then(function() {
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+  }).then(function(stream) {
+    scannerStream = stream;
+    video.srcObject = stream;
+    return video.play();
+  }).then(function() {
     quaggaRunning = true;
-
+    if (hasBarcodeDetector) {
+      barcodeDetector = new BarcodeDetector({
+        formats: ['code_128','ean_13','ean_8','code_39','upc_a','upc_e','itf','pdf417','aztec','data_matrix','qr_code']
+      });
+      mlkitCanvas.width  = video.videoWidth  || 1280;
+      mlkitCanvas.height = video.videoHeight || 720;
+      mlkitCtx = mlkitCanvas.getContext('2d');
+      mlkitLoop = setInterval(function() {
+        if (!quaggaRunning || video.paused || video.ended) return;
+        mlkitCtx.drawImage(video, 0, 0, mlkitCanvas.width, mlkitCanvas.height);
+        barcodeDetector.detect(mlkitCanvas).then(function(barcodes) {
+          if (!barcodes.length) return;
+          var code = barcodes[0].rawValue;
+          var now  = Date.now();
+          if (code === lastScanned && now - lastScannedTime < 800) return;
+          lastScanned = code; lastScannedTime = now;
+          processScan(code);
+        }).catch(function(){});
+      }, 150);
+    } else {
+      try {
+        zxingReader = new ZXing.BrowserMultiFormatReader();
+        zxingReader.decodeFromVideoElement(video, function(result) {
+          if (!result) return;
+          var code = result.getText();
+          var now  = Date.now();
+          if (code === lastScanned && now - lastScannedTime < 800) return;
+          lastScanned = code; lastScannedTime = now;
+          processScan(code);
+        });
+      } catch(e) { showToast('warn','Scanner indisponível','Use entrada manual'); }
+    }
   }).catch(function(e) {
     showToast('warn','Câmera negada','Permita o acesso à câmera nas configurações');
     console.error(e);
   });
 }
-
 function stopScanner() {
   quaggaRunning = false;
-  if (html5Scanner) {
-    html5Scanner.stop().then(function() {
-      html5Scanner.clear();
-      html5Scanner = null;
-    }).catch(function(){});
-  }
+  if (mlkitLoop) { clearInterval(mlkitLoop); mlkitLoop = null; }
+  if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
+  if (scannerStream) { scannerStream.getTracks().forEach(function(t){ t.stop(); }); scannerStream = null; }
+  // Esconde overlay iOS
+  var overlay = document.getElementById('iosOverlay');
+  if (overlay) overlay.style.display = 'none';
   goBack();
 }
 
