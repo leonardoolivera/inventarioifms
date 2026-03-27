@@ -512,7 +512,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v4.7';
+var APP_VERSION = 'v4.8';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -799,10 +799,9 @@ function startCamera() {
       if (hint) hint.textContent = 'Toque em 📷 Escanear para ler o código';
     }
 
-    // Mostra qual engine está ativa (debug visual discreto)
+    // Hint de acordo com engine ativa
     var hint = document.querySelector('.scan-hint-text');
-    if (hint) hint.textContent = hasBarcodeDetector
-      ? 'Aponte para o código de barras';
+    if (hint && hasBarcodeDetector) hint.textContent = 'Aponte para o código de barras';
 
   }).catch(function(e) {
     showToast('warn','Câmera negada','Permita o acesso à câmera nas configurações');
