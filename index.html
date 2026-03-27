@@ -360,7 +360,18 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="scan-frame">
         <div class="scan-line"></div>
       </div>
-      <div class="scan-hint-bar">
+      <!-- Botão nativo iOS (só aparece no Safari) -->
+  <div id="iosScanBtn" style="display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.85);z-index:10">
+    <div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:20px;text-align:center;padding:0 30px">iOS Safari detectado<br>Use o botão abaixo para escanear</div>
+    <label for="iosBarcodeInput" style="background:var(--accent);border-radius:12px;padding:16px 32px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px">
+      📷 Escanear código
+    </label>
+    <input type="file" id="iosBarcodeInput" accept="image/*" capture="environment"
+      style="display:none" onchange="processarFotoIOS(event)">
+    <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:16px">O iOS lerá o código automaticamente</div>
+  </div>
+
+  <div class="scan-hint-bar">
         <div class="room-badge" id="scanRoomBadge">📍 —</div>
         <div class="scan-hint-text">Aponte para o código de barras</div>
       </div>
@@ -501,7 +512,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v4.6';
+var APP_VERSION = 'v4.7';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -773,19 +784,19 @@ function startCamera() {
       }, 150); // 6-7 fps de detecção — equilibra bateria e velocidade
 
     } else {
-      // ── MODO 2: ZXing fallback (iOS Safari e outros) ───────────
-      try {
-        zxingReader = new ZXing.BrowserMultiFormatReader();
-        // No iOS, passa null como deviceId — usa a câmera já ativa no video element
-        zxingReader.decodeFromVideoElement(video, function(result, err) {
-            if (!result) return;
-            var code = result.getText();
-            var now  = Date.now();
-            if (code === lastScanned && now - lastScannedTime < 2500) return;
-            lastScanned = code; lastScannedTime = now;
-            processScan(code);
-          });
-      } catch(e) { showToast('warn','Scanner indisponível','Use entrada manual'); }
+      // ── MODO 2: iOS Safari — câmera nativa via input file ────────
+      // O iOS usa o scanner nativo que lê código de barras automaticamente
+      quaggaRunning = true; // marca como ativo para evitar reinicialização
+
+      // Esconde o video (não é usado no iOS)
+      video.style.display = 'none';
+
+      // Mostra botão de escanear para iOS
+      var iosBtn = document.getElementById('iosScanBtn');
+      if (iosBtn) iosBtn.style.display = 'flex';
+
+      var hint = document.querySelector('.scan-hint-text');
+      if (hint) hint.textContent = 'Toque em 📷 Escanear para ler o código';
     }
 
     // Mostra qual engine está ativa (debug visual discreto)
@@ -801,13 +812,59 @@ function startCamera() {
 
 function stopScanner() {
   quaggaRunning = false;
-  // Para ML Kit loop
   if (mlkitLoop) { clearInterval(mlkitLoop); mlkitLoop = null; }
-  // Para ZXing
   if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
-  // Para stream da câmera
   if (scannerStream) { scannerStream.getTracks().forEach(function(t){ t.stop(); }); scannerStream = null; }
+  // Reseta UI do iOS
+  var iosBtn = document.getElementById('iosScanBtn');
+  if (iosBtn) iosBtn.style.display = 'none';
+  var video = document.getElementById('scannerVideo');
+  if (video) video.style.display = '';
   goBack();
+}
+
+// ── iOS: processa foto tirada pela câmera nativa ─────────────
+// O iOS já lê o código de barras automaticamente na câmera
+// Aqui só precisamos pegar o nome do arquivo que contém o código
+// Mas na prática o iOS retorna a imagem — usamos ZXing só para decodificar essa imagem estática
+function processarFotoIOS(e) {
+  var file = e.target.files[0];
+  // Reseta input para permitir escanear de novo
+  e.target.value = '';
+  if (!file) return;
+
+  // Tenta ler código de barras da imagem usando ZXing
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width  = img.width;
+      canvas.height = img.height;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+
+      try {
+        var zxing = new ZXing.BrowserMultiFormatReader();
+        zxing.decodeFromCanvas(canvas).then(function(result) {
+          if (result) {
+            var code = result.getText();
+            var now  = Date.now();
+            if (code === lastScanned && now - lastScannedTime < 2500) return;
+            lastScanned = code; lastScannedTime = now;
+            processScan(code);
+          } else {
+            showToast('warn','Código não encontrado','Tente novamente mais perto');
+          }
+        }).catch(function() {
+          showToast('warn','Não consegui ler','Tente novamente com melhor iluminação');
+        });
+      } catch(err) {
+        showToast('warn','Erro no scanner','Use a entrada manual');
+      }
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function processManual() {
