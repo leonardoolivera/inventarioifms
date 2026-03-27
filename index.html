@@ -546,8 +546,32 @@ history.pushState(null, '', window.location.href);
 
 // Registra Service Worker para PWA
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/inventarioifms/sw.js')
-    .catch(function(e){ console.warn('SW:', e); });
+  navigator.serviceWorker.register('/inventarioifms/sw.js').then(function(reg) {
+
+    // Quando encontrar nova versão, ativa imediatamente
+    reg.addEventListener('updatefound', function() {
+      var newSW = reg.installing;
+      newSW.addEventListener('statechange', function() {
+        if (newSW.state === 'activated') {
+          // Nova versão ativa — recarrega silenciosamente
+          window.location.reload();
+        }
+      });
+    });
+
+    // Verifica atualização agora e a cada 2 minutos
+    reg.update();
+    setInterval(function() { reg.update(); }, 2 * 60 * 1000);
+
+  }).catch(function(e){ console.warn('SW:', e); });
+
+  // Recebe mensagem do SW quando atualiza
+  navigator.serviceWorker.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      console.log('SW atualizado para', e.data.version);
+      window.location.reload();
+    }
+  });
 }
 
 window.addEventListener('load', function() {
