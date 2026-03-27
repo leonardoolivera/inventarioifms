@@ -564,7 +564,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v5.7';
+var APP_VERSION = 'v5.8';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -905,6 +905,11 @@ function processScan(rawCode) {
 
 function commitScan(code) {
   var room  = state.currentRoom || '(sem local)';
+  // Recarrega currentUser do localStorage se necessário
+  if (!currentUser) {
+    var saved = localStorage.getItem('currentUser');
+    if (saved) try { currentUser = JSON.parse(saved); } catch(e){}
+  }
   var entry = { id: uid(), type:'scan', code:code, room:room, funcionario: currentUser ? currentUser.nome : '', siape: currentUser ? currentUser.siape : '', ts:new Date().toISOString(), synced:false };
   state.scans.push(entry);
   lastEntry = entry;
@@ -1059,6 +1064,11 @@ function saveNoPat() {
     idbSalvarFoto(entryId, noPatPhoto); // persiste no IndexedDB (sobrevive ao fechar)
   }
 
+  // Recarrega currentUser do localStorage se necessário
+  if (!currentUser) {
+    var saved = localStorage.getItem('currentUser');
+    if (saved) try { currentUser = JSON.parse(saved); } catch(e){}
+  }
   var entry = {
     id:     entryId,
     type:   'nopat',
