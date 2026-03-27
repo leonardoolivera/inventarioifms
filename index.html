@@ -564,7 +564,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v5.6';
+var APP_VERSION = 'v5.7';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -956,21 +956,7 @@ function undoLast() {
   navigator.vibrate && navigator.vibrate([40,30,40]);
 }
 
-function commitScan(code) {
-  var room = state.currentRoom || '(sem local)';
-  var entry = { id: uid(), type:'scan', code:code, room:room, funcionario: currentUser ? currentUser.nome : '', siape: currentUser ? currentUser.siape : '', ts:new Date().toISOString(), synced:false };
-  state.scans.push(entry);
-  saveScans();
-  addToPendingSync(entry);
-  updateStats();
-  renderHistList();
-  showToast('ok','✅ Código '+code,'📍 '+room);
-  navigator.vibrate && navigator.vibrate(60);
-}
 
-// ═══════════════════════════════════════════════
-//  NO-PAT MODAL
-// ═══════════════════════════════════════════════
 function openNoPatModal() {
   // Abre câmera direto — guia aparece após inicializar
   abrirCamera();
