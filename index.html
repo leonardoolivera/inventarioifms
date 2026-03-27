@@ -501,7 +501,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v4.5';
+var APP_VERSION = 'v4.6';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -773,19 +773,11 @@ function startCamera() {
       }, 150); // 6-7 fps de detecção — equilibra bateria e velocidade
 
     } else {
-      // ── MODO 2: ZXing fallback ────────────────────────────────
+      // ── MODO 2: ZXing fallback (iOS Safari e outros) ───────────
       try {
         zxingReader = new ZXing.BrowserMultiFormatReader();
-        zxingReader.listVideoInputDevices().then(function(devices) {
-          var deviceId;
-          for (var i = 0; i < devices.length; i++) {
-            var lbl = (devices[i].label || '').toLowerCase();
-            if (lbl.indexOf('back') > -1 || lbl.indexOf('rear') > -1 || lbl.indexOf('environment') > -1) {
-              deviceId = devices[i].deviceId; break;
-            }
-          }
-          if (!deviceId && devices.length) deviceId = devices[devices.length - 1].deviceId;
-          return zxingReader.decodeFromVideoDevice(deviceId, video, function(result) {
+        // No iOS, passa null como deviceId — usa a câmera já ativa no video element
+        zxingReader.decodeFromVideoElement(video, function(result, err) {
             if (!result) return;
             var code = result.getText();
             var now  = Date.now();
@@ -793,15 +785,13 @@ function startCamera() {
             lastScanned = code; lastScannedTime = now;
             processScan(code);
           });
-        }).catch(function(e){ showToast('warn','Erro no scanner','Tente a entrada manual'); });
       } catch(e) { showToast('warn','Scanner indisponível','Use entrada manual'); }
     }
 
     // Mostra qual engine está ativa (debug visual discreto)
     var hint = document.querySelector('.scan-hint-text');
     if (hint) hint.textContent = hasBarcodeDetector
-      ? 'ML Kit ativo — aponte para o código'
-      : 'ZXing ativo — aponte para o código';
+      ? 'Aponte para o código de barras';
 
   }).catch(function(e) {
     showToast('warn','Câmera negada','Permita o acesso à câmera nas configurações');
