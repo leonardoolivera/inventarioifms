@@ -232,6 +232,29 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .suggest-dots::after { content: ''; animation: dots 1.5s steps(3,end) infinite; }
 @keyframes dots { 0%,20% { content: '.'; } 40%,60% { content: '..'; } 80%,100% { content: '...'; } }
 
+/* ── LOGIN ── */
+.login-wrap{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
+.login-logo{font-size:56px;margin-bottom:4px}
+.login-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--text);text-align:center}
+.login-sub{font-size:13px;color:var(--text2);text-align:center;line-height:1.5;margin-top:-8px}
+.login-card{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:14px}
+.login-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600}
+.login-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:3px;outline:none;text-align:center}
+.login-input:focus{border-color:var(--accent)}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:8px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.login-btn:active{opacity:.85}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+.login-error{font-size:12px;color:var(--red);text-align:center;min-height:16px}
+.login-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
+
+/* ── USER BADGE ── */
+.user-badge{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;margin-bottom:12px}
+.ub-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.ub-info{flex:1;min-width:0}
+.ub-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ub-siape{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.ub-logout{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px}
+
 /* ── MISC ── */
 .pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
 .pill.ok{background:rgba(34,197,94,.15);color:var(--green)}
@@ -275,6 +298,16 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="update-sub" id="updateSub">Atualize para continuar usando</div>
   </div>
   <button class="update-btn" onclick="doUpdate()">Atualizar</button>
+</div>
+
+<!-- User badge -->
+<div class="user-badge" id="userBadge" style="display:none">
+  <div class="ub-avatar" id="userAvatar">?</div>
+  <div class="ub-info">
+    <div class="ub-name" id="userName">—</div>
+    <div class="ub-siape" id="userSiape">SIAPE: —</div>
+  </div>
+  <button class="ub-logout" onclick="fazerLogout()" title="Sair">⇥</button>
 </div>
 
 <div class="sync-banner" id="syncBanner" onclick="syncNow()">
@@ -495,6 +528,24 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   <div class="undo-prog" id="undoProg" style="width:100%"></div>
 </div>
 
+<!-- ════ LOGIN SCREEN ════ -->
+<div class="login-wrap" id="loginWrap" style="display:none">
+  <div class="login-logo">📋</div>
+  <div class="login-title">Inventário Campus</div>
+  <div class="login-sub">IFMS — Sistema de Inventário Patrimonial</div>
+  <div class="login-card">
+    <div class="login-label">Digite seu SIAPE</div>
+    <input class="login-input" id="siapeInput" type="tel" maxlength="7"
+      placeholder="0000000" autocomplete="off" inputmode="numeric"
+      onkeydown="if(event.key==='Enter')fazerLogin()">
+    <div class="login-error" id="loginError"></div>
+    <button class="login-btn" id="loginBtn" onclick="fazerLogin()">Entrar</button>
+  </div>
+  <div style="font-size:11px;color:var(--text3);text-align:center">
+    Use seu número SIAPE para acessar
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="result-toast" id="toast">
   <div class="rt-ico" id="toastIco"></div>
@@ -503,7 +554,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v5.4';
+var APP_VERSION = 'v5.5';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -583,6 +634,7 @@ window.addEventListener('load', function() {
     if (todas.length) console.log('IDB: ' + todas.length + ' fotos restauradas');
   });
 
+  iniciarApp();
   updateHomeDate();
   updateRoomLabel();
   updateStats();
@@ -841,7 +893,7 @@ function processScan(rawCode) {
 
 function commitScan(code) {
   var room  = state.currentRoom || '(sem local)';
-  var entry = { id: uid(), type:'scan', code:code, room:room, ts:new Date().toISOString(), synced:false };
+  var entry = { id: uid(), type:'scan', code:code, room:room, funcionario: currentUser ? currentUser.nome : '', siape: currentUser ? currentUser.siape : '', ts:new Date().toISOString(), synced:false };
   state.scans.push(entry);
   lastEntry = entry;
   saveScans();
@@ -894,7 +946,7 @@ function undoLast() {
 
 function commitScan(code) {
   var room = state.currentRoom || '(sem local)';
-  var entry = { id: uid(), type:'scan', code:code, room:room, ts:new Date().toISOString(), synced:false };
+  var entry = { id: uid(), type:'scan', code:code, room:room, funcionario: currentUser ? currentUser.nome : '', siape: currentUser ? currentUser.siape : '', ts:new Date().toISOString(), synced:false };
   state.scans.push(entry);
   saveScans();
   addToPendingSync(entry);
@@ -1013,6 +1065,8 @@ function saveNoPat() {
     id:     entryId,
     type:   'nopat',
     room:   noPatRoom_selected || state.currentRoom || '(sem local)',
+    funcionario: currentUser ? currentUser.nome : '',
+    siape: currentUser ? currentUser.siape : '',
     desc:   desc,
     estado: noPatEstado,
     photo:  noPatPhoto || '', // em memória; saveScans não vai persistir isso
@@ -1345,6 +1399,94 @@ function selectNoPatRoom(name) {
 }
 
 function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+
+// ── Login / SIAPE ─────────────────────────────────────────────
+var currentUser = null; // { siape, nome }
+
+function iniciarApp() {
+  var saved = localStorage.getItem('currentUser');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      aplicarUsuario(currentUser);
+      return;
+    } catch(e) {}
+  }
+  // Mostra tela de login
+  document.getElementById('loginWrap').style.display = 'flex';
+}
+
+function fazerLogin() {
+  var siape = document.getElementById('siapeInput').value.trim();
+  if (!siape || siape.length < 5) {
+    document.getElementById('loginError').textContent = 'Digite um SIAPE válido';
+    return;
+  }
+
+  var btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<span class="login-spinner"></span>Verificando...';
+  btn.disabled  = true;
+  document.getElementById('loginError').textContent = '';
+
+  // Consulta planilha
+  fetch(state.scriptUrl + '?action=login&siape=' + encodeURIComponent(siape))
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.ok && res.nome) {
+        var user = { siape: siape, nome: res.nome };
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        document.getElementById('loginWrap').style.display = 'none';
+        aplicarUsuario(user);
+        // Carrega histórico do servidor
+        if (res.scans && res.scans.length) {
+          carregarHistoricoServidor(res.scans);
+        }
+        showToast('ok', 'Olá, ' + res.nome.split(' ')[0] + '!', 'SIAPE ' + siape);
+      } else {
+        document.getElementById('loginError').textContent = res.erro || 'SIAPE não encontrado. Fale com o gestor.';
+      }
+    })
+    .catch(function() {
+      document.getElementById('loginError').textContent = 'Erro de conexão. Verifique a internet.';
+    })
+    .finally(function() {
+      btn.innerHTML = 'Entrar';
+      btn.disabled  = false;
+    });
+}
+
+function aplicarUsuario(user) {
+  // Atualiza badge
+  var initials = user.nome.split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userName').textContent   = user.nome;
+  document.getElementById('userSiape').textContent  = 'SIAPE: ' + user.siape;
+  document.getElementById('userBadge').style.display = 'flex';
+}
+
+function fazerLogout() {
+  if (!confirm('Sair da conta? Dados não sincronizados podem ser perdidos.')) return;
+  localStorage.removeItem('currentUser');
+  currentUser = null;
+  document.getElementById('userBadge').style.display = 'none';
+  document.getElementById('siapeInput').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginWrap').style.display = 'flex';
+  setTimeout(function(){ document.getElementById('siapeInput').focus(); }, 300);
+}
+
+function carregarHistoricoServidor(scans) {
+  // Mescla histórico do servidor com local (evita duplicatas)
+  var ids = state.scans.map(function(s){ return s.id; });
+  var novos = scans.filter(function(s){ return ids.indexOf(s.id) === -1; });
+  if (novos.length) {
+    state.scans = state.scans.concat(novos);
+    saveScans();
+    updateStats();
+    renderHistList();
+  }
+}
 
 // ── Gemini IA ─────────────────────────────────────────────────
 var GEMINI_KEY_DEFAULT = ''; // chave gerenciada pelo Apps Script
