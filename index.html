@@ -564,7 +564,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v5.8';
+var APP_VERSION = 'v5.9';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -1033,10 +1033,15 @@ function abrirCamera() {
       // Redimensiona em background para envio (400x400 max, 75% qualidade ~50-80KB)
       resizeImage(fullPhoto, 400, 400, 0.75).then(function(resized) {
         noPatPhoto = resized;
-        // Mostra botão sugerir se tiver chave Gemini
-        if (true) { // chave embutida — sempre mostra
-          var btn = document.getElementById('suggestBtn');
-          if (btn) btn.style.display = 'inline-flex';
+        // Chama IA automaticamente após tirar a foto
+        if (state.scriptUrl) {
+          sugerirDescricao(true); // true = chamada automática
+        }
+        // Mostra botão refazer
+        var btn = document.getElementById('suggestBtn');
+        if (btn) {
+          btn.style.display = 'inline-flex';
+          btn.innerHTML = '🔄 Refazer';
         }
       });
     };
@@ -1127,16 +1132,14 @@ function syncNow() {
     // Restaura foto do cache em memória (ou IndexedDB via __idb__ marker)
     var foto = (s.type === 'nopat' && photoCache[s.id]) ? photoCache[s.id] : (s.photo || '');
     return {
-      id: s.id,
-      type: s.type,
-      code: s.code || '',
-      room: s.room || '',
-      desc: s.desc || '',
+      id:     s.id,
+      type:   s.type,
+      code:   s.code   || '',
+      room:   s.room   || '',
+      desc:   s.desc   || '',
       estado: s.estado || '',
-      photo: foto,
-      ts: s.ts,
-      funcionario: s.funcionario || '',
-      siape: s.siape || ''
+      photo:  foto,
+      ts:     s.ts,
     };
   });
 
@@ -1608,14 +1611,17 @@ function loadGeminiKey() {
   if (inp && !inp.value) inp.placeholder = 'Usando chave padrão (AIza...)';
 }
 
-function sugerirDescricao() {
-  if (!noPatPhoto) { showToast('warn','Tire uma foto primeiro',''); return; }
-  var key = getGeminiKey();
+function sugerirDescricao(auto) {
+  if (!noPatPhoto) { if (!auto) showToast('warn','Tire uma foto primeiro',''); return; }
 
   var btn = document.getElementById('suggestBtn');
   btn.innerHTML = '<span class="spin"></span><span class="suggest-dots">Analisando</span>';
   btn.disabled = true;
   btn.style.opacity = '.85';
+  
+  // Mostra placeholder no campo enquanto carrega
+  var campo = document.getElementById('noPatDesc');
+  if (!campo.value) campo.placeholder = '✨ Gerando descrição...';
 
   // Remove prefixo data:image/...;base64,
   var b64 = noPatPhoto.split(',')[1];
@@ -1636,7 +1642,7 @@ function sugerirDescricao() {
       campo.value = res.descricao;
       campo.style.borderColor = 'var(--accent)';
       setTimeout(function(){ campo.style.borderColor = ''; }, 1500);
-      showToast('ok','✨ Descrição sugerida!','Edite se necessário');
+      if (!auto) showToast('ok','✨ Descrição sugerida!','Edite se necessário');
     } else {
       showToast('warn', '⚠️ ' + (res.erro || 'IA não reconheceu o item'),'Descreva manualmente');
     }
@@ -1645,9 +1651,10 @@ function sugerirDescricao() {
     showToast('warn','Erro ao contatar servidor','Verifique a conexão');
   })
   .finally(function() {
-    btn.innerHTML = '✨ Sugerir';
+    btn.innerHTML = '🔄 Refazer';
     btn.disabled = false;
     btn.style.opacity = '1';
+    document.getElementById('noPatDesc').placeholder = "Ex: Cadeira giratória preta, impressora, monitor 19'...";
   });
 }
 
