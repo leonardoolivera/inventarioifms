@@ -196,7 +196,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .nav-btn span:last-child{font-size:10px;font-weight:600}
 
 /* ── UNDO TOAST ── */
-.undo-bar{position:fixed;bottom:max(80px,calc(68px + env(safe-area-inset-bottom)));left:12px;right:12px;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.4,0,.2,1)}
+.undo-bar{position:fixed;bottom:max(160px,calc(140px + env(safe-area-inset-bottom)));left:12px;right:12px;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.4,0,.2,1)}
 .undo-bar.show{transform:none;opacity:1;pointer-events:all}
 .undo-code{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--green);flex:1}
 .undo-sub{font-size:10px;color:var(--text2);margin-top:1px}
@@ -292,6 +292,35 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .room-info-btn:active{background:var(--surface2);color:var(--accent)}
 .room-name-short{font-size:14px;font-weight:600}
 .room-name-block{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* ── COMPARAÇÃO POR SALA ── */
+.comp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.comp-stat{border-radius:var(--r2);padding:8px;text-align:center}
+.comp-stat-n{font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.comp-stat-l{font-size:9px;margin-top:2px}
+.comp-stat.correto{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3)}
+.comp-stat.correto .comp-stat-n{color:var(--green)}
+.comp-stat.correto .comp-stat-l{color:var(--green)}
+.comp-stat.outro{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3)}
+.comp-stat.outro .comp-stat-n{color:var(--yellow)}
+.comp-stat.outro .comp-stat-l{color:var(--yellow)}
+.comp-stat.nao{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3)}
+.comp-stat.nao .comp-stat-n{color:var(--red)}
+.comp-stat.nao .comp-stat-l{color:var(--red)}
+.comp-stat.pend{background:rgba(79,140,255,.1);border:1px solid rgba(79,140,255,.3)}
+.comp-stat.pend .comp-stat-n{color:var(--accent)}
+.comp-stat.pend .comp-stat-l{color:var(--accent)}
+.comp-item{padding:10px 12px;border-radius:var(--r2);margin-bottom:6px;border-left:3px solid}
+.comp-item.correto{background:rgba(34,197,94,.06);border-color:var(--green)}
+.comp-item.outro_local{background:rgba(245,158,11,.06);border-color:var(--yellow)}
+.comp-item.nao_localizado{background:rgba(239,68,68,.06);border-color:var(--red)}
+.comp-item.pendente{background:rgba(79,140,255,.06);border-color:var(--accent)}
+.comp-item-num{font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.comp-item-desc{font-size:12px;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp-item-meta{font-size:11px;color:var(--text2);margin-top:3px}
+.comp-filter{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
+.comp-filter-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer}
+.comp-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
 /* ── MISC ── */
 .pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
@@ -477,6 +506,35 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 </div>
 
 <!-- ════════════════════════════════════════════
+     SCREEN: COMPARAÇÃO POR SALA
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scComparacao">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div>
+      <div class="topbar-title" id="compTitle">Comparação</div>
+      <div class="topbar-sub" id="compSub">—</div>
+    </div>
+  </div>
+  <div class="sbody">
+    <div class="comp-stats">
+      <div class="comp-stat correto"><div class="comp-stat-n" id="compCorreto">0</div><div class="comp-stat-l">✅ Correto</div></div>
+      <div class="comp-stat outro"><div class="comp-stat-n" id="compOutro">0</div><div class="comp-stat-l">🟡 Outro local</div></div>
+      <div class="comp-stat nao"><div class="comp-stat-n" id="compNao">0</div><div class="comp-stat-l">❌ Não localiz.</div></div>
+      <div class="comp-stat pend"><div class="comp-stat-n" id="compPend">0</div><div class="comp-stat-l">⏳ Pendente</div></div>
+    </div>
+    <div class="comp-filter">
+      <button class="comp-filter-btn active" onclick="filtrarComp('todos',this)">Todos</button>
+      <button class="comp-filter-btn" onclick="filtrarComp('correto',this)">✅ Correto</button>
+      <button class="comp-filter-btn" onclick="filtrarComp('outro_local',this)">🟡 Outro local</button>
+      <button class="comp-filter-btn" onclick="filtrarComp('nao_localizado',this)">❌ Não localiz.</button>
+      <button class="comp-filter-btn" onclick="filtrarComp('pendente',this)">⏳ Pendente</button>
+    </div>
+    <div id="compList"><div class="empty"><div class="empty-ico">📊</div>Carregando...</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
      SCREEN: HISTORY
 ═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scHistory">
@@ -627,7 +685,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v6.6';
+var APP_VERSION = 'v6.9';
 var ROOMS_VERSION = 'suap-2026-v2'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -767,6 +825,13 @@ window.addEventListener('load', function() {
 
   // Auto sync every 30s
   setInterval(function(){ if(state.isOnline && state.pendingSync.length) syncNow(); }, 30000);
+
+  // Boas-vindas na primeira abertura como app instalado
+  if (window._mostrarBoasVindas) {
+    setTimeout(function() {
+      showToast('ok', '🎉 App instalado com sucesso!', 'Bem-vindo ao Inventário Campus');
+    }, 1500);
+  }
 
   // Verifica atualização após 3s (deixa o app carregar primeiro) e a cada 5min
   setTimeout(function() {
@@ -1587,6 +1652,81 @@ function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:
 // ── Login / SIAPE ─────────────────────────────────────────────
 var currentUser = null; // { siape, nome }
 
+// ── Comparação por sala ──────────────────────────────────────
+var compData = null; // cache dos dados da comparação
+
+function abrirComparacao(sala) {
+  var ab = abreviarSala(sala);
+  document.getElementById('compTitle').textContent = ab.curto || sala;
+  document.getElementById('compSub').textContent   = ab.bloco || '';
+  document.getElementById('compList').innerHTML    = '<div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>';
+  document.getElementById('compCorreto').textContent = '—';
+  document.getElementById('compOutro').textContent   = '—';
+  document.getElementById('compNao').textContent     = '—';
+  document.getElementById('compPend').textContent    = '—';
+  showScreen('scComparacao');
+
+  fetch(state.scriptUrl + '?action=comparacaoSala&sala=' + encodeURIComponent(sala), {
+    cache: 'no-store', redirect: 'follow'
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(txt) {
+    var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
+    if (!res.ok) {
+      document.getElementById('compList').innerHTML = '<div class="empty">⚠️ ' + (res.erro || 'Erro') + '</div>';
+      return;
+    }
+    compData = res;
+    document.getElementById('compCorreto').textContent = res.stats.correto;
+    document.getElementById('compOutro').textContent   = res.stats.outro_local;
+    document.getElementById('compNao').textContent     = res.stats.nao_localizado;
+    document.getElementById('compPend').textContent    = res.stats.pendente;
+    renderCompList('todos');
+  })
+  .catch(function(e) {
+    document.getElementById('compList').innerHTML = '<div class="empty">❌ Erro de conexão</div>';
+  });
+}
+
+function filtrarComp(tipo, btn) {
+  document.querySelectorAll('.comp-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderCompList(tipo);
+}
+
+function renderCompList(filtro) {
+  if (!compData) return;
+  var itens = compData.itens;
+  if (filtro !== 'todos') {
+    itens = itens.filter(function(it){ return it.tipo === filtro; });
+  }
+
+  if (!itens.length) {
+    document.getElementById('compList').innerHTML = '<div class="empty">Nenhum item nesta categoria</div>';
+    return;
+  }
+
+  var icons = { correto: '✅', outro_local: '🟡', nao_localizado: '❌', pendente: '⏳' };
+
+  document.getElementById('compList').innerHTML = itens.map(function(it) {
+    var icon = icons[it.tipo] || '•';
+    var meta = '';
+    if (it.tipo === 'outro_local') {
+      meta = '📍 Achado em: ' + esc(it.localAchado) + (it.quemAchou ? ' · ' + esc(it.quemAchou.split('·')[0]) : '');
+    } else if (it.tipo === 'nao_localizado') {
+      meta = 'Não encontrado no inventário';
+    }
+    return '<div class="comp-item ' + it.tipo + '">'
+      +'<div style="display:flex;align-items:center;gap:6px">'
+      +'<span>'+icon+'</span>'
+      +'<span class="comp-item-num">'+ esc(it.numero) +'</span>'
+      +'</div>'
+      +'<div class="comp-item-desc">'+ esc(it.descricao) +'</div>'
+      +(meta?'<div class="comp-item-meta">'+ meta +'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
 function mostrarInfoSala(nome) {
   var ab = abreviarSala(nome);
   showToast('ok', esc(ab.curto), ab.bloco ? '📍 ' + esc(ab.bloco) : nome);
@@ -1691,7 +1831,10 @@ function renderProgressRooms() {
       +'<div><div class="prog-room-name">'+esc(ab.curto)+'</div>'
       +(ab.bloco?'<div class="prog-room-block">'+esc(ab.bloco)+'</div>':'')
       +'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:8px">'
       +'<div class="prog-room-count" style="color:'+cor+'">'+feitos+(totalSuap?' / '+totalSuap:'')+'</div>'
+      +(totalSuap?'<button onclick="event.stopPropagation();abrirComparacao(''+escJ(r)+'')" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text2);font-size:10px;cursor:pointer">ver</button>':'')
+      +'</div>'
       +'</div>'
       +'<div class="prog-bar-wrap">'
       +'<div class="prog-bar-bg"><div class="prog-bar-fill" style="width:'+barWidth+'%;background:'+cor+'"></div></div>'
@@ -2043,6 +2186,30 @@ function doInstall() {
     }
     deferredInstallPrompt = null;
   });
+}
+
+// Abre o app instalado automaticamente após instalar
+window.addEventListener('appinstalled', function() {
+  document.getElementById('installBanner').classList.remove('show');
+  deferredInstallPrompt = null;
+  // Tenta abrir a versão standalone (app instalado)
+  setTimeout(function() {
+    // Se ainda estiver no browser (não standalone), redireciona para o app
+    if (!window.matchMedia('(display-mode: standalone)').matches &&
+        !window.navigator.standalone) {
+      showToast('ok', '✅ App instalado!', 'Procure o ícone na tela inicial do celular');
+    }
+  }, 500);
+});
+
+// Se abriu via standalone após instalar, mostra boas-vindas
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  var primeiraVez = !localStorage.getItem('appAberto');
+  if (primeiraVez) {
+    localStorage.setItem('appAberto', '1');
+    // Será mostrado após o app inicializar
+    window._mostrarBoasVindas = true;
+  }
 }
 
 function dismissInstall() {
