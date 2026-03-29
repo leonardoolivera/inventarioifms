@@ -612,7 +612,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v6.0';
+var APP_VERSION = 'v6.1';
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
   var el = document.getElementById('versionFooter');
@@ -1215,14 +1215,16 @@ function syncNow() {
     // Restaura foto do cache em memória (ou IndexedDB via __idb__ marker)
     var foto = (s.type === 'nopat' && photoCache[s.id]) ? photoCache[s.id] : (s.photo || '');
     return {
-      id:     s.id,
-      type:   s.type,
-      code:   s.code   || '',
-      room:   s.room   || '',
-      desc:   s.desc   || '',
-      estado: s.estado || '',
-      photo:  foto,
-      ts:     s.ts,
+      id:          s.id,
+      type:        s.type,
+      code:        s.code        || '',
+      room:        s.room        || '',
+      desc:        s.desc        || '',
+      estado:      s.estado      || '',
+      photo:       foto,
+      ts:          s.ts,
+      funcionario: s.funcionario || '',
+      siape:       s.siape       || '',
     };
   });
 
