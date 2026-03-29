@@ -255,6 +255,32 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .ub-siape{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace}
 .ub-logout{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px}
 
+/* ── PROGRESS SCREEN ── */
+.prog-header{background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:var(--r);padding:16px;margin-bottom:14px}
+.prog-header h3{font-size:16px;font-weight:700;color:#fff}
+.prog-header p{font-size:12px;color:rgba(255,255,255,.7);margin-top:3px}
+.prog-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.prog-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px;text-align:center}
+.prog-stat-n{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.prog-stat-l{font-size:10px;color:var(--text2);margin-top:2px}
+.prog-room-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:8px}
+.prog-room-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px}
+.prog-room-name{font-size:13px;font-weight:600;color:var(--text)}
+.prog-room-block{font-size:10px;color:var(--text2);margin-top:1px}
+.prog-room-count{font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap;margin-left:8px}
+.prog-bar-wrap{margin-top:8px}
+.prog-bar-bg{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.prog-bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s}
+.prog-bar-label{font-size:10px;color:var(--text3);margin-top:3px}
+.prog-empty{text-align:center;padding:40px 20px;color:var(--text2)}
+
+/* ── ROOM ITEM com info ── */
+.room-item-wrap{position:relative}
+.room-info-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.room-info-btn:active{background:var(--surface2);color:var(--accent)}
+.room-name-short{font-size:14px;font-weight:600}
+.room-name-block{font-size:11px;color:var(--text2);margin-top:1px}
+
 /* ── MISC ── */
 .pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
 .pill.ok{background:rgba(34,197,94,.15);color:var(--green)}
@@ -336,10 +362,10 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <div class="ac-title">Escanear</div>
         <div class="ac-sub">Câmera + código</div>
       </div>
-      <div class="action-card" onclick="showScreen('scHistory')">
-        <span class="ac-icon">📋</span>
-        <div class="ac-title">Histórico</div>
-        <div class="ac-sub">Scans da sessão</div>
+      <div class="action-card" onclick="showProgress()">
+        <span class="ac-icon">📊</span>
+        <div class="ac-title">Progresso</div>
+        <div class="ac-sub">Itens por sala</div>
       </div>
       <div class="action-card" onclick="openNoPatModal(null)">
         <span class="ac-icon">📸</span>
@@ -358,7 +384,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   <div class="navbar">
     <button class="nav-btn active" onclick="showScreen('scHome')"><span>🏠</span><span>Início</span></button>
     <button class="nav-btn" onclick="startScanner()"><span>📷</span><span>Scanner</span></button>
-    <button class="nav-btn" onclick="showScreen('scHistory')"><span>📋</span><span>Histórico</span></button>
+    <button class="nav-btn" onclick="showProgress()"><span>📊</span><span>Progresso</span></button>
     <button class="nav-btn" onclick="showScreen('scSettings')"><span>⚙️</span><span>Config</span></button>
   </div>
 </div>
@@ -410,6 +436,28 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
     <button class="nopat-btn" onclick="openNoPatModal(null)">📸 Item sem patrimônio</button>
   <div style="text-align:center;font-size:10px;color:rgba(255,255,255,.3);margin-top:4px">Enquadre apenas 1 item na foto para melhor resultado da IA</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN: PROGRESS
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scProgress">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div><div class="topbar-title">Meu Progresso</div><div class="topbar-sub" id="progSub">—</div></div>
+  </div>
+  <div class="sbody">
+    <div class="prog-header">
+      <h3 id="progUserName">Carregando...</h3>
+      <p id="progDate">—</p>
+    </div>
+    <div class="prog-stats">
+      <div class="prog-stat"><div class="prog-stat-n g" id="progTotal">0</div><div class="prog-stat-l">Total</div></div>
+      <div class="prog-stat"><div class="prog-stat-n b" id="progSalas">0</div><div class="prog-stat-l">Salas</div></div>
+      <div class="prog-stat"><div class="prog-stat-n y" id="progNopat">0</div><div class="prog-stat-l">Sem patrim.</div></div>
+    </div>
+    <div id="progRoomList"></div>
   </div>
 </div>
 
@@ -726,12 +774,20 @@ function roomIcon(i){ return ROOM_ICONS[i % ROOM_ICONS.length]; }
 function renderRoomList() {
   var el = document.getElementById('roomList');
   el.innerHTML = state.rooms.map(function(r, i) {
-    var cnt = state.scans.filter(function(s){ return s.room === r; }).length;
-    return '<div class="room-item'+(state.currentRoom===r?' selected':'')+'" onclick="selectRoom(\''+escJ(r)+'\')">'
+    var cnt  = state.scans.filter(function(s){ return s.room === r; }).length;
+    var ab   = abreviarSala(r);
+    var sel  = state.currentRoom === r;
+    return '<div class="room-item-wrap">'
+      +'<div class="room-item'+(sel?' selected':'')+'" onclick="selectRoom(\''+escJ(r)+'\')" style="padding-right:48px">'
       +'<span class="ri-icon">'+roomIcon(i)+'</span>'
-      +'<div class="ri-info"><div class="ri-name">'+esc(r)+'</div>'
-      +(cnt?'<div class="ri-count">'+cnt+' itens escaneados</div>':'<div class="ri-count">Nenhum scan</div>')+'</div>'
-      +'<span class="ri-check">✓</span></div>';
+      +'<div class="ri-info">'
+      +'<div class="room-name-short">'+esc(ab.curto)+'</div>'
+      +(ab.bloco?'<div class="room-name-block">'+esc(ab.bloco)+'</div>':'')
+      +'<div class="ri-count">'+(cnt?cnt+' itens escaneados':'Nenhum scan')+'</div>'
+      +'</div>'
+      +'<span class="ri-check">&#10003;</span>'
+      +'</div>'
+      +'</div>';
   }).join('');
 }
 
@@ -1415,6 +1471,64 @@ function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:
 
 // ── Login / SIAPE ─────────────────────────────────────────────
 var currentUser = null; // { siape, nome }
+
+function showProgress() {
+  // Atualiza dados antes de mostrar
+  var user = currentUser || { nome: 'Servidor', siape: '' };
+  document.getElementById('progUserName').textContent = user.nome;
+  document.getElementById('progDate').textContent =
+    new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('progSub').textContent =
+    'SIAPE ' + (user.siape || '—');
+
+  // Stats gerais
+  var total  = state.scans.length;
+  var nopat  = state.scans.filter(function(s){ return s.type==='nopat'; }).length;
+  var salas  = [...new Set(state.scans.map(function(s){ return s.room; }))].length;
+  document.getElementById('progTotal').textContent = total;
+  document.getElementById('progSalas').textContent = salas;
+  document.getElementById('progNopat').textContent = nopat;
+
+  // Progresso por sala
+  var porSala = {};
+  state.scans.forEach(function(s) {
+    if (!porSala[s.room]) porSala[s.room] = { total:0, nopat:0 };
+    porSala[s.room].total++;
+    if (s.type==='nopat') porSala[s.room].nopat++;
+  });
+
+  var salasSorted = Object.keys(porSala).sort(function(a,b){
+    return porSala[b].total - porSala[a].total;
+  });
+
+  var max = salasSorted.length ? porSala[salasSorted[0]].total : 1;
+
+  var el = document.getElementById('progRoomList');
+  if (!salasSorted.length) {
+    el.innerHTML = '<div class="prog-empty">📭<br>Nenhum item escaneado ainda</div>';
+  } else {
+    el.innerHTML = salasSorted.map(function(r) {
+      var d   = porSala[r];
+      var ab  = abreviarSala(r);
+      var pct = Math.round((d.total / max) * 100);
+      var cor = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--accent)' : 'var(--yellow)';
+      return '<div class="prog-room-item">'
+        +'<div class="prog-room-header">'
+        +'<div><div class="prog-room-name">'+esc(ab.curto)+'</div>'
+        +(ab.bloco?'<div class="prog-room-block">'+esc(ab.bloco)+'</div>':'')
+        +'</div>'
+        +'<div class="prog-room-count">'+d.total+' itens</div>'
+        +'</div>'
+        +'<div class="prog-bar-wrap">'
+        +'<div class="prog-bar-bg"><div class="prog-bar-fill" style="width:'+pct+'%;background:'+cor+'"></div></div>'
+        +'<div class="prog-bar-label">'+(d.nopat?d.nopat+' sem patrimônio · ':'')+'sala mais ativa: '+(pct===100?'sim':'relativo ao topo')+'</div>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  showScreen('scProgress');
+}
 
 function iniciarApp() {
   var saved = localStorage.getItem('currentUser');
