@@ -413,10 +413,10 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <div class="ac-title">Sem patrim.</div>
         <div class="ac-sub">Foto + descrição</div>
       </div>
-      <div class="action-card" onclick="showScreen('scSettings')">
-        <span class="ac-icon">⚙️</span>
-        <div class="ac-title">Configurar</div>
-        <div class="ac-sub">API e salas</div>
+      <div class="action-card" onclick="abrirSelecaoComparacao()">
+        <span class="ac-icon">🔍</span>
+        <div class="ac-title">Comparação</div>
+        <div class="ac-sub">Itens por sala</div>
       </div>
     </div>
 
@@ -685,7 +685,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v6.9';
+var APP_VERSION = 'v7.1';
 var ROOMS_VERSION = 'suap-2026-v2'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -979,6 +979,16 @@ function renderSettRooms() {
 }
 
 function selectRoom(name) {
+  if (window._modoComparacao) {
+    window._modoComparacao = false;
+    var title = document.querySelector('#scRooms .topbar-title');
+    if (title) title.textContent = 'Selecionar Local';
+    var sub = document.querySelector('#scRooms .topbar-sub');
+    if (sub) sub.textContent = 'Onde você está agora?';
+    goBack();
+    abrirComparacao(name);
+    return;
+  }
   state.currentRoom = name;
   localStorage.setItem('currentRoom', name);
   updateRoomLabel();
@@ -1653,24 +1663,40 @@ function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:
 var currentUser = null; // { siape, nome }
 
 // ── Comparação por sala ──────────────────────────────────────
-var compData = null; // cache dos dados da comparação
+var compCache = null;    // cache de TODAS as salas
+var compSalaAtual = ''; // sala sendo visualizada
 
-function abrirComp(e, btn) {
-  e.stopPropagation();
-  var sala = btn.getAttribute('data-sala');
-  abrirComparacao(sala);
+function abrirSelecaoComparacao() {
+  // Abre seletor de salas no modo comparação
+  compSalaAtual = '';
+  window._modoComparacao = true;
+  showScreen('scRooms');
+  // Muda título da tela de salas
+  var title = document.querySelector('#scRooms .topbar-title');
+  if (title) title.textContent = 'Selecionar sala';
+  var sub = document.querySelector('#scRooms .topbar-sub');
+  if (sub) sub.textContent = 'Toque para ver a comparação';
 }
 
 function abrirComparacao(sala) {
+  compSalaAtual = sala;
   var ab = abreviarSala(sala);
   document.getElementById('compTitle').textContent = ab.curto || sala;
   document.getElementById('compSub').textContent   = ab.bloco || '';
-  document.getElementById('compList').innerHTML    = '<div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>';
+  showScreen('scComparacao');
+
+  // Se já tem cache, usa imediatamente
+  if (compCache) {
+    mostrarCompSala(sala);
+    return;
+  }
+
+  // Primeira vez — busca tudo de uma vez
+  document.getElementById('compList').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando dados...</div>';
   document.getElementById('compCorreto').textContent = '—';
   document.getElementById('compOutro').textContent   = '—';
   document.getElementById('compNao').textContent     = '—';
   document.getElementById('compPend').textContent    = '—';
-  showScreen('scComparacao');
 
   fetch(state.scriptUrl + '?action=comparacaoSala&sala=' + encodeURIComponent(sala), {
     cache: 'no-store', redirect: 'follow'
@@ -1679,19 +1705,30 @@ function abrirComparacao(sala) {
   .then(function(txt) {
     var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
     if (!res.ok) {
-      document.getElementById('compList').innerHTML = '<div class="empty">⚠️ ' + (res.erro || 'Erro') + '</div>';
+      document.getElementById('compList').innerHTML = '<div class="empty">⚠️ ' + (res.erro || 'Erro ao carregar') + '</div>';
       return;
     }
-    compData = res;
-    document.getElementById('compCorreto').textContent = res.stats.correto;
-    document.getElementById('compOutro').textContent   = res.stats.outro_local;
-    document.getElementById('compNao').textContent     = res.stats.nao_localizado;
-    document.getElementById('compPend').textContent    = res.stats.pendente;
-    renderCompList('todos');
+    compCache = res.porSala || {};
+    mostrarCompSala(compSalaAtual);
   })
-  .catch(function(e) {
+  .catch(function() {
     document.getElementById('compList').innerHTML = '<div class="empty">❌ Erro de conexão</div>';
   });
+}
+
+function mostrarCompSala(sala) {
+  var itensRaw = compCache[sala] || [];
+  // [numero, desc, tipo, localAchado, quemAchou]
+  var stats = { correto:0, outro_local:0, nao_localizado:0, pendente:0 };
+  itensRaw.forEach(function(it){ stats[it[2]] = (stats[it[2]]||0) + 1; });
+  document.getElementById('compCorreto').textContent = stats.correto || 0;
+  document.getElementById('compOutro').textContent   = stats.outro_local || 0;
+  document.getElementById('compNao').textContent     = stats.nao_localizado || 0;
+  document.getElementById('compPend').textContent    = stats.pendente || 0;
+  // Reset filtro
+  document.querySelectorAll('.comp-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.comp-filter-btn').classList.add('active');
+  renderCompList('todos');
 }
 
 function filtrarComp(tipo, btn) {
@@ -1701,34 +1738,28 @@ function filtrarComp(tipo, btn) {
 }
 
 function renderCompList(filtro) {
-  if (!compData) return;
-  var itens = compData.itens;
+  if (!compCache) return;
+  var itensRaw = compCache[compSalaAtual] || [];
+  // [numero, desc, tipo, localAchado, quemAchou]
   if (filtro !== 'todos') {
-    itens = itens.filter(function(it){ return it.tipo === filtro; });
+    itensRaw = itensRaw.filter(function(it){ return it[2] === filtro; });
   }
-
-  if (!itens.length) {
+  if (!itensRaw.length) {
     document.getElementById('compList').innerHTML = '<div class="empty">Nenhum item nesta categoria</div>';
     return;
   }
-
-  var icons = { correto: '✅', outro_local: '🟡', nao_localizado: '❌', pendente: '⏳' };
-
-  document.getElementById('compList').innerHTML = itens.map(function(it) {
-    var icon = icons[it.tipo] || '•';
+  var icons = { correto:'✅', outro_local:'🟡', nao_localizado:'❌', pendente:'⏳' };
+  document.getElementById('compList').innerHTML = itensRaw.map(function(it) {
+    var tipo = it[2], icon = icons[tipo] || '•';
     var meta = '';
-    if (it.tipo === 'outro_local') {
-      meta = '📍 Achado em: ' + esc(it.localAchado) + (it.quemAchou ? ' · ' + esc(it.quemAchou.split('·')[0]) : '');
-    } else if (it.tipo === 'nao_localizado') {
-      meta = 'Não encontrado no inventário';
-    }
-    return '<div class="comp-item ' + it.tipo + '">'
+    if (tipo === 'outro_local' && it[3]) meta = '📍 ' + esc(it[3]) + (it[4]?' · '+esc(it[4]):'');
+    if (tipo === 'nao_localizado')       meta = 'Não encontrado';
+    return '<div class="comp-item '+tipo+'">'
       +'<div style="display:flex;align-items:center;gap:6px">'
-      +'<span>'+icon+'</span>'
-      +'<span class="comp-item-num">'+ esc(it.numero) +'</span>'
+      +'<span>'+icon+'</span><span class="comp-item-num">'+esc(it[0])+'</span>'
       +'</div>'
-      +'<div class="comp-item-desc">'+ esc(it.descricao) +'</div>'
-      +(meta?'<div class="comp-item-meta">'+ meta +'</div>':'')
+      +'<div class="comp-item-desc">'+esc(it[1])+'</div>'
+      +(meta?'<div class="comp-item-meta">'+meta+'</div>':'')
       +'</div>';
   }).join('');
 }
@@ -1834,7 +1865,7 @@ function renderProgressRooms() {
       +'<div class="prog-room-header">'
       +'<div style="display:flex;align-items:center;gap:8px">'
       +'<div class="prog-room-count" style="color:'+cor+'">'+feitos+(totalSuap?' / '+totalSuap:'')+'</div>'
-      +(totalSuap?'<button onclick="abrirComp(event,this)" data-sala="'+escJ(r)+'" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text2);font-size:10px;cursor:pointer">ver</button>':'')
+
       +'</div>'+'</div>'
       +'<div class="prog-bar-wrap">'
       +'<div class="prog-bar-bg"><div class="prog-bar-fill" style="width:'+barWidth+'%;background:'+cor+'"></div></div>'
