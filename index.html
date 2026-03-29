@@ -612,7 +612,8 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v6.1';
+var APP_VERSION = 'v6.4';
+var ROOMS_VERSION = 'suap-2026-v1'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
   var el = document.getElementById('versionFooter');
@@ -628,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ═══════════════════════════════════════════════
 var state = {
   currentRoom: localStorage.getItem('currentRoom') || '',
-  rooms: JSON.parse(localStorage.getItem('rooms') || '["Guarita","Secretaria","Biblioteca","Laboratório","Sala dos Professores","Diretoria","Almoxarifado","Refeitório"]'),
+  rooms: JSON.parse(localStorage.getItem('rooms') || JSON.stringify(getSalasSUAP())),
   scriptUrl: localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbwH692tN_mtBmFF-_bPlkucI9dVkorAPqFJfAGhkHW-QhUe8CC3vppFpxDOLpLg5uijUA/exec',
   scans: JSON.parse(localStorage.getItem('scans') || '[]'),
   pendingSync: JSON.parse(localStorage.getItem('pendingSync') || '[]'),
@@ -664,33 +665,52 @@ window.addEventListener('popstate', function(e) {
 // Empurra estado inicial
 history.pushState(null, '', window.location.href);
 
-// Registra Service Worker para PWA
+// ── Service Worker — atualização automática ──────────────────
 if ('serviceWorker' in navigator) {
+  var swReloading = false;
+
+  function recarregarSeNecessario() {
+    if (swReloading) return;
+    swReloading = true;
+    window.location.reload(true);
+  }
+
   navigator.serviceWorker.register('/inventarioifms/sw.js').then(function(reg) {
 
-    // Quando encontrar nova versão, ativa imediatamente
+    // SW novo instalando — quando ativar, recarrega
     reg.addEventListener('updatefound', function() {
-      var newSW = reg.installing;
-      newSW.addEventListener('statechange', function() {
-        if (newSW.state === 'activated') {
-          // Nova versão ativa — recarrega silenciosamente
-          window.location.reload();
+      var novaSW = reg.installing;
+      if (!novaSW) return;
+      novaSW.addEventListener('statechange', function() {
+        if (novaSW.state === 'activated') {
+          recarregarSeNecessario();
         }
       });
     });
 
-    // Verifica atualização agora e a cada 2 minutos
+    // Verifica atualização ao abrir e a cada 2min
     reg.update();
     setInterval(function() { reg.update(); }, 2 * 60 * 1000);
 
-  }).catch(function(e){ console.warn('SW:', e); });
-
-  // Recebe mensagem do SW quando atualiza
-  navigator.serviceWorker.addEventListener('message', function(e) {
-    if (e.data && e.data.type === 'SW_UPDATED') {
-      console.log('SW atualizado para', e.data.version);
-      window.location.reload();
+    // Se já tem SW ativo, verifica versão
+    if (reg.active) {
+      reg.active.postMessage({ type: 'GET_VERSION' });
     }
+
+  }).catch(function(e) { console.warn('SW register error:', e); });
+
+  // Mensagem do SW (nova versão ativada)
+  navigator.serviceWorker.addEventListener('message', function(e) {
+    if (!e.data) return;
+    if (e.data.type === 'SW_ACTIVATED') {
+      console.log('SW ativado:', e.data.version);
+      recarregarSeNecessario();
+    }
+  });
+
+  // Quando o SW toma controle (após skipWaiting), recarrega
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    recarregarSeNecessario();
   });
 }
 
@@ -780,18 +800,16 @@ function goBack() {
 var ROOM_ICONS = ['🏛️','📚','🔬','🍽️','🏥','🏠','📦','🚪','🖥️','⚙️'];
 function roomIcon(i){ return ROOM_ICONS[i % ROOM_ICONS.length]; }
 
+function getSalasSUAP() {
+  return ["CONTAINER QUADRA (QUADRA POLIESPORTIVA)", "LABORATÓRIO INFORMÁTICA 4 (Bloco B)", "LABORATÓRIO INFORMÁTICA 2 (Bloco B)", "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)", "COORDENAÇÕES (Bloco A)", "LABORATÓRIO INFORMÁTICA 1 (Bloco B)", "LABORATÓRIO INFORMÁTICA 3 (Bloco B)", "CENID (SALAS MODULARES)", "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)", "ALMOXARIFADO (Bloco A)", "CORREDOR SUPERIOR (Bloco A)", "CRC (BARRACÃO CRC)", "COZINHA (Bloco A)", "BIBLIOTECA (Bloco A)", "ROBÓTICA (SALAS MODULARES)", "DATACENTER (Bloco B)", "IFMaker (Bloco B)", "DIRAD I (Bloco A)", "LABORATÓRIO INFORMÁTICA 5 (Bloco B)", "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)", "DIREN (Bloco A)", "NUGED (Bloco A)", "M-01 (SALAS MODULARES)", "SL 04 (BLOCO C)", "SL 01 (BLOCO C)", "GAMELAB (Bloco B)", "SALA DOS PROFESSORES 2 (Bloco A)", "SL 07 (BLOCO C)", "CEREL (Bloco A)", "SL 08 (BLOCO C)", "SL 02 (BLOCO C)", "SL 05 (BLOCO C)", "SL 03 (BLOCO C)", "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)", "SL 10 (BLOCO C)", "SL 06 (BLOCO C)", "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)", "GABINETE (Bloco A)", "IFSTUDIO (Bloco B)", "SL 09 (BLOCO C)", "BOSQUE (BOSQUE)", "APOIO ALMOXARIFADO (Bloco A)", "DIRAD II (Bloco A)", "Sala de Artes (SALAS MODULARES)", "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)", "SERTI (Bloco B)", "TECNOIF DR (SALAS MODULARES)", "SHAFT SALA APOIO COALP / COADS (Bloco A)", "DIRGE (Bloco A)", "SALA DOS PROFESSORES 3 (Bloco A)", "SALA DOS PROFESSORES 1 (Bloco A)", "CORREDOR INFERIOR (Bloco A)", "Inventário (Bloco A)", "PERMANÊNCIA ESTUDANTIL (BLOCO C)", "SALA DE ATENDIMENTO NUGED (Bloco A)", "SALA APOIO COALP / COADS (Bloco A)", "COPA (Bloco A)", "ENFERMARIA (BLOCO C)", "NAPNE (Bloco A)", "ASSISTENTE DE ALUNOS (BLOCO C)", "CORREDOR INFERIOR (Bloco B)", "REFEITORIO SERVIDORES (Bloco A)", "Laboratório de Humanas (SALAS MODULARES)", "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)", "CORREDOR SUPERIOR (Bloco B)", "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)", "GUARITA (GUARITA)", "PÁTIO BLOCO B (Bloco B)", "CORREDOR E HALL BLOCO C (BLOCO C)", "SALA DE APOIO TERCEIRIZADOS (Bloco A)", "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)", "HALL E CORREDOR (BLOCO C)", "ESTUDIO 1 (Bloco B)", "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)", "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)", "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)", "ESTUDIO 2 (Bloco B)", "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)", "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)", "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)", "LÓGICA (BLOCO C)", "SHAFT DIRAD 1 (Bloco A)", "SALA VAGA (Bloco B)", "CANTINA (Bloco A)", "ESTACIONAMENTO GERAL (ESTACIONAMENTO)", "BARRACÃO (PÁTIO EXTERNO FUNDOS.)", "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)", "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)", "ÁREA DAS SALAS MODULARES (SALAS MODULARES)"];
+}
+
+var SALA_MAP = {"CONTAINER QUADRA (QUADRA POLIESPORTIVA)": {"curto": "Container Quadra", "bloco": "QUADRA POLIESPORTIVA"}, "LABORATÓRIO INFORMÁTICA 4 (Bloco B)": {"curto": "Lab. Informática 4", "bloco": "Bloco B"}, "LABORATÓRIO INFORMÁTICA 2 (Bloco B)": {"curto": "Lab. Informática 2", "bloco": "Bloco B"}, "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)": {"curto": "Lab. Química/Mat.", "bloco": "Bloco B"}, "COORDENAÇÕES (Bloco A)": {"curto": "Coordenações", "bloco": "Bloco A"}, "LABORATÓRIO INFORMÁTICA 1 (Bloco B)": {"curto": "Lab. Informática 1", "bloco": "Bloco B"}, "LABORATÓRIO INFORMÁTICA 3 (Bloco B)": {"curto": "Lab. Informática 3", "bloco": "Bloco B"}, "CENID (SALAS MODULARES)": {"curto": "CENID", "bloco": "SALAS MODULARES"}, "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)": {"curto": "Lab. Biologia/Física", "bloco": "Bloco B"}, "ALMOXARIFADO (Bloco A)": {"curto": "Almoxarifado", "bloco": "Bloco A"}, "CORREDOR SUPERIOR (Bloco A)": {"curto": "Corredor Superior", "bloco": "Bloco A"}, "CRC (BARRACÃO CRC)": {"curto": "CRC", "bloco": "Barracão CRC"}, "COZINHA (Bloco A)": {"curto": "Cozinha", "bloco": "Bloco A"}, "BIBLIOTECA (Bloco A)": {"curto": "Biblioteca", "bloco": "Bloco A"}, "ROBÓTICA (SALAS MODULARES)": {"curto": "Robótica", "bloco": "SALAS MODULARES"}, "DATACENTER (Bloco B)": {"curto": "DataCenter", "bloco": "Bloco B"}, "IFMaker (Bloco B)": {"curto": "IFMaker", "bloco": "Bloco B"}, "DIRAD I (Bloco A)": {"curto": "DIRAD I", "bloco": "Bloco A"}, "LABORATÓRIO INFORMÁTICA 5 (Bloco B)": {"curto": "Lab. Informática 5", "bloco": "Bloco B"}, "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)": {"curto": "Container Patrimônio", "bloco": "ÁREA EXTERNA"}, "DIREN (Bloco A)": {"curto": "DIREN", "bloco": "Bloco A"}, "NUGED (Bloco A)": {"curto": "NUGED", "bloco": "Bloco A"}, "M-01 (SALAS MODULARES)": {"curto": "M-01", "bloco": "SALAS MODULARES"}, "SL 04 (BLOCO C)": {"curto": "SL 04", "bloco": "BLOCO C"}, "SL 01 (BLOCO C)": {"curto": "SL 01", "bloco": "BLOCO C"}, "GAMELAB (Bloco B)": {"curto": "GameLab", "bloco": "Bloco B"}, "SALA DOS PROFESSORES 2 (Bloco A)": {"curto": "Sala dos Professores 2", "bloco": "Bloco A"}, "SL 07 (BLOCO C)": {"curto": "SL 07", "bloco": "BLOCO C"}, "CEREL (Bloco A)": {"curto": "CEREL", "bloco": "Bloco A"}, "SL 08 (BLOCO C)": {"curto": "SL 08", "bloco": "BLOCO C"}, "SL 02 (BLOCO C)": {"curto": "SL 02", "bloco": "BLOCO C"}, "SL 05 (BLOCO C)": {"curto": "SL 05", "bloco": "BLOCO C"}, "SL 03 (BLOCO C)": {"curto": "SL 03", "bloco": "BLOCO C"}, "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)": {"curto": "Área de Convivência", "bloco": "ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B"}, "SL 10 (BLOCO C)": {"curto": "SL 10", "bloco": "BLOCO C"}, "SL 06 (BLOCO C)": {"curto": "SL 06", "bloco": "BLOCO C"}, "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)": {"curto": "Sala de Reuniões", "bloco": "Bloco A"}, "GABINETE (Bloco A)": {"curto": "Gabinete", "bloco": "Bloco A"}, "IFSTUDIO (Bloco B)": {"curto": "IFStudio", "bloco": "Bloco B"}, "SL 09 (BLOCO C)": {"curto": "SL 09", "bloco": "BLOCO C"}, "BOSQUE (BOSQUE)": {"curto": "Bosque", "bloco": "BOSQUE"}, "APOIO ALMOXARIFADO (Bloco A)": {"curto": "Apoio Almoxarifado", "bloco": "Bloco A"}, "DIRAD II (Bloco A)": {"curto": "DIRAD II", "bloco": "Bloco A"}, "Sala de Artes (SALAS MODULARES)": {"curto": "Sala de Artes", "bloco": "SALAS MODULARES"}, "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)": {"curto": "Almoxarifado Container", "bloco": "ÁREA EXTERNA"}, "SERTI (Bloco B)": {"curto": "SERTI", "bloco": "Bloco B"}, "TECNOIF DR (SALAS MODULARES)": {"curto": "TECNOIF DR", "bloco": "SALAS MODULARES"}, "SHAFT SALA APOIO COALP / COADS (Bloco A)": {"curto": "SHAFT Apoio COALP/COADS", "bloco": "Bloco A"}, "DIRGE (Bloco A)": {"curto": "DIRGE", "bloco": "Bloco A"}, "SALA DOS PROFESSORES 3 (Bloco A)": {"curto": "Sala dos Professores 3", "bloco": "Bloco A"}, "SALA DOS PROFESSORES 1 (Bloco A)": {"curto": "Sala dos Professores 1", "bloco": "Bloco A"}, "CORREDOR INFERIOR (Bloco A)": {"curto": "Corredor Inferior", "bloco": "Bloco A"}, "Inventário (Bloco A)": {"curto": "Inventário", "bloco": "Bloco A"}, "PERMANÊNCIA ESTUDANTIL (BLOCO C)": {"curto": "Permanência Estudantil", "bloco": "BLOCO C"}, "SALA DE ATENDIMENTO NUGED (Bloco A)": {"curto": "Atendimento NUGED", "bloco": "Bloco A"}, "SALA APOIO COALP / COADS (Bloco A)": {"curto": "Apoio COALP/COADS", "bloco": "Bloco A"}, "COPA (Bloco A)": {"curto": "Copa", "bloco": "Bloco A"}, "ENFERMARIA (BLOCO C)": {"curto": "Enfermaria", "bloco": "BLOCO C"}, "NAPNE (Bloco A)": {"curto": "NAPNE", "bloco": "Bloco A"}, "ASSISTENTE DE ALUNOS (BLOCO C)": {"curto": "Assistente de Alunos", "bloco": "BLOCO C"}, "CORREDOR INFERIOR (Bloco B)": {"curto": "Corredor Inferior", "bloco": "Bloco B"}, "REFEITORIO SERVIDORES (Bloco A)": {"curto": "Refeitório Servidores", "bloco": "Bloco A"}, "Laboratório de Humanas (SALAS MODULARES)": {"curto": "Lab. de Humanas", "bloco": "SALAS MODULARES"}, "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)": {"curto": "LAFIF", "bloco": "SALAS MODULARES"}, "CORREDOR SUPERIOR (Bloco B)": {"curto": "Corredor Superior", "bloco": "Bloco B"}, "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)": {"curto": "Estac. Veículos Oficiais", "bloco": "ESTACIONAMENTO"}, "GUARITA (GUARITA)": {"curto": "Guarita", "bloco": "GUARITA"}, "PÁTIO BLOCO B (Bloco B)": {"curto": "Pátio Bloco B", "bloco": "Bloco B"}, "CORREDOR E HALL BLOCO C (BLOCO C)": {"curto": "Corredor/Hall Bloco C", "bloco": "BLOCO C"}, "SALA DE APOIO TERCEIRIZADOS (Bloco A)": {"curto": "Apoio Terceirizados", "bloco": "Bloco A"}, "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)": {"curto": "Entrada Estudantes", "bloco": "ÁREA EXTERNA"}, "HALL E CORREDOR (BLOCO C)": {"curto": "Hall/Corredor", "bloco": "BLOCO C"}, "ESTUDIO 1 (Bloco B)": {"curto": "ESTUDIO 1", "bloco": "Bloco B"}, "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)": {"curto": "Quadra Poliesportiva", "bloco": "ÁREA EXTERNA"}, "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)": {"curto": "Shaft Central Inf. Bloco A", "bloco": "Bloco A"}, "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)": {"curto": "Shaft Central Sup. Bloco A", "bloco": "Bloco A"}, "ESTUDIO 2 (Bloco B)": {"curto": "ESTUDIO 2", "bloco": "Bloco B"}, "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)": {"curto": "Shaft Escada Bloco B", "bloco": "Bloco B"}, "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)": {"curto": "Shaft Central Inf. Bloco B", "bloco": "Bloco B"}, "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)": {"curto": "APOIO Lab. Informática", "bloco": "Bloco B"}, "LÓGICA (BLOCO C)": {"curto": "Lógica", "bloco": "BLOCO C"}, "SHAFT DIRAD 1 (Bloco A)": {"curto": "Shaft DIRAD 1", "bloco": "Bloco A"}, "SALA VAGA (Bloco B)": {"curto": "SALA VAGA", "bloco": "Bloco B"}, "CANTINA (Bloco A)": {"curto": "Cantina", "bloco": "Bloco A"}, "ESTACIONAMENTO GERAL (ESTACIONAMENTO)": {"curto": "Estacionamento Geral", "bloco": "ESTACIONAMENTO"}, "BARRACÃO (PÁTIO EXTERNO FUNDOS.)": {"curto": "Barracão", "bloco": "PÁTIO EXTERNO FUNDOS."}, "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)": {"curto": "Shaft Escada Bloco A", "bloco": "Bloco A"}, "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)": {"curto": "SHAFT Lab. Informática 4", "bloco": "Bloco B"}, "ÁREA DAS SALAS MODULARES (SALAS MODULARES)": {"curto": "Área Salas Modulares", "bloco": "SALAS MODULARES"}};
+
 function abreviarSala(nome) {
-  var ab = String(nome || '')
-    .replace(/LABORAT[ÓO]RIO/gi, 'Lab.')
-    .replace(/INFORM[ÁA]TICA/gi, 'Inf.')
-    .replace(/COORDENA[ÇC][ÕO]ES/gi, 'Coordenações')
-    .replace(/AUDIT[ÓO]RIO/gi, 'Auditório')
-    .replace(/REFEIT[ÓO]RIO/gi, 'Refeitório')
-    .replace(/BIBLIOTECA/gi, 'Biblioteca')
-    .replace(/ALMOXARIFADO/gi, 'Almoxarifado')
-    .replace(/SECRETARIA/gi, 'Secretaria')
-    .replace(/DIRETORIA/gi, 'Diretoria')
-    .replace(/SALA DE AULA/gi, 'Sala de Aula');
+  if (SALA_MAP[nome]) return SALA_MAP[nome];
+  // Fallback para nomes não mapeados
+  var ab = String(nome || '');
   var bloco = '';
   var pi = ab.indexOf('('), pf = ab.lastIndexOf(')');
   if (pi > -1 && pf > pi) { bloco = ab.slice(pi+1, pf); ab = ab.slice(0, pi).trim(); }
@@ -804,16 +822,19 @@ function renderRoomList() {
     var cnt  = state.scans.filter(function(s){ return s.room === r; }).length;
     var ab   = abreviarSala(r);
     var sel  = state.currentRoom === r;
+    var infoBtn = ab.bloco
+      ? '<button class="room-info-btn" onclick="event.stopPropagation();mostrarInfoSala(\''+escJ(r)+'\')" title="'+esc(ab.bloco)+'">ⓘ</button>'
+      : '';
     return '<div class="room-item-wrap">'
-      +'<div class="room-item'+(sel?' selected':'')+'" onclick="selectRoom(\''+escJ(r)+'\')" style="padding-right:48px">'
+      +'<div class="room-item'+(sel?' selected':'')+'" onclick="selectRoom(\''+escJ(r)+'\')" style="padding-right:'+(ab.bloco?'80':'48')+'px">'
       +'<span class="ri-icon">'+roomIcon(i)+'</span>'
       +'<div class="ri-info">'
       +'<div class="room-name-short">'+esc(ab.curto)+'</div>'
-      +(ab.bloco?'<div class="room-name-block">'+esc(ab.bloco)+'</div>':'')
       +'<div class="ri-count">'+(cnt?cnt+' itens escaneados':'Nenhum scan')+'</div>'
       +'</div>'
       +'<span class="ri-check">&#10003;</span>'
       +'</div>'
+      +infoBtn
       +'</div>';
   }).join('');
 }
@@ -1501,6 +1522,11 @@ function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:
 // ── Login / SIAPE ─────────────────────────────────────────────
 var currentUser = null; // { siape, nome }
 
+function mostrarInfoSala(nome) {
+  var ab = abreviarSala(nome);
+  showToast('ok', esc(ab.curto), ab.bloco ? '📍 ' + esc(ab.bloco) : nome);
+}
+
 function showProgress() {
   // Atualiza dados antes de mostrar
   var user = currentUser || { nome: 'Servidor', siape: '' };
@@ -1561,6 +1587,15 @@ function showProgress() {
 }
 
 function iniciarApp() {
+  // Atualiza lista de salas se versão mudou
+  if (localStorage.getItem('roomsVersion') !== ROOMS_VERSION) {
+    var novaLista = getSalasSUAP();
+    state.rooms = novaLista;
+    localStorage.setItem('rooms', JSON.stringify(novaLista));
+    localStorage.setItem('roomsVersion', ROOMS_VERSION);
+    console.log('Salas atualizadas para ' + ROOMS_VERSION);
+  }
+
   var saved = localStorage.getItem('currentUser');
   if (saved) {
     try {
