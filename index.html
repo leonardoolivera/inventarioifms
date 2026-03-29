@@ -379,7 +379,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       </div>
     </div>
 
-    <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter">v3.4 · Inventário Campus</div>
+    <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter"></div>
   </div>
   <div class="navbar">
     <button class="nav-btn active" onclick="showScreen('scHome')"><span>🏠</span><span>Início</span></button>
@@ -612,7 +612,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v5.9';
+var APP_VERSION = 'v6.0';
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -1484,7 +1484,8 @@ function showProgress() {
   // Stats gerais
   var total  = state.scans.length;
   var nopat  = state.scans.filter(function(s){ return s.type==='nopat'; }).length;
-  var salas  = [...new Set(state.scans.map(function(s){ return s.room; }))].length;
+  var _rooms = {}; state.scans.forEach(function(s){ _rooms[s.room]=1; });
+  var salas  = Object.keys(_rooms).length;
   document.getElementById('progTotal').textContent = total;
   document.getElementById('progSalas').textContent = salas;
   document.getElementById('progNopat').textContent = nopat;
