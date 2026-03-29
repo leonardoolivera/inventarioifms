@@ -627,7 +627,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v6.5';
+var APP_VERSION = 'v6.6';
 var ROOMS_VERSION = 'suap-2026-v2'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -1592,6 +1592,33 @@ function mostrarInfoSala(nome) {
   showToast('ok', esc(ab.curto), ab.bloco ? '📍 ' + esc(ab.bloco) : nome);
 }
 
+// Cache de totais do SUAP
+var suapTotais = null;
+var suapEncontrados = null;
+var suapCarregando = false;
+
+function carregarTotaisSUAP(callback) {
+  if (suapTotais) { callback(); return; }
+  if (suapCarregando) { setTimeout(function(){ carregarTotaisSUAP(callback); }, 500); return; }
+  if (!state.scriptUrl) { callback(); return; }
+
+  suapCarregando = true;
+  fetch(state.scriptUrl + '?action=totalPorSala', { cache: 'no-store' })
+    .then(function(r) { return r.text(); })
+    .then(function(txt) {
+      var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
+      if (res.ok) {
+        suapTotais      = res.porSala      || {};
+        suapEncontrados = res.encontrados  || {};
+      }
+    })
+    .catch(function(){})
+    .finally(function() {
+      suapCarregando = false;
+      callback();
+    });
+}
+
 function showProgress() {
   // Atualiza dados antes de mostrar
   var user = currentUser || { nome: 'Servidor', siape: '' };
@@ -1601,54 +1628,77 @@ function showProgress() {
   document.getElementById('progSub').textContent =
     'SIAPE ' + (user.siape || '—');
 
+  // Carrega totais do SUAP e atualiza tela
+  carregarTotaisSUAP(function() {
+    renderProgressRooms();
+  });
+
+  showScreen('scProgress');
+}
+
+function renderProgressRooms() {
   // Stats gerais
   var total  = state.scans.length;
   var nopat  = state.scans.filter(function(s){ return s.type==='nopat'; }).length;
-  var _rooms = {}; state.scans.forEach(function(s){ _rooms[s.room]=1; });
-  var salas  = Object.keys(_rooms).length;
+  var _rms   = {}; state.scans.forEach(function(s){ _rms[s.room]=1; });
+  var salas  = Object.keys(_rms).length;
   document.getElementById('progTotal').textContent = total;
   document.getElementById('progSalas').textContent = salas;
   document.getElementById('progNopat').textContent = nopat;
 
-  // Progresso por sala
+  // Progresso por sala — combina scans locais com totais do SUAP
   var porSala = {};
   state.scans.forEach(function(s) {
-    if (!porSala[s.room]) porSala[s.room] = { total:0, nopat:0 };
-    porSala[s.room].total++;
-    if (s.type==='nopat') porSala[s.room].nopat++;
+    if (!porSala[s.room]) porSala[s.room] = { scan:0, nopat:0 };
+    if (s.type === 'nopat') porSala[s.room].nopat++;
+    else porSala[s.room].scan++;
   });
 
   var salasSorted = Object.keys(porSala).sort(function(a,b){
-    return porSala[b].total - porSala[a].total;
+    return (porSala[b].scan + porSala[b].nopat) - (porSala[a].scan + porSala[a].nopat);
   });
-
-  var max = salasSorted.length ? porSala[salasSorted[0]].total : 1;
 
   var el = document.getElementById('progRoomList');
   if (!salasSorted.length) {
     el.innerHTML = '<div class="prog-empty">📭<br>Nenhum item escaneado ainda</div>';
-  } else {
-    el.innerHTML = salasSorted.map(function(r) {
-      var d   = porSala[r];
-      var ab  = abreviarSala(r);
-      var pct = Math.round((d.total / max) * 100);
-      var cor = pct >= 80 ? 'var(--green)' : pct >= 40 ? 'var(--accent)' : 'var(--yellow)';
-      return '<div class="prog-room-item">'
-        +'<div class="prog-room-header">'
-        +'<div><div class="prog-room-name">'+esc(ab.curto)+'</div>'
-        +(ab.bloco?'<div class="prog-room-block">'+esc(ab.bloco)+'</div>':'')
-        +'</div>'
-        +'<div class="prog-room-count">'+d.total+' itens</div>'
-        +'</div>'
-        +'<div class="prog-bar-wrap">'
-        +'<div class="prog-bar-bg"><div class="prog-bar-fill" style="width:'+pct+'%;background:'+cor+'"></div></div>'
-        +'<div class="prog-bar-label">'+(d.nopat?d.nopat+' sem patrimônio · ':'')+'sala mais ativa: '+(pct===100?'sim':'relativo ao topo')+'</div>'
-        +'</div>'
-        +'</div>';
-    }).join('');
+    return;
   }
 
-  showScreen('scProgress');
+  el.innerHTML = salasSorted.map(function(r) {
+    var d       = porSala[r];
+    var ab      = abreviarSala(r);
+    var feitos  = d.scan + d.nopat;
+    var emoji   = ab.emoji || '📍';
+
+    // Busca total do SUAP para esta sala
+    var totalSuap = suapTotais ? (suapTotais[r] || 0) : 0;
+    var pct = totalSuap > 0 ? Math.min(100, Math.round(feitos / totalSuap * 100)) : null;
+    var cor = pct === null ? 'var(--accent)'
+            : pct >= 90  ? 'var(--green)'
+            : pct >= 50  ? 'var(--accent)'
+            : 'var(--yellow)';
+
+    var barLabel = totalSuap > 0
+      ? feitos + ' de ' + totalSuap + ' itens (' + pct + '%)'
+      : feitos + ' itens' + (d.nopat ? ' · ' + d.nopat + ' sem patrim.' : '');
+
+    var barWidth = pct !== null ? pct : Math.min(100, Math.round(feitos / 10 * 100));
+
+    return '<div class="prog-room-item">'
+      +'<div class="prog-room-header">'
+      +'<div style="display:flex;align-items:center;gap:8px">'
+      +'<span style="font-size:18px">'+emoji+'</span>'
+      +'<div><div class="prog-room-name">'+esc(ab.curto)+'</div>'
+      +(ab.bloco?'<div class="prog-room-block">'+esc(ab.bloco)+'</div>':'')
+      +'</div></div>'
+      +'<div class="prog-room-count" style="color:'+cor+'">'+feitos+(totalSuap?' / '+totalSuap:'')+'</div>'
+      +'</div>'
+      +'<div class="prog-bar-wrap">'
+      +'<div class="prog-bar-bg"><div class="prog-bar-fill" style="width:'+barWidth+'%;background:'+cor+'"></div></div>'
+      +'<div class="prog-bar-label">'+barLabel+'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
 }
 
 function iniciarApp() {
