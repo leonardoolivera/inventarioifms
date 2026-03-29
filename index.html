@@ -613,6 +613,15 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
 var APP_VERSION = 'v6.0';
+// Aplica versão imediatamente (não espera window.load)
+document.addEventListener('DOMContentLoaded', function() {
+  var el = document.getElementById('versionFooter');
+  if (el) el.textContent = APP_VERSION + ' · Inventário Campus';
+  var vs = document.getElementById('versionSettings');
+  if (vs) vs.textContent = APP_VERSION;
+  var vl = document.getElementById('versionLogin');
+  if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
+});
 
 // ═══════════════════════════════════════════════
 //  STATE
@@ -770,6 +779,24 @@ function goBack() {
 // ═══════════════════════════════════════════════
 var ROOM_ICONS = ['🏛️','📚','🔬','🍽️','🏥','🏠','📦','🚪','🖥️','⚙️'];
 function roomIcon(i){ return ROOM_ICONS[i % ROOM_ICONS.length]; }
+
+function abreviarSala(nome) {
+  var ab = String(nome || '')
+    .replace(/LABORAT[ÓO]RIO/gi, 'Lab.')
+    .replace(/INFORM[ÁA]TICA/gi, 'Inf.')
+    .replace(/COORDENA[ÇC][ÕO]ES/gi, 'Coordenações')
+    .replace(/AUDIT[ÓO]RIO/gi, 'Auditório')
+    .replace(/REFEIT[ÓO]RIO/gi, 'Refeitório')
+    .replace(/BIBLIOTECA/gi, 'Biblioteca')
+    .replace(/ALMOXARIFADO/gi, 'Almoxarifado')
+    .replace(/SECRETARIA/gi, 'Secretaria')
+    .replace(/DIRETORIA/gi, 'Diretoria')
+    .replace(/SALA DE AULA/gi, 'Sala de Aula');
+  var bloco = '';
+  var pi = ab.indexOf('('), pf = ab.lastIndexOf(')');
+  if (pi > -1 && pf > pi) { bloco = ab.slice(pi+1, pf); ab = ab.slice(0, pi).trim(); }
+  return { curto: ab, bloco: bloco };
+}
 
 function renderRoomList() {
   var el = document.getElementById('roomList');
