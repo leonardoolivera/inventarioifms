@@ -1655,6 +1655,12 @@ var currentUser = null; // { siape, nome }
 // ── Comparação por sala ──────────────────────────────────────
 var compData = null; // cache dos dados da comparação
 
+function abrirComp(e, btn) {
+  e.stopPropagation();
+  var sala = btn.getAttribute('data-sala');
+  abrirComparacao(sala);
+}
+
 function abrirComparacao(sala) {
   var ab = abreviarSala(sala);
   document.getElementById('compTitle').textContent = ab.curto || sala;
@@ -1827,15 +1833,9 @@ function renderProgressRooms() {
     return '<div class="prog-room-item">'
       +'<div class="prog-room-header">'
       +'<div style="display:flex;align-items:center;gap:8px">'
-      +'<span style="font-size:18px">'+emoji+'</span>'
-      +'<div><div class="prog-room-name">'+esc(ab.curto)+'</div>'
-      +(ab.bloco?'<div class="prog-room-block">'+esc(ab.bloco)+'</div>':'')
-      +'</div></div>'
-      +'<div style="display:flex;align-items:center;gap:8px">'
       +'<div class="prog-room-count" style="color:'+cor+'">'+feitos+(totalSuap?' / '+totalSuap:'')+'</div>'
-      +(totalSuap?'<button onclick="event.stopPropagation();abrirComparacao(''+escJ(r)+'')" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text2);font-size:10px;cursor:pointer">ver</button>':'')
-      +'</div>'
-      +'</div>'
+      +(totalSuap?'<button onclick="abrirComp(event,this)" data-sala="'+escJ(r)+'" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;color:var(--text2);font-size:10px;cursor:pointer">ver</button>':'')
+      +'</div>'+'</div>'
       +'<div class="prog-bar-wrap">'
       +'<div class="prog-bar-bg"><div class="prog-bar-fill" style="width:'+barWidth+'%;background:'+cor+'"></div></div>'
       +'<div class="prog-bar-label">'+barLabel+'</div>'
