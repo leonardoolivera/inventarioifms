@@ -696,7 +696,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v7.8';
+var APP_VERSION = 'v7.9';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -959,6 +959,14 @@ function renderRoomList(filtro) {
   var visiveis = state.rooms.filter(function(r) {
     return state.hiddenRooms.indexOf(r) === -1;
   });
+
+  // Antifrágil: se todas as salas estiverem ocultas, reseta
+  if (!visiveis.length && state.rooms.length) {
+    console.warn('Todas as salas ocultas — resetando hiddenRooms');
+    state.hiddenRooms = [];
+    localStorage.setItem('hiddenRooms', '[]');
+    visiveis = state.rooms.slice();
+  }
 
   if (filtro) {
     var resultados = visiveis.filter(function(r) {
@@ -1960,8 +1968,8 @@ function iniciarApp() {
   state.rooms.forEach(function(r){ roomSet[r] = 1; });
   state.hiddenRooms = state.hiddenRooms.filter(function(r){ return roomSet[r]; });
   state.pinnedRooms = state.pinnedRooms.filter(function(r){ return roomSet[r]; });
-  // Reseta se corrompido (mais de 80% ocultas)
-  if (state.hiddenRooms.length > state.rooms.length * 0.8) {
+  // Reseta se corrompido (100% ocultas = claramente errado)
+  if (state.hiddenRooms.length >= state.rooms.length) {
     state.hiddenRooms = [];
     state.pinnedRooms = [];
   }
