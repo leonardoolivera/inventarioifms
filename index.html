@@ -701,7 +701,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v8.3';
+var APP_VERSION = 'v8.4';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -971,6 +971,28 @@ function desocultar(r) {
   if (idx > -1) state.hiddenRooms.splice(idx, 1);
   saveRoomPrefs();
   renderSettRooms();
+}
+
+function roomItemHTML(r) {
+  var cnt    = state.scans.filter(function(s){ return s.room === r; }).length;
+  var ab     = abreviarSala(r);
+  var sel    = state.currentRoom === r;
+  var emoji  = ab.emoji || '📍';
+  var isPinned = state.pinnedRooms.indexOf(r) > -1;
+  var modoComp = window._modoComparacao;
+  return '<div style="display:flex;align-items:center">'
+    +'<div class="room-item'+(sel?' selected':'')+'" onclick="selectRoom(\''+escJ(r)+'\')" style="flex:1">'
+    +'<span class="ri-icon">'+emoji+'</span>'
+    +'<div class="ri-info">'
+    +'<div class="ri-name">'+esc(ab.curto)+'</div>'
+    +'<div class="ri-count">'+(cnt?cnt+' itens escaneados':'Nenhum scan')+'</div>'
+    +'</div>'
+    +'<span class="ri-check">&#10003;</span>'
+    +'</div>'
+    +(!modoComp
+      ? '<button class="room-pin-btn'+(isPinned?' pinned':'')+'" onclick="togglePin(\''+escJ(r)+'\',event)" title="'+(isPinned?'Desafixar':'Fixar no topo')+'">'+(isPinned?'📌':'📍')+'</button>'
+      : '')
+    +'</div>';
 }
 
 function renderRoomList(filtro) {
