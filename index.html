@@ -701,7 +701,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v8.2';
+var APP_VERSION = 'v8.3';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -722,7 +722,10 @@ function getSalasSUAP() {
 
 var state = {
   currentRoom: localStorage.getItem('currentRoom') || '',
-  rooms: JSON.parse(localStorage.getItem('rooms') || JSON.stringify(getSalasSUAP())),
+  rooms: (function() {
+    var saved = JSON.parse(localStorage.getItem('rooms') || '[]');
+    return (saved && saved.length > 10) ? saved : getSalasSUAP();
+  })(),
   pinnedRooms: JSON.parse(localStorage.getItem('pinnedRooms') || '[]'),
   hiddenRooms: JSON.parse(localStorage.getItem('hiddenRooms') || '[]'),
   scriptUrl: localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbwH692tN_mtBmFF-_bPlkucI9dVkorAPqFJfAGhkHW-QhUe8CC3vppFpxDOLpLg5uijUA/exec',
