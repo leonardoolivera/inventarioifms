@@ -341,6 +341,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .hidden-room-name{flex:1;font-size:13px;color:var(--text2)}
 .unhide-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif}
 
+/* ── WRONG ROOM MODAL ── */
+.wrong-room-modal{display:none;position:fixed;inset:0;z-index:500;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6)}
+.wrong-room-modal.show{display:flex}
+.wrong-room-box{background:var(--surface);border-radius:16px 16px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;text-align:center;border-top:3px solid var(--yellow)}
+.wrong-room-actions{display:flex;gap:10px;margin-top:16px}
+.wrong-room-btn{flex:1;padding:12px;border-radius:10px;border:none;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.wrong-room-btn.primary{background:var(--yellow);color:#000}
+.wrong-room-btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+
 /* ── MISC ── */
 .pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
 .pill.ok{background:rgba(34,197,94,.15);color:var(--green)}
@@ -723,7 +732,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v8.7';
+var APP_VERSION = 'v8.8';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -1145,6 +1154,7 @@ function selectRoom(name) {
   }
   state.currentRoom = name;
   localStorage.setItem('currentRoom', name);
+  wrongRoomStreak = 0;
   updateRoomLabel();
   goBack();
 }
@@ -1283,6 +1293,7 @@ function normCod(c) { return String(c).replace(/^0+/, '') || '0'; }
 
 // ── Scan direto + desfazer ───────────────────────────────────
 var undoTimer   = null;
+var wrongRoomStreak = 0;  // contador de scans consecutivos em sala errada
 var undoProgTimer = null;
 var lastEntry   = null;
 var UNDO_SECS   = 5;
@@ -1352,10 +1363,26 @@ function commitScan(code) {
         // Atualiza o undo bar com a descrição do item
         var sub = document.getElementById('undoSub');
         if (sub) {
-          var localCorreto = res.salaOriginal && res.salaOriginal === room;
-          var icone = localCorreto ? '✅' : res.salaOriginal ? '🟡' : '📦';
+          var localCorreto = !res.salaOriginal || res.salaOriginal === room;
+          var icone = localCorreto ? '✅' : '🟡';
           sub.textContent = icone + ' ' + res.descricao
-            + (res.salaOriginal && !localCorreto ? ' · sala original: ' + res.salaOriginal : '');
+            + (!localCorreto ? ' · original: ' + res.salaOriginal : '');
+        }
+
+        // Rastreia streak de itens em sala errada
+        if (res.salaOriginal) {
+          var localCorreto2 = res.salaOriginal === room;
+          if (!localCorreto2) {
+            wrongRoomStreak++;
+            if (wrongRoomStreak >= 3) {
+              wrongRoomStreak = 0;
+              setTimeout(function() {
+                mostrarAvisoSala(res.salaOriginal);
+              }, 800);
+            }
+          } else {
+            wrongRoomStreak = 0;
+          }
         }
       }
     })
@@ -1873,6 +1900,42 @@ var currentUser = null; // { siape, nome }
 // ── Comparação por sala ──────────────────────────────────────
 var compCache = null;    // cache de TODAS as salas
 var compSalaAtual = ''; // sala sendo visualizada
+
+function mostrarAvisoSala(salaOriginal) {
+  // Modal de aviso — servidor pode estar na sala errada
+  var ab       = abreviarSala(state.currentRoom);
+  var abOrig   = abreviarSala(salaOriginal);
+  var modal    = document.getElementById('wrongRoomModal');
+  var msgEl    = document.getElementById('wrongRoomMsg');
+  if (!modal || !msgEl) return;
+
+  msgEl.innerHTML =
+    '<div style="font-size:28px;margin-bottom:8px">⚠️</div>'
+    + '<div style="font-weight:700;font-size:15px;margin-bottom:8px">Você está na sala certa?</div>'
+    + '<div style="font-size:13px;color:var(--text2);margin-bottom:4px">'
+    + 'Os últimos 3 patrimônios escaneados pertencem à <strong style="color:var(--yellow)">'
+    + esc(abOrig.curto) + '</strong>, mas o local selecionado é <strong style="color:var(--accent)">'
+    + esc(ab.curto) + '</strong>.</div>'
+    + '<div style="font-size:12px;color:var(--text2);margin-top:8px">Deseja trocar para <strong>'
+    + esc(abOrig.curto) + '</strong>?</div>';
+
+  document.getElementById('wrongRoomSugerida').setAttribute('data-sala', salaOriginal);
+  modal.classList.add('show');
+}
+
+function fecharAvisoSala() {
+  document.getElementById('wrongRoomModal').classList.remove('show');
+}
+
+function trocarParaSalasSugerida() {
+  var btn  = document.getElementById('wrongRoomSugerida');
+  var sala = btn.getAttribute('data-sala');
+  if (sala) {
+    selectRoom(sala);
+    showToast('ok', '📍 Sala alterada', abreviarSala(sala).curto);
+  }
+  fecharAvisoSala();
+}
 
 function histBtn(btn) {
   showRoomHistory(btn.getAttribute('data-sala'));
@@ -2522,5 +2585,14 @@ function dismissInstall() {
   localStorage.setItem('installDismissed', '1');
 }
 </script>
+<div class="wrong-room-modal" id="wrongRoomModal">
+  <div class="wrong-room-box">
+    <div id="wrongRoomMsg"></div>
+    <div class="wrong-room-actions">
+      <button class="wrong-room-btn primary" id="wrongRoomSugerida" onclick="trocarParaSalasSugerida()">Sim, trocar sala</button>
+      <button class="wrong-room-btn secondary" onclick="fecharAvisoSala()">Não, estou certo</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
