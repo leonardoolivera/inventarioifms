@@ -603,6 +603,13 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   </div>
   <div class="sbody">
     <div class="sett-section">
+      <a href="https://docs.google.com/spreadsheets/d/1hUgSHuF7-yju3V5TEFcPj2PYuyJsGGJuFUKIwWu3GNg/edit?gid=729880183#gid=729880183" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--accent);border-radius:var(--r2);color:var(--accent);text-decoration:none;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin-bottom:12px">
+        <span style="font-size:20px">📊</span>
+        <div><div>Abrir Planilha</div><div style="font-size:11px;color:var(--text2);font-weight:400">Inventário Campus IFMS</div></div>
+        <span style="margin-left:auto">↗</span>
+      </a>
+    </div>
+    <div class="sett-section">
       <div class="sett-title">🔗 Google Sheets (Apps Script)</div>
       <div class="field-label">URL do Web App</div>
       <textarea class="url-input" id="scriptUrlInput" rows="3" placeholder="https://script.google.com/macros/s/..."></textarea>
@@ -732,7 +739,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v8.8';
+var APP_VERSION = 'v8.9';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -1293,7 +1300,8 @@ function normCod(c) { return String(c).replace(/^0+/, '') || '0'; }
 
 // ── Scan direto + desfazer ───────────────────────────────────
 var undoTimer   = null;
-var wrongRoomStreak = 0;  // contador de scans consecutivos em sala errada
+var wrongRoomStreak    = 0;   // contador de scans consecutivos em sala errada
+var wrongRoomLastIds   = [];  // ids dos últimos scans em sala errada
 var undoProgTimer = null;
 var lastEntry   = null;
 var UNDO_SECS   = 5;
@@ -1374,14 +1382,18 @@ function commitScan(code) {
           var localCorreto2 = res.salaOriginal === room;
           if (!localCorreto2) {
             wrongRoomStreak++;
+            wrongRoomLastIds.push(entry.id);
+            if (wrongRoomLastIds.length > 3) wrongRoomLastIds.shift();
             if (wrongRoomStreak >= 3) {
               wrongRoomStreak = 0;
+              var idsParaCorrigir = wrongRoomLastIds.slice();
               setTimeout(function() {
-                mostrarAvisoSala(res.salaOriginal);
+                mostrarAvisoSala(res.salaOriginal, idsParaCorrigir);
               }, 800);
             }
           } else {
             wrongRoomStreak = 0;
+            wrongRoomLastIds = [];
           }
         }
       }
@@ -1901,7 +1913,7 @@ var currentUser = null; // { siape, nome }
 var compCache = null;    // cache de TODAS as salas
 var compSalaAtual = ''; // sala sendo visualizada
 
-function mostrarAvisoSala(salaOriginal) {
+function mostrarAvisoSala(salaOriginal, idsErrados) {
   // Modal de aviso — servidor pode estar na sala errada
   var ab       = abreviarSala(state.currentRoom);
   var abOrig   = abreviarSala(salaOriginal);
@@ -1920,7 +1932,27 @@ function mostrarAvisoSala(salaOriginal) {
     + esc(abOrig.curto) + '</strong>?</div>';
 
   document.getElementById('wrongRoomSugerida').setAttribute('data-sala', salaOriginal);
+  document.getElementById('wrongRoomSugerida').setAttribute('data-ids', JSON.stringify(idsErrados || []));
   modal.classList.add('show');
+
+  // Countdown 2 segundos antes de habilitar o botão Sim
+  var btn = document.getElementById('wrongRoomSugerida');
+  var cdEl = document.getElementById('wrongRoomCountdown');
+  btn.disabled = true;
+  btn.style.opacity = '.6';
+  var cd = 2;
+  cdEl.textContent = cd;
+  var cdTimer = setInterval(function() {
+    cd--;
+    if (cd <= 0) {
+      clearInterval(cdTimer);
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.innerHTML = 'Sim, trocar sala';
+    } else {
+      cdEl.textContent = cd;
+    }
+  }, 1000);
 }
 
 function fecharAvisoSala() {
@@ -1930,11 +1962,58 @@ function fecharAvisoSala() {
 function trocarParaSalasSugerida() {
   var btn  = document.getElementById('wrongRoomSugerida');
   var sala = btn.getAttribute('data-sala');
+  var ids  = JSON.parse(btn.getAttribute('data-ids') || '[]');
+  fecharAvisoSala();
+
   if (sala) {
     selectRoom(sala);
-    showToast('ok', '📍 Sala alterada', abreviarSala(sala).curto);
+
+    // Pergunta se quer corrigir os últimos itens
+    if (ids.length > 0 && confirm(
+      'Corrigir os últimos ' + ids.length + ' patrimônios para "' + abreviarSala(sala).curto + '"?
+
+' +
+      'Isso vai atualizar a sala deles na planilha.'
+    )) {
+      corrigirSalaScans(ids, sala);
+    } else {
+      showToast('ok', '📍 Sala alterada', abreviarSala(sala).curto);
+    }
   }
-  fecharAvisoSala();
+}
+
+function corrigirSalaScans(ids, novaSala) {
+  // Atualiza localmente
+  ids.forEach(function(id) {
+    var scan = state.scans.find(function(s){ return s.id === id; });
+    if (scan) scan.room = novaSala;
+  });
+  saveScans();
+  updateStats();
+  renderHistList();
+
+  showToast('ok', '✅ Corrigindo ' + ids.length + ' itens...', 'Sala: ' + abreviarSala(novaSala).curto);
+
+  // Corrige no servidor via nova action
+  if (state.isOnline && state.scriptUrl) {
+    fetch(state.scriptUrl, {
+      method: 'POST',
+      redirect: 'follow',
+      body: JSON.stringify({ action: 'corrigirSala', ids: ids, novaSala: novaSala }),
+      headers: { 'Content-Type': 'text/plain' }
+    })
+    .then(function(r){ return r.text(); })
+    .then(function(txt) {
+      var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
+      if (res.ok) {
+        showToast('ok', '✅ ' + ids.length + ' itens corrigidos na planilha', abreviarSala(novaSala).curto);
+        compCache = null; // invalida cache de comparação
+      } else {
+        showToast('dup', '⚠️ Erro ao corrigir na planilha', 'Tente sincronizar manualmente');
+      }
+    })
+    .catch(function(){ showToast('dup','⚠️ Sem conexão','Correção ficou só local'); });
+  }
 }
 
 function histBtn(btn) {
@@ -2589,7 +2668,7 @@ function dismissInstall() {
   <div class="wrong-room-box">
     <div id="wrongRoomMsg"></div>
     <div class="wrong-room-actions">
-      <button class="wrong-room-btn primary" id="wrongRoomSugerida" onclick="trocarParaSalasSugerida()">Sim, trocar sala</button>
+      <button class="wrong-room-btn primary" id="wrongRoomSugerida" onclick="trocarParaSalasSugerida()" disabled style="opacity:.6">Sim, trocar sala (<span id="wrongRoomCountdown">2</span>s)</button>
       <button class="wrong-room-btn secondary" onclick="fecharAvisoSala()">Não, estou certo</button>
     </div>
   </div>
