@@ -67,6 +67,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 
 /* sync banner */
 .sync-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer}
+.offline-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#7c3f00;color:#fde68a;font-size:12px;font-weight:600;text-align:center;padding:6px;font-family:'Space Grotesk',sans-serif}
+.offline-banner.show{display:block}
 .sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sync-dot.online{background:var(--green);box-shadow:0 0 8px var(--green)}
 .sync-dot.offline{background:var(--yellow)}
@@ -292,6 +294,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .room-info-btn:active{background:var(--surface2);color:var(--accent)}
 .room-name-short{font-size:14px;font-weight:600}
 .room-name-block{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* ── HISTÓRICO POR SALA ── */
+.room-hist-item{padding:8px 12px;border-radius:var(--r2);margin-bottom:4px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.room-hist-code{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--accent);min-width:60px}
+.room-hist-time{font-size:10px;color:var(--text2);margin-left:auto;white-space:nowrap}
+.room-hist-user{font-size:10px;color:var(--text2)}
 
 /* ── COMPARAÇÃO POR SALA ── */
 .comp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
@@ -521,6 +529,20 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 </div>
 
 <!-- ════════════════════════════════════════════
+     SCREEN: HISTÓRICO POR SALA
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scRoomHist">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div>
+      <div class="topbar-title" id="roomHistTitle">Histórico</div>
+      <div class="topbar-sub" id="roomHistSub">—</div>
+    </div>
+  </div>
+  <div class="sbody" id="roomHistList"></div>
+</div>
+
+<!-- ════════════════════════════════════════════
      SCREEN: COMPARAÇÃO POR SALA
 ═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scComparacao">
@@ -701,7 +723,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v8.6';
+var APP_VERSION = 'v8.7';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -1268,15 +1290,36 @@ var UNDO_SECS   = 5;
 function processScan(rawCode) {
   var code = normCod(rawCode);
 
-  var dup = state.scans.find(function(s){ return s.type==='scan' && normCod(s.code)===code; });
-  if (dup) {
+  // 1. Verifica duplicata local (instantâneo)
+  var dupLocal = state.scans.find(function(s){ return s.type==='scan' && normCod(s.code)===code; });
+  if (dupLocal) {
     flashScan('warn');
-    showToast('dup','⚠️ Já escaneado',''+dup.room+' · '+fmtTime(new Date(dup.ts)));
+    showToast('dup','⚠️ Já escaneado por você',''+dupLocal.room+' · '+fmtTime(new Date(dupLocal.ts)));
     return;
   }
 
-  // Registra imediatamente
+  // 2. Registra imediatamente (não espera servidor)
   commitScan(code);
+
+  // 3. Verifica duplicata no servidor em background (outro servidor pode ter escaneado)
+  if (state.isOnline && state.scriptUrl) {
+    fetch(state.scriptUrl + '?action=checkDuplicate&code=' + encodeURIComponent(code), {
+      cache: 'no-store', redirect: 'follow'
+    })
+    .then(function(r){ return r.text(); })
+    .then(function(txt) {
+      var res; try { res = JSON.parse(txt); } catch(e) { return; }
+      if (res.duplicado) {
+        // Outro servidor já escaneou — avisa mas mantém o scan (gestor decide)
+        flashScan('warn');
+        showToast('dup',
+          '⚠️ Patrimônio já encontrado!',
+          'Escaneado por ' + res.funcionario + ' em ' + res.sala
+        );
+      }
+    })
+    .catch(function(){});
+  }
 }
 
 function commitScan(code) {
@@ -1296,6 +1339,28 @@ function commitScan(code) {
   flashScan('ok');
   navigator.vibrate && navigator.vibrate(60);
   showUndoBar(code, room);
+
+  // Confirmação visual — busca descrição do SUAP em background
+  if (state.isOnline && state.scriptUrl) {
+    fetch(state.scriptUrl + '?action=lookupPatrimonio&code=' + encodeURIComponent(code), {
+      cache: 'no-store', redirect: 'follow'
+    })
+    .then(function(r){ return r.text(); })
+    .then(function(txt) {
+      var res; try { res = JSON.parse(txt); } catch(e) { return; }
+      if (res.ok && res.descricao) {
+        // Atualiza o undo bar com a descrição do item
+        var sub = document.getElementById('undoSub');
+        if (sub) {
+          var localCorreto = res.salaOriginal && res.salaOriginal === room;
+          var icone = localCorreto ? '✅' : res.salaOriginal ? '🟡' : '📦';
+          sub.textContent = icone + ' ' + res.descricao
+            + (res.salaOriginal && !localCorreto ? ' · sala original: ' + res.salaOriginal : '');
+        }
+      }
+    })
+    .catch(function(){});
+  }
 }
 
 function showUndoBar(code, room) {
@@ -1596,15 +1661,26 @@ function syncNow() {
 }
 
 function setSyncState(state_) {
-  var dot  = document.getElementById('syncDot');
-  var text = document.getElementById('syncText');
-  var cnt  = document.getElementById('syncCount');
-  var n    = state.pendingSync.length;
+  var dot    = document.getElementById('syncDot');
+  var text   = document.getElementById('syncText');
+  var cnt    = document.getElementById('syncCount');
+  var banner = document.getElementById('offlineBanner');
+  var n      = state.pendingSync.length;
 
   dot.className  = 'sync-dot ' + state_;
-  if (state_ === 'online')  { text.textContent = 'Conectado · tudo sincronizado'; cnt.textContent = ''; }
-  if (state_ === 'offline') { text.textContent = 'Sem conexão · dados salvos localmente'; cnt.textContent = n ? n+' pendentes' : ''; }
-  if (state_ === 'syncing') { text.textContent = 'Sincronizando...'; cnt.textContent = ''; }
+  if (state_ === 'online')  {
+    text.textContent = 'Conectado · tudo sincronizado'; cnt.textContent = '';
+    if (banner) banner.classList.remove('show');
+  }
+  if (state_ === 'offline') {
+    text.textContent = 'Sem conexão · dados salvos localmente';
+    cnt.textContent  = n ? n+' pendentes' : '';
+    if (banner && n > 0) banner.classList.add('show');
+  }
+  if (state_ === 'syncing') {
+    text.textContent = 'Sincronizando...'; cnt.textContent = '';
+    if (banner) banner.classList.remove('show');
+  }
 }
 
 function updateSyncBanner() {
@@ -1798,6 +1874,10 @@ var currentUser = null; // { siape, nome }
 var compCache = null;    // cache de TODAS as salas
 var compSalaAtual = ''; // sala sendo visualizada
 
+function histBtn(btn) {
+  showRoomHistory(btn.getAttribute('data-sala'));
+}
+
 function abrirSelecaoComparacao() {
   // Abre seletor de salas no modo comparação
   compSalaAtual = '';
@@ -1894,6 +1974,36 @@ function renderCompList(filtro) {
       +(meta?'<div class="comp-item-meta">'+meta+'</div>':'')
       +'</div>';
   }).join('');
+}
+
+function showRoomHistory(sala) {
+  var ab = abreviarSala(sala);
+  document.getElementById('roomHistTitle').textContent = ab.curto || sala;
+  var itens = state.scans.filter(function(s){ return s.room === sala; })
+                .slice().reverse();
+  document.getElementById('roomHistSub').textContent = itens.length + ' itens escaneados';
+  var el = document.getElementById('roomHistList');
+  if (!itens.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ico">📭</div>Nenhum item escaneado nesta sala</div>';
+  } else {
+    el.innerHTML = itens.map(function(s) {
+      var icon  = s.type === 'nopat' ? '📷' : '🏷️';
+      var label = s.type === 'nopat' ? (s.desc || 'Sem patrimônio') : s.code;
+      var sync  = s.synced ? '☁' : '⏳';
+      return '<div class="room-hist-item">'
+        +'<span style="font-size:16px">'+icon+'</span>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div class="room-hist-code">'+esc(label)+'</div>'
+        +(s.estado?'<div class="room-hist-user">'+esc(s.estado)+'</div>':'')
+        +'</div>'
+        +'<div style="text-align:right">'
+        +'<div class="room-hist-time">'+fmtTime(new Date(s.ts))+'</div>'
+        +'<div class="room-hist-user">'+sync+'</div>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+  showScreen('scRoomHist');
 }
 
 function mostrarInfoSala(nome) {
@@ -2003,6 +2113,7 @@ function renderProgressRooms() {
       +'<div style="text-align:right">'
       +'<div class="prog-room-count" style="color:'+cor+'">'+d.scan+(totalSuap?' / '+totalSuap:'')+'</div>'
       +(d.nopat?'<div style="font-size:10px;color:var(--yellow);margin-top:1px">+'+d.nopat+' sem patrim.</div>':'')
+      +'<button data-sala="'+escJ(r)+'" onclick="histBtn(this)" style="background:none;border:1px solid var(--border);border-radius:5px;padding:2px 7px;color:var(--text2);font-size:10px;cursor:pointer;margin-top:3px">ver</button>'
       +'</div>'
       +'</div>'
       +'<div class="prog-bar-wrap">'
