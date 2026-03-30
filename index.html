@@ -587,6 +587,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="sett-title">📍 Locais cadastrados</div>
       <div id="settRoomList"></div>
       <button class="add-room-btn" onclick="addRoom()">+ Adicionar local</button>
+      <button class="add-room-btn" id="btnRevelarSalas" onclick="revelarTodasSalas()" style="display:none;margin-top:6px;border-color:var(--accent);color:var(--accent)">👁 Revelar todas as salas ocultas</button>
     </div>
 
     <div class="sett-section">
@@ -696,7 +697,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v7.9';
+var APP_VERSION = 'v8.0';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -944,6 +945,16 @@ function ocultarSala(r, e) {
   renderRoomList('');
 }
 
+function revelarTodasSalas() {
+  state.hiddenRooms = [];
+  state.pinnedRooms = [];
+  localStorage.setItem('hiddenRooms', '[]');
+  localStorage.setItem('pinnedRooms', '[]');
+  renderSettRooms();
+  renderRoomList();
+  showToast('ok', '👁 Todas as salas reveladas', '');
+}
+
 function desocultar(r) {
   var idx = state.hiddenRooms.indexOf(r);
   if (idx > -1) state.hiddenRooms.splice(idx, 1);
@@ -1059,6 +1070,9 @@ function renderSettRooms() {
   }
 
   el.innerHTML = html;
+  // Mostra botão revelar se tiver salas ocultas
+  var btnRevelar = document.getElementById('btnRevelarSalas');
+  if (btnRevelar) btnRevelar.style.display = ocultas.length ? 'block' : 'none';
 }
 
 
