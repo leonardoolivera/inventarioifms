@@ -1,4 +1,6 @@
+
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -23,6 +25,7 @@
   --r:14px;--r2:10px;--sh:0 4px 24px rgba(0,0,0,.4);
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow:hidden}
+/* ── nova versão resolve bugs── */
 
 /* ── SCREENS ── */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;will-change:transform}
@@ -696,7 +699,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v7.3';
+var APP_VERSION = 'v7.4';
 var ROOMS_VERSION = 'suap-2026-v2'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -1012,13 +1015,37 @@ function renderRoomList(filtro) {
 }
 
 
+
 function renderSettRooms() {
   var el = document.getElementById('settRoomList');
-  el.innerHTML = state.rooms.map(function(r, i) {
-    return '<div class="sett-item"><span class="si-icon">'+roomIcon(i)+'</span>'
-      +'<div class="si-info"><div class="si-title">'+esc(r)+'</div></div>'
-      +'<span style="color:var(--red);cursor:pointer;padding:4px 8px" onclick="removeRoom(\''+escJ(r)+'\')">✕</span></div>';
+  if (!el) return;
+  var visiveis = state.rooms.filter(function(r){ return state.hiddenRooms.indexOf(r) === -1; });
+  var ocultas  = state.hiddenRooms.filter(function(r){ return state.rooms.indexOf(r) > -1; });
+
+  var html = visiveis.map(function(r, i) {
+    var ab = abreviarSala(r);
+    return '<div class="sett-item"><span class="si-icon">'+(ab.emoji||roomIcon(i))+'</span>'
+      +'<div class="si-info"><div class="si-title">'+esc(ab.curto)+'</div>'
+      +(ab.bloco?'<div class="si-sub">'+esc(ab.bloco)+'</div>':'')+'</div>'
+      +'<button onclick="ocultarSala(''+escJ(r)+'')" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2);font-size:11px;cursor:pointer;font-family:'Space Grotesk',sans-serif">Ocultar</button>'
+      +'</div>';
   }).join('');
+
+  if (ocultas.length) {
+    html += '<div class="hidden-rooms-section">'
+      +'<div class="sett-title" style="margin-top:8px">🙈 Salas ocultas (só para você)</div>';
+    html += ocultas.map(function(r) {
+      var ab = abreviarSala(r);
+      return '<div class="hidden-room-item">'
+        +'<span style="font-size:18px">'+(ab.emoji||'📍')+'</span>'
+        +'<span class="hidden-room-name">'+esc(ab.curto)+'</span>'
+        +'<button class="unhide-btn" onclick="desocultar(''+escJ(r)+'')">Reativar</button>'
+        +'</div>';
+    }).join('');
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
 }
 
 function selectRoom(name) {
@@ -1922,6 +1949,12 @@ function renderProgressRooms() {
 }
 
 function iniciarApp() {
+  // Sanitiza hiddenRooms — remove entradas inválidas
+  state.hiddenRooms = state.hiddenRooms.filter(function(r){ return state.rooms.indexOf(r) > -1; });
+  state.pinnedRooms = state.pinnedRooms.filter(function(r){ return state.rooms.indexOf(r) > -1; });
+  localStorage.setItem('hiddenRooms', JSON.stringify(state.hiddenRooms));
+  localStorage.setItem('pinnedRooms', JSON.stringify(state.pinnedRooms));
+
   // Atualiza lista de salas se versão mudou
   if (localStorage.getItem('roomsVersion') !== ROOMS_VERSION) {
     var novaLista = getSalasSUAP();
