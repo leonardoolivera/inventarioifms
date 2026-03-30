@@ -454,6 +454,10 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <input class="room-search" id="roomSearch" type="search" placeholder="🔍 Buscar sala..." oninput="renderRoomList(this.value)">
     </div>
     <div class="room-list" id="roomList"></div>
+    <div id="roomListEmpty" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Todas as salas estão ocultas</div>
+      <button onclick="revelarTodasSalas()" style="background:var(--accent);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer">👁 Revelar todas as salas</button>
+    </div>
     <button class="add-room-btn" onclick="addRoom()">+ Adicionar novo local</button>
   </div>
 </div>
@@ -697,7 +701,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v8.0';
+var APP_VERSION = 'v8.1';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -950,6 +954,8 @@ function revelarTodasSalas() {
   state.pinnedRooms = [];
   localStorage.setItem('hiddenRooms', '[]');
   localStorage.setItem('pinnedRooms', '[]');
+  var emptyDiv = document.getElementById('roomListEmpty');
+  if (emptyDiv) emptyDiv.style.display = 'none';
   renderSettRooms();
   renderRoomList();
   showToast('ok', '👁 Todas as salas reveladas', '');
@@ -971,13 +977,14 @@ function renderRoomList(filtro) {
     return state.hiddenRooms.indexOf(r) === -1;
   });
 
-  // Antifrágil: se todas as salas estiverem ocultas, reseta
+  // Mostra botão revelar se todas ocultas (em vez de resetar automaticamente)
+  var emptyDiv = document.getElementById('roomListEmpty');
   if (!visiveis.length && state.rooms.length) {
-    console.warn('Todas as salas ocultas — resetando hiddenRooms');
-    state.hiddenRooms = [];
-    localStorage.setItem('hiddenRooms', '[]');
-    visiveis = state.rooms.slice();
+    if (emptyDiv) emptyDiv.style.display = 'block';
+    el.innerHTML = '';
+    return;
   }
+  if (emptyDiv) emptyDiv.style.display = 'none';
 
   if (filtro) {
     var resultados = visiveis.filter(function(r) {
