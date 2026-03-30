@@ -696,8 +696,8 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v7.7';
-var ROOMS_VERSION = 'suap-2026-v3'; // mude isso ao atualizar a lista de salas
+var APP_VERSION = 'v7.8';
+var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
   var el = document.getElementById('versionFooter');
@@ -1955,11 +1955,13 @@ function renderProgressRooms() {
 }
 
 function iniciarApp() {
-  // Sanitiza hiddenRooms — se tiver mais de 50% das salas ocultas, algo deu errado → reseta
-  state.hiddenRooms = state.hiddenRooms.filter(function(r){ return state.rooms.indexOf(r) > -1; });
-  state.pinnedRooms = state.pinnedRooms.filter(function(r){ return state.rooms.indexOf(r) > -1; });
-  if (state.hiddenRooms.length > state.rooms.length * 0.5) {
-    console.warn('hiddenRooms corrompido, resetando');
+  // Sanitiza hiddenRooms — só mantém salas que existem na lista atual
+  var roomSet = {};
+  state.rooms.forEach(function(r){ roomSet[r] = 1; });
+  state.hiddenRooms = state.hiddenRooms.filter(function(r){ return roomSet[r]; });
+  state.pinnedRooms = state.pinnedRooms.filter(function(r){ return roomSet[r]; });
+  // Reseta se corrompido (mais de 80% ocultas)
+  if (state.hiddenRooms.length > state.rooms.length * 0.8) {
     state.hiddenRooms = [];
     state.pinnedRooms = [];
   }
