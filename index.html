@@ -701,7 +701,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v8.4';
+var APP_VERSION = 'v8.6';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -1976,22 +1976,22 @@ function renderProgressRooms() {
   el.innerHTML = salasSorted.map(function(r) {
     var d       = porSala[r];
     var ab      = abreviarSala(r);
-    var feitos  = d.scan + d.nopat;
     var emoji   = ab.emoji || '📍';
 
-    // Busca total do SUAP para esta sala
+    // Apenas patrimônios contam para o progresso
     var totalSuap = suapTotais ? (suapTotais[r] || 0) : 0;
-    var pct = totalSuap > 0 ? Math.min(100, Math.round(feitos / totalSuap * 100)) : null;
+    var pct = totalSuap > 0 ? Math.min(100, Math.round(d.scan / totalSuap * 100)) : null;
     var cor = pct === null ? 'var(--accent)'
             : pct >= 90  ? 'var(--green)'
             : pct >= 50  ? 'var(--accent)'
             : 'var(--yellow)';
 
     var barLabel = totalSuap > 0
-      ? feitos + ' de ' + totalSuap + ' itens (' + pct + '%)'
-      : feitos + ' itens' + (d.nopat ? ' · ' + d.nopat + ' sem patrim.' : '');
+      ? d.scan + ' de ' + totalSuap + ' patrimônios (' + pct + '%)'
+        + (d.nopat ? ' · ' + d.nopat + ' sem patrim.' : '')
+      : d.scan + ' patrimônios' + (d.nopat ? ' · ' + d.nopat + ' sem patrim.' : '');
 
-    var barWidth = pct !== null ? pct : Math.min(100, Math.round(feitos / 10 * 100));
+    var barWidth = pct !== null ? pct : Math.min(100, Math.round(d.scan / 10 * 100));
 
     return '<div class="prog-room-item">'
       +'<div class="prog-room-header">'
@@ -2000,7 +2000,10 @@ function renderProgressRooms() {
       +'<div><div class="prog-room-name">'+esc(ab.curto)+'</div>'
       +(ab.bloco?'<div class="prog-room-block">'+esc(ab.bloco)+'</div>':'')
       +'</div></div>'
-      +'<div class="prog-room-count" style="color:'+cor+'">'+feitos+(totalSuap?' / '+totalSuap:'')+'</div>'
+      +'<div style="text-align:right">'
+      +'<div class="prog-room-count" style="color:'+cor+'">'+d.scan+(totalSuap?' / '+totalSuap:'')+'</div>'
+      +(d.nopat?'<div style="font-size:10px;color:var(--yellow);margin-top:1px">+'+d.nopat+' sem patrim.</div>':'')
+      +'</div>'
       +'</div>'
       +'<div class="prog-bar-wrap">'
       +'<div class="prog-bar-bg"><div class="prog-bar-fill" style="width:'+barWidth+'%;background:'+cor+'"></div></div>'
@@ -2051,7 +2054,7 @@ function iniciarApp() {
 
 function fazerLogin() {
   var siape = document.getElementById('siapeInput').value.trim();
-  if (!siape || siape.length < 5) {
+  if (!siape || siape.length < 4) {
     document.getElementById('loginError').textContent = 'Digite um SIAPE válido';
     return;
   }
@@ -2106,7 +2109,15 @@ function aplicarUsuario(user) {
 }
 
 function fazerLogout() {
-  if (!confirm('Sair da conta? Dados não sincronizados podem ser perdidos.')) return;
+  var pendentes = state.pendingSync.length;
+  var msg = 'Deseja trocar de conta?\n\n';
+  if (pendentes > 0) {
+    msg += '⚠️ Você tem ' + pendentes + ' item(s) ainda não sincronizados.\nSincronize antes de sair para não perder dados.\n\n';
+  } else {
+    msg += '✅ Todos os dados estão salvos na planilha.\n\n';
+  }
+  msg += 'Seus dados locais serão apagados deste celular.';
+  if (!confirm(msg)) return;
   localStorage.removeItem('currentUser');
   currentUser = null;
   document.getElementById('userBadge').style.display = 'none';
