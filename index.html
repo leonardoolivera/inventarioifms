@@ -696,8 +696,8 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v7.5';
-var ROOMS_VERSION = 'suap-2026-v2'; // mude isso ao atualizar a lista de salas
+var APP_VERSION = 'v7.6';
+var ROOMS_VERSION = 'suap-2026-v3'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
   var el = document.getElementById('versionFooter');
@@ -1961,11 +1961,15 @@ function iniciarApp() {
   localStorage.setItem('hiddenRooms', JSON.stringify(state.hiddenRooms));
   localStorage.setItem('pinnedRooms', JSON.stringify(state.pinnedRooms));
 
-  // Atualiza lista de salas se versão mudou
+  // Atualiza lista de salas se versão mudou — também reseta hidden/pinned
   if (localStorage.getItem('roomsVersion') !== ROOMS_VERSION) {
     var novaLista = getSalasSUAP();
     state.rooms = novaLista;
+    state.hiddenRooms = [];
+    state.pinnedRooms = [];
     localStorage.setItem('rooms', JSON.stringify(novaLista));
+    localStorage.setItem('hiddenRooms', '[]');
+    localStorage.setItem('pinnedRooms', '[]');
     localStorage.setItem('roomsVersion', ROOMS_VERSION);
     console.log('Salas atualizadas para ' + ROOMS_VERSION);
   }
