@@ -1,2404 +1,1002 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0f1117">
-<title>Inventário Campus</title>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="mobile-web-app-capable" content="yes">
-<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
-
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3347;
-  --accent:#4f8cff;--accent2:#7c5cfc;--green:#22c55e;--yellow:#f59e0b;
-  --red:#ef4444;--orange:#f97316;
-  --text:#f0f2ff;--text2:#8891b0;--text3:#4a5068;
-  --r:14px;--r2:10px;--sh:0 4px 24px rgba(0,0,0,.4);
-}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow:hidden}
-
-/* ── SCREENS ── */
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;will-change:transform}
-.screen.hidden{transform:translateY(100%);opacity:0;pointer-events:none}
-.screen.slide-left{transform:translateX(-100%);opacity:0;pointer-events:none}
-
-/* ── TOPBAR ── */
-.topbar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;padding-top:max(14px,env(safe-area-inset-top))}
-.topbar-title{font-size:15px;font-weight:700;flex:1}
-.topbar-sub{font-size:11px;color:var(--text2);margin-top:1px}
-.back-btn{min-width:44px;height:44px;border:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 12px;gap:4px;font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14px}
-
-/* ── SCROLL BODY ── */
-.sbody{flex:1;overflow-y:auto;padding:14px 16px;padding-bottom:max(20px,env(safe-area-inset-bottom))}
-
-/* ── HOME SCREEN ── */
-.home-header{background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:var(--r);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
-.home-header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
-.home-header h2{font-size:20px;font-weight:700;color:#fff;position:relative}
-.home-header p{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px;position:relative}
-
-.room-selector{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;cursor:pointer;transition:border-color .2s}
-.room-selector:active{border-color:var(--accent)}
-.rs-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:6px;font-weight:600}
-.rs-value{font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
-.rs-value span{color:var(--accent)}
-.rs-chevron{color:var(--text3);font-size:18px}
-
-.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.action-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;active:transform:scale(.97)}
-.action-card:active{transform:scale(.97)}
-.action-card.primary{border-color:var(--accent);background:linear-gradient(135deg,rgba(79,140,255,.15),rgba(124,92,252,.1))}
-.ac-icon{font-size:28px;margin-bottom:8px;display:block}
-.ac-title{font-size:13px;font-weight:700}
-.ac-sub{font-size:11px;color:var(--text2);margin-top:2px}
-
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px;text-align:center}
-.stat-n{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.stat-n.g{color:var(--green)}.stat-n.y{color:var(--yellow)}.stat-n.b{color:var(--accent)}
-.stat-l{font-size:10px;color:var(--text2);margin-top:2px}
-
-/* sync banner */
-.sync-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer}
-.sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.sync-dot.online{background:var(--green);box-shadow:0 0 8px var(--green)}
-.sync-dot.offline{background:var(--yellow)}
-.sync-dot.syncing{background:var(--accent);animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.sync-text{flex:1;font-size:12px;color:var(--text2)}
-.sync-count{font-size:12px;font-weight:700;color:var(--yellow)}
-
-/* ── ROOM PICKER ── */
-.room-list{display:flex;flex-direction:column;gap:8px}
-.room-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s}
-.room-item:active,.room-item.selected{border-color:var(--accent);background:rgba(79,140,255,.1)}
-.ri-icon{font-size:22px}
-.ri-info{flex:1}
-.ri-name{font-size:14px;font-weight:600}
-.ri-count{font-size:11px;color:var(--text2);margin-top:1px}
-.ri-check{color:var(--accent);font-size:18px;display:none}
-.room-item.selected .ri-check{display:block}
-.add-room-btn{background:transparent;border:2px dashed var(--border);border-radius:var(--r2);padding:14px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;width:100%;transition:border-color .2s}
-.add-room-btn:active{border-color:var(--accent);color:var(--accent)}
-
-/* ── SCANNER ── */
-.scanner-wrap{position:relative;background:#000;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center}
-
-#scannerVideo{width:100%;height:100%;object-fit:cover}
-.scanner-overlay{position:absolute;inset:0;pointer-events:none}
-.scan-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:72%;max-width:280px;aspect-ratio:1.8;border:2px solid rgba(255,255,255,.2);border-radius:12px}
-/* photo guide removed */
-.scan-frame::before,.scan-frame::after{content:'';position:absolute;width:24px;height:24px;border-color:var(--accent);border-style:solid}
-.scan-frame::before{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
-.scan-frame::after{bottom:-2px;right:-2px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
-.scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanline 2s ease-in-out infinite;top:20%}
-@keyframes scanline{0%{top:10%}100%{top:90%}}
-.scan-hint-bar{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:20px 16px 16px;text-align:center}
-.scan-hint-text{font-size:13px;color:rgba(255,255,255,.7)}
-.room-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,140,255,.25);border:1px solid rgba(79,140,255,.4);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--accent);margin-bottom:8px}
-
-/* scan result flash */
-.scan-flash{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .15s}
-.scan-flash.ok{background:rgba(34,197,94,.25)}
-.scan-flash.warn{background:rgba(245,158,11,.25)}
-.scan-flash.show{opacity:1}
-
-/* bottom scanner bar */
-.scanner-bottom{background:var(--bg);border-top:1px solid var(--border);padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));flex-shrink:0}
-.manual-row{display:flex;gap:8px}
-.manual-input{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none}
-.manual-input:focus{border-color:var(--accent)}
-.manual-btn{background:var(--accent);border:none;border-radius:8px;padding:10px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
-.nopat-btn{width:100%;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.nopat-btn:active{border-color:var(--orange);color:var(--orange)}
-
-/* ── RESULT TOAST ── */
-.result-toast{position:fixed;top:max(60px,env(safe-area-inset-top));left:12px;right:12px;z-index:999;border-radius:var(--r2);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;transform:translateY(-20px);opacity:0;transition:all .2s;pointer-events:none;box-shadow:var(--sh)}
-.result-toast.show{transform:translateY(0);opacity:1}
-.result-toast.ok{background:#14532d;border:1px solid var(--green)}
-.result-toast.warn{background:#451a03;border:1px solid var(--yellow)}
-.result-toast.dup{background:#1e1b4b;border:1px solid var(--accent2)}
-.rt-ico{font-size:18px;flex-shrink:0;margin-top:1px}
-.rt-title{font-size:13px;font-weight:700}
-.rt-sub{font-size:11px;color:var(--text2);margin-top:2px}
-
-/* ── NO-PAT MODAL ── */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s}
-.modal-bg.show{opacity:1;pointer-events:all}
-.modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px;padding-bottom:max(24px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
-.modal-bg.show .modal-sheet{transform:none}
-.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
-.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.photo-area{background:var(--bg);border:2px dashed var(--border);border-radius:var(--r2);aspect-ratio:4/3;max-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin-bottom:12px;transition:border-color .2s;position:relative}
-.photo-area:active{border-color:var(--accent)}
-.photo-area img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.photo-placeholder{text-align:center;pointer-events:none}
-.photo-placeholder span{font-size:36px;display:block;margin-bottom:6px}
-.photo-placeholder p{font-size:12px;color:var(--text2)}
-#photoInput{display:none}
-.field-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);font-weight:600;margin-bottom:6px}
-.field-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;margin-bottom:12px;resize:none}
-.field-input:focus{border-color:var(--accent)}
-
-/* Estado chips */
-.estado-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
-.estado-chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-.estado-chip.selected.excelente{border-color:var(--green);background:rgba(34,197,94,.15);color:var(--green)}
-.estado-chip.selected.bom{border-color:var(--accent);background:rgba(79,140,255,.15);color:var(--accent)}
-.estado-chip.selected.regular{border-color:var(--yellow);background:rgba(245,158,11,.15);color:var(--yellow)}
-.estado-chip.selected.ruim{border-color:var(--red);background:rgba(239,68,68,.15);color:var(--red)}
-
-.modal-save-btn{width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
-.modal-save-btn:active{opacity:.85}
-.modal-cancel{width:100%;background:transparent;border:none;padding:12px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;margin-top:4px}
-
-/* ── HISTORY ── */
-.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
-.hi-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.hi-dot.ok{background:var(--green)}.hi-dot.warn{background:var(--yellow)}.hi-dot.dup{background:var(--accent2)}
-.hi-info{flex:1;min-width:0}
-.hi-title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hi-meta{font-size:11px;color:var(--text2);margin-top:2px}
-.hi-time{font-size:10px;color:var(--text3);white-space:nowrap;font-family:'JetBrains Mono',monospace}
-.hi-sync{font-size:10px;margin-top:3px}
-.hi-sync.pending{color:var(--yellow)}.hi-sync.done{color:var(--green)}
-
-.thumb{width:44px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0}
-
-/* ── SETTINGS ── */
-.sett-section{margin-bottom:20px}
-.sett-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600;margin-bottom:10px}
-.sett-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;cursor:pointer}
-.si-icon{font-size:20px;flex-shrink:0}
-.si-info{flex:1}
-.si-title{font-size:13px;font-weight:600}
-.si-sub{font-size:11px;color:var(--text2);margin-top:2px}
-.si-arrow{color:var(--text3)}
-
-/* ── URL CONFIG ── */
-.url-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-bottom:10px;word-break:break-all}
-.url-input:focus{border-color:var(--accent)}
-.cfg-btn{width:100%;background:var(--accent);border:none;border-radius:8px;padding:12px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
-.cfg-btn.sec{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
-
-/* ── NAV BAR ── */
-.navbar{display:flex;background:var(--surface);border-top:1px solid var(--border);padding-bottom:max(8px,env(safe-area-inset-bottom));flex-shrink:0}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 6px;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:color .15s;font-family:'Space Grotesk',sans-serif}
-.nav-btn.active{color:var(--accent)}
-.nav-btn span:first-child{font-size:20px}
-.nav-btn span:last-child{font-size:10px;font-weight:600}
-
-/* ── UNDO TOAST ── */
-.undo-bar{position:fixed;bottom:max(160px,calc(140px + env(safe-area-inset-bottom)));left:12px;right:12px;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.4,0,.2,1)}
-.undo-bar.show{transform:none;opacity:1;pointer-events:all}
-.undo-code{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--green);flex:1}
-.undo-sub{font-size:10px;color:var(--text2);margin-top:1px}
-.undo-prog{position:absolute;bottom:0;left:0;height:3px;background:var(--accent);border-radius:0 0 12px 12px;transition:width linear}
-.undo-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.undo-btn:active{background:var(--red);border-color:var(--red);color:#fff}
-
-/* ── UPDATE BANNER ── */
-.update-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(79,140,255,.1));border:1px solid rgba(34,197,94,.4);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px}
-.update-banner.show{display:flex}
-.update-info{flex:1}
-.update-title{font-size:13px;font-weight:700;color:var(--green)}
-.update-sub{font-size:11px;color:var(--text2);margin-top:1px}
-.update-btn{background:var(--green);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.update-btn:active{opacity:.85}
-
-/* ── INSTALL BANNER ── */
-.install-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(79,140,255,.15),rgba(124,92,252,.1));border:1px solid rgba(79,140,255,.3);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px;cursor:pointer}
-.install-banner.show{display:flex}
-.install-icon{font-size:24px;flex-shrink:0}
-.install-info{flex:1}
-.install-title{font-size:13px;font-weight:700;color:var(--text)}
-.install-sub{font-size:11px;color:var(--text2);margin-top:1px}
-.install-btn{background:var(--accent);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.install-close{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0}
-
-.mini-room-item{padding:8px 12px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;transition:background .15s}
-.mini-room-item:active,.mini-room-item.selected{background:rgba(79,140,255,.15);color:var(--accent)}
-
-/* ── SUGGEST LOADING ── */
-@keyframes spin { to { transform: rotate(360deg); } }
-.spin { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 5px; vertical-align: middle; }
-.suggest-dots::after { content: ''; animation: dots 1.5s steps(3,end) infinite; }
-@keyframes dots { 0%,20% { content: '.'; } 40%,60% { content: '..'; } 80%,100% { content: '...'; } }
-
-/* ── LOGIN ── */
-.login-wrap{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
-.login-logo{font-size:56px;margin-bottom:4px}
-.login-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--text);text-align:center}
-.login-sub{font-size:13px;color:var(--text2);text-align:center;line-height:1.5;margin-top:-8px}
-.login-card{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:14px}
-.login-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600}
-.login-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:3px;outline:none;text-align:center}
-.login-input:focus{border-color:var(--accent)}
-.login-btn{width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:8px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
-.login-btn:active{opacity:.85}
-.login-btn:disabled{opacity:.5;cursor:not-allowed}
-.login-error{font-size:12px;color:var(--red);text-align:center;min-height:16px}
-.login-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
-
-/* ── USER BADGE ── */
-.user-badge{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;margin-bottom:12px}
-.ub-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
-.ub-info{flex:1;min-width:0}
-.ub-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ub-siape{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace}
-.ub-logout{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px}
-
-/* ── ROOM SEARCH & GROUPS ── */
-.room-search-wrap{padding:0 0 12px;position:sticky;top:0;background:var(--bg);z-index:10}
-.room-search{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none}
-.room-search:focus{border-color:var(--accent)}
-.room-group{margin-bottom:8px}
-.room-group-header{display:flex;align-items:center;justify-content:space-between;padding:8px 4px;cursor:pointer;user-select:none}
-.room-group-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:700}
-.room-group-chevron{color:var(--text3);font-size:14px;transition:transform .2s}
-.room-group-chevron.open{transform:rotate(90deg)}
-.room-group-items{display:none}
-.room-group-items.open{display:block}
-
-/* ── PROGRESS SCREEN ── */
-.prog-header{background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:var(--r);padding:16px;margin-bottom:14px}
-.prog-header h3{font-size:16px;font-weight:700;color:#fff}
-.prog-header p{font-size:12px;color:rgba(255,255,255,.7);margin-top:3px}
-.prog-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.prog-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px;text-align:center}
-.prog-stat-n{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.prog-stat-l{font-size:10px;color:var(--text2);margin-top:2px}
-.prog-room-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:8px}
-.prog-room-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px}
-.prog-room-name{font-size:13px;font-weight:600;color:var(--text)}
-.prog-room-block{font-size:10px;color:var(--text2);margin-top:1px}
-.prog-room-count{font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap;margin-left:8px}
-.prog-bar-wrap{margin-top:8px}
-.prog-bar-bg{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
-.prog-bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width .4s}
-.prog-bar-label{font-size:10px;color:var(--text3);margin-top:3px}
-.prog-empty{text-align:center;padding:40px 20px;color:var(--text2)}
-
-/* ── ROOM ITEM com info ── */
-.room-item-wrap{position:relative}
-.room-info-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px}
-.room-info-btn:active{background:var(--surface2);color:var(--accent)}
-.room-name-short{font-size:14px;font-weight:600}
-.room-name-block{font-size:11px;color:var(--text2);margin-top:1px}
-
-/* ── COMPARAÇÃO POR SALA ── */
-.comp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
-.comp-stat{border-radius:var(--r2);padding:8px;text-align:center}
-.comp-stat-n{font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.comp-stat-l{font-size:9px;margin-top:2px}
-.comp-stat.correto{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3)}
-.comp-stat.correto .comp-stat-n{color:var(--green)}
-.comp-stat.correto .comp-stat-l{color:var(--green)}
-.comp-stat.outro{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3)}
-.comp-stat.outro .comp-stat-n{color:var(--yellow)}
-.comp-stat.outro .comp-stat-l{color:var(--yellow)}
-.comp-stat.nao{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3)}
-.comp-stat.nao .comp-stat-n{color:var(--red)}
-.comp-stat.nao .comp-stat-l{color:var(--red)}
-.comp-stat.pend{background:rgba(79,140,255,.1);border:1px solid rgba(79,140,255,.3)}
-.comp-stat.pend .comp-stat-n{color:var(--accent)}
-.comp-stat.pend .comp-stat-l{color:var(--accent)}
-.comp-item{padding:10px 12px;border-radius:var(--r2);margin-bottom:6px;border-left:3px solid}
-.comp-item.correto{background:rgba(34,197,94,.06);border-color:var(--green)}
-.comp-item.outro_local{background:rgba(245,158,11,.06);border-color:var(--yellow)}
-.comp-item.nao_localizado{background:rgba(239,68,68,.06);border-color:var(--red)}
-.comp-item.pendente{background:rgba(79,140,255,.06);border-color:var(--accent)}
-.comp-item-num{font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600}
-.comp-item-desc{font-size:12px;color:var(--text);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.comp-item-meta{font-size:11px;color:var(--text2);margin-top:3px}
-.comp-filter{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px}
-.comp-filter-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer}
-.comp-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
-
-/* ── PIN / HIDE ROOMS ── */
-.room-pin-btn{background:none;border:none;font-size:16px;cursor:pointer;padding:4px 6px;color:var(--text3);flex-shrink:0}
-.room-pin-btn.pinned{color:#f59e0b}
-.room-group-pin{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r2);margin-bottom:8px}
-.room-group-pin .room-group-header{padding:6px 4px}
-.room-group-pin .room-group-title{color:#f59e0b}
-.hidden-rooms-section{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
-.hidden-room-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:6px}
-.hidden-room-name{flex:1;font-size:13px;color:var(--text2)}
-.unhide-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif}
-
-/* ── MISC ── */
-.pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
-.pill.ok{background:rgba(34,197,94,.15);color:var(--green)}
-.pill.warn{background:rgba(245,158,11,.15);color:var(--yellow)}
-.pill.dup{background:rgba(124,92,252,.15);color:var(--accent2)}
-.empty{text-align:center;padding:40px 20px;color:var(--text2)}
-.empty-ico{font-size:3rem;margin-bottom:10px}
-hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
-.fab{position:fixed;bottom:max(80px,calc(60px + env(safe-area-inset-bottom)));right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(79,140,255,.5);z-index:50;display:flex;align-items:center;justify-content:center;transition:transform .15s}
-.fab:active{transform:scale(.92)}
-</style>
-</head>
-<body>
-
-<!-- ════════════════════════════════════════════
-     SCREEN: HOME
-═══════════════════════════════════════════════ -->
-<div class="screen" id="scHome">
-  <div class="sbody">
-    <div class="home-header">
-      <h2>📋 Inventário Campus</h2>
-      <p id="homeDate">Carregando...</p>
-    </div>
-
-    <!-- Install banner -->
-<div class="install-banner" id="installBanner">
-  <div class="install-icon">📲</div>
-  <div class="install-info">
-    <div class="install-title">Instalar como app</div>
-    <div class="install-sub">Acesso rápido sem abrir o navegador</div>
-  </div>
-  <button class="install-btn" onclick="doInstall()">Instalar</button>
-  <button class="install-close" onclick="dismissInstall()" title="Fechar">✕</button>
-</div>
-
-<!-- Update banner -->
-<div class="update-banner" id="updateBanner">
-  <div style="font-size:22px">🔄</div>
-  <div class="update-info">
-    <div class="update-title" id="updateTitle">Nova versão disponível!</div>
-    <div class="update-sub" id="updateSub">Atualize para continuar usando</div>
-  </div>
-  <button class="update-btn" onclick="doUpdate()">Atualizar</button>
-</div>
-
-<!-- User badge -->
-<div class="user-badge" id="userBadge" style="display:none">
-  <div class="ub-avatar" id="userAvatar">?</div>
-  <div class="ub-info">
-    <div class="ub-name" id="userName">—</div>
-    <div class="ub-siape" id="userSiape">SIAPE: —</div>
-  </div>
-  <button class="ub-logout" onclick="fazerLogout()" title="Sair">⇥</button>
-</div>
-
-<div class="sync-banner" id="syncBanner" onclick="syncNow()">
-      <div class="sync-dot offline" id="syncDot"></div>
-      <div class="sync-text" id="syncText">Verificando conexão...</div>
-      <div class="sync-count" id="syncCount"></div>
-    </div>
-
-    <div class="room-selector" onclick="showScreen('scRooms')">
-      <div class="rs-label">📍 Local atual</div>
-      <div class="rs-value">
-        <span id="currentRoomLabel">Selecionar local</span>
-        <span class="rs-chevron">›</span>
-      </div>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-n g" id="statFound">0</div><div class="stat-l">Encontrados</div></div>
-      <div class="stat-box"><div class="stat-n y" id="statNoPat">0</div><div class="stat-l">Sem patrim.</div></div>
-      <div class="stat-box"><div class="stat-n b" id="statTotal">0</div><div class="stat-l">Total hoje</div></div>
-    </div>
-
-    <div class="action-grid">
-      <div class="action-card primary" onclick="startScanner()">
-        <span class="ac-icon">📷</span>
-        <div class="ac-title">Escanear</div>
-        <div class="ac-sub">Câmera + código</div>
-      </div>
-      <div class="action-card" onclick="showProgress()">
-        <span class="ac-icon">📊</span>
-        <div class="ac-title">Progresso</div>
-        <div class="ac-sub">Itens por sala</div>
-      </div>
-      <div class="action-card" onclick="openNoPatModal(null)">
-        <span class="ac-icon">📸</span>
-        <div class="ac-title">Sem patrim.</div>
-        <div class="ac-sub">Foto + descrição</div>
-      </div>
-      <div class="action-card" onclick="abrirSelecaoComparacao()">
-        <span class="ac-icon">🔍</span>
-        <div class="ac-title">Comparação</div>
-        <div class="ac-sub">Itens por sala</div>
-      </div>
-    </div>
-
-    <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter"></div>
-  </div>
-  <div class="navbar">
-    <button class="nav-btn active" onclick="showScreen('scHome')"><span>🏠</span><span>Início</span></button>
-    <button class="nav-btn" onclick="startScanner()"><span>📷</span><span>Scanner</span></button>
-    <button class="nav-btn" onclick="showProgress()"><span>📊</span><span>Progresso</span></button>
-    <button class="nav-btn" onclick="showScreen('scSettings')"><span>⚙️</span><span>Config</span></button>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     SCREEN: ROOM PICKER
-═══════════════════════════════════════════════ -->
-<div class="screen hidden" id="scRooms">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
-    <div><div class="topbar-title">Selecionar Local</div><div class="topbar-sub">Onde você está agora?</div></div>
-  </div>
-  <div class="sbody">
-    <div class="room-search-wrap">
-      <input class="room-search" id="roomSearch" type="search" placeholder="🔍 Buscar sala..." oninput="renderRoomList(this.value)">
-    </div>
-    <div class="room-list" id="roomList"></div>
-    <div id="roomListEmpty" style="display:none;text-align:center;padding:20px 0">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Todas as salas estão ocultas</div>
-      <button onclick="revelarTodasSalas()" style="background:var(--accent);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer">👁 Revelar todas as salas</button>
-    </div>
-    <button class="add-room-btn" onclick="addRoom()">+ Adicionar novo local</button>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     SCREEN: SCANNER
-═══════════════════════════════════════════════ -->
-<div class="screen hidden" id="scScanner">
-  <div class="topbar">
-    <button class="back-btn" onclick="stopScanner()">‹ Voltar</button>
-    <div>
-      <div class="topbar-title">Scanner</div>
-      <div class="topbar-sub" id="scannerRoomLabel">—</div>
-    </div>
-  </div>
-  <div class="scanner-wrap">
-    <video id="scannerVideo" autoplay playsinline muted></video>
-    <div class="scanner-overlay">
-      <div class="scan-frame">
-        <div class="scan-line"></div>
-      </div>
-      
-  <div class="scan-hint-bar">
-        <div class="room-badge" id="scanRoomBadge">📍 —</div>
-        <div class="scan-hint-text">Aponte para o código de barras</div>
-      </div>
-    </div>
-    <div class="scan-flash" id="scanFlash"></div>
-
-  </div>
-  <div class="scanner-bottom">
-    <div class="manual-row">
-      <input class="manual-input" id="manualInput" placeholder="Digitar código manualmente..." autocomplete="off">
-      <button class="manual-btn" onclick="processManual()">OK</button>
-    </div>
-    <button class="nopat-btn" onclick="openNoPatModal(null)">📸 Item sem patrimônio</button>
-  <div style="text-align:center;font-size:10px;color:rgba(255,255,255,.3);margin-top:4px">Enquadre apenas 1 item na foto para melhor resultado da IA</div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     SCREEN: PROGRESS
-═══════════════════════════════════════════════ -->
-<div class="screen hidden" id="scProgress">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
-    <div><div class="topbar-title">Meu Progresso</div><div class="topbar-sub" id="progSub">—</div></div>
-  </div>
-  <div class="sbody">
-    <div class="prog-header">
-      <h3 id="progUserName">Carregando...</h3>
-      <p id="progDate">—</p>
-    </div>
-    <div class="prog-stats">
-      <div class="prog-stat"><div class="prog-stat-n g" id="progTotal">0</div><div class="prog-stat-l">Total</div></div>
-      <div class="prog-stat"><div class="prog-stat-n b" id="progSalas">0</div><div class="prog-stat-l">Salas</div></div>
-      <div class="prog-stat"><div class="prog-stat-n y" id="progNopat">0</div><div class="prog-stat-l">Sem patrim.</div></div>
-    </div>
-    <div id="progRoomList"></div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     SCREEN: COMPARAÇÃO POR SALA
-═══════════════════════════════════════════════ -->
-<div class="screen hidden" id="scComparacao">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
-    <div>
-      <div class="topbar-title" id="compTitle">Comparação</div>
-      <div class="topbar-sub" id="compSub">—</div>
-    </div>
-  </div>
-  <div class="sbody">
-    <div class="comp-stats">
-      <div class="comp-stat correto"><div class="comp-stat-n" id="compCorreto">0</div><div class="comp-stat-l">✅ Correto</div></div>
-      <div class="comp-stat outro"><div class="comp-stat-n" id="compOutro">0</div><div class="comp-stat-l">🟡 Outro local</div></div>
-      <div class="comp-stat nao"><div class="comp-stat-n" id="compNao">0</div><div class="comp-stat-l">❌ Não localiz.</div></div>
-      <div class="comp-stat pend"><div class="comp-stat-n" id="compPend">0</div><div class="comp-stat-l">⏳ Pendente</div></div>
-    </div>
-    <div class="comp-filter">
-      <button class="comp-filter-btn active" onclick="filtrarComp('todos',this)">Todos</button>
-      <button class="comp-filter-btn" onclick="filtrarComp('correto',this)">✅ Correto</button>
-      <button class="comp-filter-btn" onclick="filtrarComp('outro_local',this)">🟡 Outro local</button>
-      <button class="comp-filter-btn" onclick="filtrarComp('nao_localizado',this)">❌ Não localiz.</button>
-      <button class="comp-filter-btn" onclick="filtrarComp('pendente',this)">⏳ Pendente</button>
-    </div>
-    <div id="compList"><div class="empty"><div class="empty-ico">📊</div>Carregando...</div></div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     SCREEN: HISTORY
-═══════════════════════════════════════════════ -->
-<div class="screen hidden" id="scHistory">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
-    <div><div class="topbar-title">Histórico</div><div class="topbar-sub" id="histSub">Sessão atual</div></div>
-  </div>
-  <div class="sbody">
-    <div id="histList"><div class="empty"><div class="empty-ico">📭</div>Nenhum scan ainda.</div></div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     SCREEN: SETTINGS
-═══════════════════════════════════════════════ -->
-<div class="screen hidden" id="scSettings">
-  <div class="topbar">
-    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
-    <div><div class="topbar-title">Configurações</div></div>
-  </div>
-  <div class="sbody">
-    <div class="sett-section">
-      <div class="sett-title">🔗 Google Sheets (Apps Script)</div>
-      <div class="field-label">URL do Web App</div>
-      <textarea class="url-input" id="scriptUrlInput" rows="3" placeholder="https://script.google.com/macros/s/..."></textarea>
-      <button class="cfg-btn" onclick="saveScriptUrl()">Salvar URL</button>
-      <button class="cfg-btn sec" onclick="testConnection()">Testar conexão</button>
-    </div>
-
-    <div class="sett-section">
-      <div class="sett-title">🤖 Gemini IA (sugestão de descrição)</div>
-      <div class="field-label">Chave da API — aistudio.google.com</div>
-      <input type="password" class="url-input" id="geminiKeyInput" placeholder="AIza..." style="font-family:monospace;font-size:12px;padding:10px">
-      <button class="cfg-btn" onclick="saveGeminiKey()">Salvar chave</button>
-      <button class="cfg-btn sec" id="testIABtn" onclick="testarIA()">🧪 Testar IA</button>
-    </div>
-
-    <div class="sett-section">
-      <div class="sett-title">📍 Locais cadastrados</div>
-      <div id="settRoomList"></div>
-      <button class="add-room-btn" onclick="addRoom()">+ Adicionar local</button>
-      <button class="add-room-btn" id="btnRevelarSalas" onclick="revelarTodasSalas()" style="display:none;margin-top:6px;border-color:var(--accent);color:var(--accent)">👁 Revelar todas as salas ocultas</button>
-    </div>
-
-    <div class="sett-section">
-      <div class="sett-title">🗂 Dados</div>
-      <div class="sett-item" onclick="exportCSV()">
-        <span class="si-icon">📥</span>
-        <div class="si-info"><div class="si-title">Exportar CSV</div><div class="si-sub">Todos os scans desta sessão</div></div>
-        <span class="si-arrow">›</span>
-      </div>
-      <div class="sett-item" onclick="confirmClear()">
-        <span class="si-icon">🗑️</span>
-        <div class="si-info"><div class="si-title">Limpar sessão</div><div class="si-sub">Apaga histórico local</div></div>
-        <span class="si-arrow">›</span>
-      </div>
-    </div>
-
-    <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3)">
-      Inventário Campus <span id="versionSettings"></span><br>PWA · Offline First
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════════
-     MODAL: SEM PATRIMÔNIO
-═══════════════════════════════════════════════ -->
-<div class="modal-bg" id="noPatModal" onclick="if(event.target===this)closeNoPatModal()">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">📸 Item Sem Patrimônio</div>
-
-    <div class="photo-area" id="photoArea" onclick="abrirCamera()">
-      <div class="photo-placeholder">
-        <span>📷</span>
-        <p>Toque para fotografar o item</p>
-      </div>
-    </div>
-
-    <div class="field-label" style="display:flex;align-items:center;justify-content:space-between">
-      <span>Descrição do item</span>
-      <button id="suggestBtn" onclick="sugerirDescricao()" style="display:none;background:linear-gradient(135deg,#4f8cff,#7c5cfc);border:none;border-radius:6px;padding:5px 10px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer;gap:4px;align-items:center">✨ Sugerir</button>
-    </div>
-    <textarea class="field-input" id="noPatDesc" rows="2" placeholder="Ex: Cadeira giratória preta, impressora, monitor 19'..."></textarea>
-
-    <div class="field-label">Estado de conservação</div>
-    <div class="estado-row" id="estadoRow">
-      <button class="estado-chip excelente selected" onclick="selectEstado('Excelente',this)">Excelente</button>
-      <button class="estado-chip bom" onclick="selectEstado('Bom',this)">Bom</button>
-      <button class="estado-chip regular" onclick="selectEstado('Regular',this)">Regular</button>
-      <button class="estado-chip ruim" onclick="selectEstado('Ruim',this)">Ruim</button>
-    </div>
-
-    <div class="field-label">Local</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap" id="noPatRoomRow">
-      <div onclick="toggleRoomPicker()" style="font-size:14px;color:var(--accent);font-weight:700;cursor:pointer;padding:6px 12px;background:rgba(79,140,255,.1);border:1px solid rgba(79,140,255,.3);border-radius:20px;display:inline-flex;align-items:center;gap:6px" id="noPatRoom">— <span style="font-size:10px;opacity:.6">▼</span></div>
-    </div>
-    <!-- Mini room picker -->
-    <div id="miniRoomPicker" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:12px;max-height:160px;overflow-y:auto"></div>
-
-    <button class="modal-save-btn" onclick="saveNoPat()">💾 Registrar Item</button>
-    <button class="modal-cancel" onclick="closeNoPatModal()">Cancelar</button>
-  </div>
-</div>
-
-<!-- ════ UNDO BAR ════ -->
-<div class="undo-bar" id="undoBar">
-  <div style="flex:1;min-width:0">
-    <div class="undo-code" id="undoCode">—</div>
-    <div class="undo-sub" id="undoSub">—</div>
-  </div>
-  <button class="undo-btn" onclick="undoLast()">↩ Desfazer</button>
-  <div class="undo-prog" id="undoProg" style="width:100%"></div>
-</div>
-
-<!-- ════ LOGIN SCREEN ════ -->
-<div class="login-wrap" id="loginWrap" style="display:none">
-  <div class="login-logo">📋</div>
-  <div class="login-title">Inventário Campus</div>
-  <div class="login-sub">IFMS — Sistema de Inventário Patrimonial</div>
-  <div class="login-card">
-    <div class="login-label">Digite seu SIAPE</div>
-    <input class="login-input" id="siapeInput" type="tel" maxlength="7"
-      placeholder="0000000" autocomplete="off" inputmode="numeric"
-      onkeydown="if(event.key==='Enter')fazerLogin()">
-    <div class="login-error" id="loginError"></div>
-    <button class="login-btn" id="loginBtn" onclick="fazerLogin()">Entrar</button>
-  </div>
-  <div style="font-size:11px;color:var(--text3);text-align:center">
-    Use seu número SIAPE para acessar
-  </div>
-  <!-- Update banner no login -->
-  <div class="update-banner" id="updateBannerLogin" style="display:none;max-width:360px;width:100%">
-    <div style="font-size:18px">🔄</div>
-    <div class="update-info">
-      <div class="update-title" id="updateTitleLogin">Nova versão!</div>
-      <div class="update-sub" id="updateSubLogin"></div>
-    </div>
-    <button class="update-btn" onclick="doUpdate()">Atualizar</button>
-  </div>
-  <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionLogin"></div>
-</div>
-
-<!-- Toast -->
-<div class="result-toast" id="toast">
-  <div class="rt-ico" id="toastIco"></div>
-  <div><div class="rt-title" id="toastTitle"></div><div class="rt-sub" id="toastSub"></div></div>
-</div>
-
-<script>
-// ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v8.4';
-var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
-// Aplica versão imediatamente (não espera window.load)
-document.addEventListener('DOMContentLoaded', function() {
-  var el = document.getElementById('versionFooter');
-  if (el) el.textContent = APP_VERSION + ' · Inventário Campus';
-  var vs = document.getElementById('versionSettings');
-  if (vs) vs.textContent = APP_VERSION;
-  var vl = document.getElementById('versionLogin');
-  if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
-});
-
-// ═══════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════
-function getSalasSUAP() {
-  return ["ALMOXARIFADO (Bloco A)", "APOIO ALMOXARIFADO (Bloco A)", "BIBLIOTECA (Bloco A)", "COPA (Bloco A)", "COORDENAÇÕES (Bloco A)", "CORREDOR INFERIOR (Bloco A)", "CORREDOR SUPERIOR (Bloco A)", "COZINHA (Bloco A)", "CEREL (Bloco A)", "DIRAD I (Bloco A)", "DIRAD II (Bloco A)", "DIREN (Bloco A)", "DIRGE (Bloco A)", "GABINETE (Bloco A)", "NAPNE (Bloco A)", "NUGED (Bloco A)", "Inventário (Bloco A)", "REFEITORIO SERVIDORES (Bloco A)", "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)", "SALA DOS PROFESSORES 1 (Bloco A)", "SALA DOS PROFESSORES 2 (Bloco A)", "SALA DOS PROFESSORES 3 (Bloco A)", "SALA APOIO COALP / COADS (Bloco A)", "SALA DE APOIO TERCEIRIZADOS (Bloco A)", "SALA DE ATENDIMENTO NUGED (Bloco A)", "SHAFT SALA APOIO COALP / COADS (Bloco A)", "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)", "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)", "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)", "SHAFT DIRAD 1 (Bloco A)", "CANTINA (Bloco A)", "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)", "DATACENTER (Bloco B)", "CORREDOR INFERIOR (Bloco B)", "CORREDOR SUPERIOR (Bloco B)", "GAMELAB (Bloco B)", "IFSTUDIO (Bloco B)", "IFMaker (Bloco B)", "LABORATÓRIO INFORMÁTICA 1 (Bloco B)", "LABORATÓRIO INFORMÁTICA 2 (Bloco B)", "LABORATÓRIO INFORMÁTICA 3 (Bloco B)", "LABORATÓRIO INFORMÁTICA 4 (Bloco B)", "LABORATÓRIO INFORMÁTICA 5 (Bloco B)", "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)", "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)", "PÁTIO BLOCO B (Bloco B)", "SERTI (Bloco B)", "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)", "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)", "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)", "ESTUDIO 1 (Bloco B)", "ESTUDIO 2 (Bloco B)", "SALA VAGA (Bloco B)", "SL 01 (BLOCO C)", "SL 02 (BLOCO C)", "SL 03 (BLOCO C)", "SL 04 (BLOCO C)", "SL 05 (BLOCO C)", "SL 06 (BLOCO C)", "SL 07 (BLOCO C)", "SL 08 (BLOCO C)", "SL 09 (BLOCO C)", "SL 10 (BLOCO C)", "ENFERMARIA (BLOCO C)", "ASSISTENTE DE ALUNOS (BLOCO C)", "LÓGICA (BLOCO C)", "CORREDOR E HALL BLOCO C (BLOCO C)", "HALL E CORREDOR (BLOCO C)", "PERMANÊNCIA ESTUDANTIL (BLOCO C)", "Sala de Artes (SALAS MODULARES)", "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)", "Laboratório de Humanas (SALAS MODULARES)", "CENID (SALAS MODULARES)", "M-01 (SALAS MODULARES)", "ROBÓTICA (SALAS MODULARES)", "TECNOIF DR (SALAS MODULARES)", "ÁREA DAS SALAS MODULARES (SALAS MODULARES)", "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)", "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)", "CONTAINER QUADRA (QUADRA POLIESPORTIVA)", "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)", "BOSQUE (BOSQUE)", "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)", "ESTACIONAMENTO GERAL (ESTACIONAMENTO)", "GUARITA (GUARITA)", "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)", "BARRACÃO (PÁTIO EXTERNO FUNDOS.)", "CRC (BARRACÃO CRC)", "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)"];
-}
-
-var state = {
-  currentRoom: localStorage.getItem('currentRoom') || '',
-  rooms: (function() {
-    var saved = JSON.parse(localStorage.getItem('rooms') || '[]');
-    return (saved && saved.length > 10) ? saved : getSalasSUAP();
-  })(),
-  pinnedRooms: JSON.parse(localStorage.getItem('pinnedRooms') || '[]'),
-  hiddenRooms: JSON.parse(localStorage.getItem('hiddenRooms') || '[]'),
-  scriptUrl: localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbwH692tN_mtBmFF-_bPlkucI9dVkorAPqFJfAGhkHW-QhUe8CC3vppFpxDOLpLg5uijUA/exec',
-  scans: JSON.parse(localStorage.getItem('scans') || '[]'),
-  pendingSync: JSON.parse(localStorage.getItem('pendingSync') || '[]'),
-  isOnline: navigator.onLine,
+// ================================================================
+//  INVENTÁRIO CAMPUS — Google Apps Script  v3
+// ================================================================
+
+var CFG = {
+  ABA_FUNC:  "Funcionários",
+  ABA_INV:   "Inventário",
+  ABA_NOPAT: "Sem Patrimônio",
+  ABA_LOG:   "Log",
+  ABA_DASH:  "📊 Dashboard",
+  ABA_PAT:   "Patrimônios SUAP",
 };
 
-var screenHistory = [];
-var scannerStream = null;
-var quaggaRunning = false;
-var lastScanned = '';
-var lastScannedTime = 0;
-var noPatPhoto  = null;
-var photoCache  = {}; // espelho em memória do IndexedDB (rápido)
-var noPatEstado = 'Excelente';
-var toastTimer = null;
-var syncTimer = null;
-
-// ═══════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════
-// Intercepta botão físico voltar do celular
-window.addEventListener('popstate', function(e) {
-  // Se tiver uma tela aberta que não seja home, volta para ela
-  var cur = document.querySelector('.screen:not(.hidden):not(.slide-left)');
-  if (cur && cur.id !== 'scHome') {
-    e.preventDefault();
-    if (cur.id === 'scScanner') { stopScanner(); }
-    else { goBack(); }
-    // Empurra estado de volta para manter histórico
-    history.pushState(null, '', window.location.href);
-  }
-});
-// Empurra estado inicial
-history.pushState(null, '', window.location.href);
-
-// ── Service Worker — atualização automática ──────────────────
-if ('serviceWorker' in navigator) {
-  var swReloading = false;
-
-  function recarregarSeNecessario() {
-    if (swReloading) return;
-    swReloading = true;
-    window.location.reload(true);
-  }
-
-  navigator.serviceWorker.register('/inventarioifms/sw.js').then(function(reg) {
-
-    // SW novo instalando — quando ativar, recarrega
-    reg.addEventListener('updatefound', function() {
-      var novaSW = reg.installing;
-      if (!novaSW) return;
-      novaSW.addEventListener('statechange', function() {
-        if (novaSW.state === 'activated') {
-          recarregarSeNecessario();
-        }
-      });
-    });
-
-    // Verifica atualização ao abrir e a cada 2min
-    reg.update();
-    setInterval(function() { reg.update(); }, 2 * 60 * 1000);
-
-    // Se já tem SW ativo, verifica versão
-    if (reg.active) {
-      reg.active.postMessage({ type: 'GET_VERSION' });
-    }
-
-  }).catch(function(e) { console.warn('SW register error:', e); });
-
-  // Mensagem do SW (nova versão ativada)
-  navigator.serviceWorker.addEventListener('message', function(e) {
-    if (!e.data) return;
-    if (e.data.type === 'SW_ACTIVATED') {
-      console.log('SW ativado:', e.data.version);
-      recarregarSeNecessario();
-    }
-  });
-
-  // Quando o SW toma controle (após skipWaiting), recarrega
-  navigator.serviceWorker.addEventListener('controllerchange', function() {
-    recarregarSeNecessario();
-  });
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu("📋 Inventário Campus")
+    .addItem("⚙️ Configurar planilha", "setup")
+    .addItem("📊 Atualizar Dashboard", "atualizarDashboardMenu")
+    .addItem("📦 Importar Patrimônios SUAP", "importarPatrimonios")
+    .addItem("✅ Concluir Inventário", "concluirInventario")
+    .addItem("🧪 Simular Inventário (teste)", "simularInventario")
+    .addItem("📊 Resumo", "resumo")
+    .addItem("🔄 Resetar", "resetar")
+    .addToUi();
 }
 
-window.addEventListener('load', function() {
-  // Restaura fotos do IndexedDB para o cache em memória
-  idbCarregarTodas().then(function(todas) {
-    todas.forEach(function(r) { photoCache[r.id] = r.foto; });
-    if (todas.length) console.log('IDB: ' + todas.length + ' fotos restauradas');
-  });
-
-  iniciarApp();
-  updateHomeDate();
-  updateRoomLabel();
-  updateStats();
-  updateSyncBanner();
-  renderRoomList();
-  renderHistList();
-  renderSettRooms();
-  loadScriptUrl();
-  loadGeminiKey();
-
-  // Aplica versão em todos os elementos
-  ['versionFooter','versionBadge','versionSettings'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.textContent = el.id === 'versionFooter'
-      ? APP_VERSION + ' · Inventário Campus'
-      : APP_VERSION;
-  });
-  var vl = document.getElementById('versionLogin');
-  if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
-
-  window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); syncNow(); });
-  window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); });
-
-  // Sync imediato ao abrir se tiver pendentes
-  if (state.isOnline && state.pendingSync.length) {
-    setTimeout(syncNow, 2000);
-  }
-
-  // Auto sync every 30s
-  setInterval(function(){ if(state.isOnline && state.pendingSync.length) syncNow(); }, 30000);
-
-  // Boas-vindas na primeira abertura como app instalado
-  if (window._mostrarBoasVindas) {
-    setTimeout(function() {
-      showToast('ok', '🎉 App instalado com sucesso!', 'Bem-vindo ao Inventário Campus');
-    }, 1500);
-  }
-
-  // Verifica atualização após 3s (deixa o app carregar primeiro) e a cada 5min
-  setTimeout(function() {
-    if (state.isOnline) checkForUpdate();
-  }, 3000);
-  setInterval(function() {
-    if (state.isOnline) checkForUpdate();
-  }, 5 * 60 * 1000);
-});
-
-function updateHomeDate() {
-  var d = new Date();
-  document.getElementById('homeDate').textContent =
-    d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+function setup() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  criarAba(ss, CFG.ABA_FUNC,  ["SIAPE","Nome"],                                                           ["#1a1d27","#7c5cfc"]);
+  criarAba(ss, CFG.ABA_INV,   ["Data/Hora","Código","Local","Funcionário","SIAPE","Sync em"], ["#1a1d27","#4f8cff"]);
+  criarAba(ss, CFG.ABA_NOPAT, ["Data/Hora","Local","Descrição","Estado","Foto","🔗 Link foto","Sync em"], ["#1a1d27","#f59e0b"]);
+  criarAba(ss, CFG.ABA_LOG,   ["Data/Hora","ID","Tipo","Código","Local","Desc","Estado","Sync em"], ["#1a1d27","#8891b0"]);
+  atualizarDashboard(ss);
+  SpreadsheetApp.getUi().alert("✅ Planilha configurada!");
 }
 
-// ═══════════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════════
-function showScreen(id) {
-  var cur = document.querySelector('.screen:not(.hidden):not(.slide-left)');
-  if (cur && cur.id !== id) {
-    screenHistory.push(cur.id);
-    cur.classList.add('slide-left');
-  }
-  var next = document.getElementById(id);
-  next.classList.remove('hidden','slide-left');
-
-  // refresh on show
-  if (id === 'scHistory') renderHistList();
-  if (id === 'scRooms')   renderRoomList();
-  if (id === 'scSettings'){ renderSettRooms(); loadScriptUrl(); }
-  if (id === 'scHome')    { updateStats(); updateSyncBanner(); }
-}
-
-function goBack() {
-  var prev = screenHistory.pop() || 'scHome';
-  var cur  = document.querySelector('.screen:not(.hidden):not(.slide-left)');
-  if (cur) { cur.classList.add('hidden'); cur.classList.remove('slide-left'); }
-  document.getElementById(prev).classList.remove('hidden','slide-left');
-}
-
-// ═══════════════════════════════════════════════
-//  ROOMS
-// ═══════════════════════════════════════════════
-var ROOM_ICONS = ['🏛️','📚','🔬','🍽️','🏥','🏠','📦','🚪','🖥️','⚙️'];
-function roomIcon(i){ return ROOM_ICONS[i % ROOM_ICONS.length]; }
-
-
-
-var SALA_MAP = {"ALMOXARIFADO (Bloco A)": {"curto": "Almoxarifado", "bloco": "Bloco A", "emoji": "🏛️"}, "APOIO ALMOXARIFADO (Bloco A)": {"curto": "Apoio Almoxarifado", "bloco": "Bloco A", "emoji": "🍽️"}, "BIBLIOTECA (Bloco A)": {"curto": "Biblioteca", "bloco": "Bloco A", "emoji": "📚"}, "COPA (Bloco A)": {"curto": "Copa", "bloco": "Bloco A", "emoji": "☕"}, "COORDENAÇÕES (Bloco A)": {"curto": "Coordenações", "bloco": "Bloco A", "emoji": "🏛️"}, "CORREDOR INFERIOR (Bloco A)": {"curto": "Corredor Inferior", "bloco": "Bloco A", "emoji": "🚶"}, "CORREDOR SUPERIOR (Bloco A)": {"curto": "Corredor Superior", "bloco": "Bloco A", "emoji": "🚶"}, "COZINHA (Bloco A)": {"curto": "Cozinha", "bloco": "Bloco A", "emoji": "🍳"}, "CEREL (Bloco A)": {"curto": "CEREL", "bloco": "Bloco A", "emoji": "🏥"}, "DIRAD I (Bloco A)": {"curto": "DIRAD I", "bloco": "Bloco A", "emoji": "🏢"}, "DIRAD II (Bloco A)": {"curto": "DIRAD II", "bloco": "Bloco A", "emoji": "🏢"}, "DIREN (Bloco A)": {"curto": "DIREN", "bloco": "Bloco A", "emoji": "🏢"}, "DIRGE (Bloco A)": {"curto": "DIRGE", "bloco": "Bloco A", "emoji": "🏢"}, "GABINETE (Bloco A)": {"curto": "Gabinete", "bloco": "Bloco A", "emoji": "🏛️"}, "NAPNE (Bloco A)": {"curto": "NAPNE", "bloco": "Bloco A", "emoji": "♿"}, "NUGED (Bloco A)": {"curto": "NUGED", "bloco": "Bloco A", "emoji": "🏢"}, "Inventário (Bloco A)": {"curto": "Inventário", "bloco": "Bloco A", "emoji": "📋"}, "REFEITORIO SERVIDORES (Bloco A)": {"curto": "Refeitório Servidores", "bloco": "Bloco A", "emoji": "🍽️"}, "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)": {"curto": "Sala de Reuniões", "bloco": "Bloco A", "emoji": "🤝"}, "SALA DOS PROFESSORES 1 (Bloco A)": {"curto": "Sala dos Professores 1", "bloco": "Bloco A", "emoji": "👨‍🏫"}, "SALA DOS PROFESSORES 2 (Bloco A)": {"curto": "Sala dos Professores 2", "bloco": "Bloco A", "emoji": "👨‍🏫"}, "SALA DOS PROFESSORES 3 (Bloco A)": {"curto": "Sala dos Professores 3", "bloco": "Bloco A", "emoji": "👨‍🏫"}, "SALA APOIO COALP / COADS (Bloco A)": {"curto": "Apoio COALP/COADS", "bloco": "Bloco A", "emoji": "🔧"}, "SALA DE APOIO TERCEIRIZADOS (Bloco A)": {"curto": "Apoio Terceirizados", "bloco": "Bloco A", "emoji": "🔧"}, "SALA DE ATENDIMENTO NUGED (Bloco A)": {"curto": "Atendimento NUGED", "bloco": "Bloco A", "emoji": "📋"}, "SHAFT SALA APOIO COALP / COADS (Bloco A)": {"curto": "Shaft Apoio COALP/COADS", "bloco": "Bloco A", "emoji": "⚙️"}, "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)": {"curto": "Shaft Central Inf. Bloco A", "bloco": "Bloco A", "emoji": "⚙️"}, "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)": {"curto": "Shaft Central Sup. Bloco A", "bloco": "Bloco A", "emoji": "⚙️"}, "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)": {"curto": "Shaft Escada Bloco A", "bloco": "Bloco A", "emoji": "⚙️"}, "SHAFT DIRAD 1 (Bloco A)": {"curto": "Shaft DIRAD 1", "bloco": "Bloco A", "emoji": "⚙️"}, "CANTINA (Bloco A)": {"curto": "Cantina", "bloco": "Bloco A", "emoji": "🌿"}, "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)": {"curto": "Apoio Lab. Informática", "bloco": "Bloco B", "emoji": "🔧"}, "DATACENTER (Bloco B)": {"curto": "DataCenter", "bloco": "Bloco B", "emoji": "🖥️"}, "CORREDOR INFERIOR (Bloco B)": {"curto": "Corredor Inferior", "bloco": "Bloco B", "emoji": "🚶"}, "CORREDOR SUPERIOR (Bloco B)": {"curto": "Corredor Superior", "bloco": "Bloco B", "emoji": "🚶"}, "GAMELAB (Bloco B)": {"curto": "GameLab", "bloco": "Bloco B", "emoji": "🎮"}, "IFSTUDIO (Bloco B)": {"curto": "IFStudio", "bloco": "Bloco B", "emoji": "🎵"}, "IFMaker (Bloco B)": {"curto": "IFMaker", "bloco": "Bloco B", "emoji": "🔬"}, "LABORATÓRIO INFORMÁTICA 1 (Bloco B)": {"curto": "Lab. Informática 1", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO INFORMÁTICA 2 (Bloco B)": {"curto": "Lab. Informática 2", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO INFORMÁTICA 3 (Bloco B)": {"curto": "Lab. Informática 3", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO INFORMÁTICA 4 (Bloco B)": {"curto": "Lab. Informática 4", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO INFORMÁTICA 5 (Bloco B)": {"curto": "Lab. Informática 5", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)": {"curto": "Lab. Biologia/Física", "bloco": "Bloco B", "emoji": "🔬"}, "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)": {"curto": "Lab. Química/Mat.", "bloco": "Bloco B", "emoji": "⚗️"}, "PÁTIO BLOCO B (Bloco B)": {"curto": "Pátio Bloco B", "bloco": "Bloco B", "emoji": "🏞️"}, "SERTI (Bloco B)": {"curto": "SERTI", "bloco": "Bloco B", "emoji": "🔬"}, "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)": {"curto": "Shaft Central Inf. Bloco B", "bloco": "Bloco B", "emoji": "⚙️"}, "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)": {"curto": "Shaft Escada Bloco B", "bloco": "Bloco B", "emoji": "⚙️"}, "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)": {"curto": "Shaft Lab. Informática 4", "bloco": "Bloco B", "emoji": "⚙️"}, "ESTUDIO 1 (Bloco B)": {"curto": "Estúdio 1", "bloco": "Bloco B", "emoji": "🎬"}, "ESTUDIO 2 (Bloco B)": {"curto": "Estúdio 2", "bloco": "Bloco B", "emoji": "🎬"}, "SALA VAGA (Bloco B)": {"curto": "Sala Vaga", "bloco": "Bloco B", "emoji": "📦"}, "SL 01 (BLOCO C)": {"curto": "Sala de Aula 1", "bloco": "Bloco C", "emoji": "🎓"}, "SL 02 (BLOCO C)": {"curto": "Sala de Aula 2", "bloco": "Bloco C", "emoji": "🎓"}, "SL 03 (BLOCO C)": {"curto": "Sala de Aula 3", "bloco": "Bloco C", "emoji": "🎓"}, "SL 04 (BLOCO C)": {"curto": "Sala de Aula 4", "bloco": "Bloco C", "emoji": "🎓"}, "SL 05 (BLOCO C)": {"curto": "Sala de Aula 5", "bloco": "Bloco C", "emoji": "🎓"}, "SL 06 (BLOCO C)": {"curto": "Sala de Aula 6", "bloco": "Bloco C", "emoji": "🎓"}, "SL 07 (BLOCO C)": {"curto": "Sala de Aula 7", "bloco": "Bloco C", "emoji": "🎓"}, "SL 08 (BLOCO C)": {"curto": "Sala de Aula 8", "bloco": "Bloco C", "emoji": "🎓"}, "SL 09 (BLOCO C)": {"curto": "Sala de Aula 9", "bloco": "Bloco C", "emoji": "🎓"}, "SL 10 (BLOCO C)": {"curto": "Sala de Aula 10", "bloco": "Bloco C", "emoji": "🎓"}, "ENFERMARIA (BLOCO C)": {"curto": "Enfermaria", "bloco": "Bloco C", "emoji": "👩‍⚕️"}, "ASSISTENTE DE ALUNOS (BLOCO C)": {"curto": "Assistente de Alunos", "bloco": "Bloco C", "emoji": "👥"}, "LÓGICA (BLOCO C)": {"curto": "Lógica", "bloco": "Bloco C", "emoji": "📖"}, "CORREDOR E HALL BLOCO C (BLOCO C)": {"curto": "Corredor/Hall Bloco C", "bloco": "Bloco C", "emoji": "🚶"}, "HALL E CORREDOR (BLOCO C)": {"curto": "Hall/Corredor", "bloco": "Bloco C", "emoji": "🚶"}, "PERMANÊNCIA ESTUDANTIL (BLOCO C)": {"curto": "Permanência Estudantil", "bloco": "Bloco C", "emoji": "🏠"}, "Sala de Artes (SALAS MODULARES)": {"curto": "Sala de Artes", "bloco": "Salas Modulares", "emoji": "🎨"}, "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)": {"curto": "LAFIF", "bloco": "Salas Modulares", "emoji": "🏋️"}, "Laboratório de Humanas (SALAS MODULARES)": {"curto": "Lab. de Humanas", "bloco": "Salas Modulares", "emoji": "🔬"}, "CENID (SALAS MODULARES)": {"curto": "CENID", "bloco": "Salas Modulares", "emoji": "🏢"}, "M-01 (SALAS MODULARES)": {"curto": "M-01", "bloco": "Salas Modulares", "emoji": "🏢"}, "ROBÓTICA (SALAS MODULARES)": {"curto": "Robótica", "bloco": "Salas Modulares", "emoji": "🤖"}, "TECNOIF DR (SALAS MODULARES)": {"curto": "TECNOIF DR", "bloco": "Salas Modulares", "emoji": "💡"}, "ÁREA DAS SALAS MODULARES (SALAS MODULARES)": {"curto": "Área Salas Modulares", "bloco": "Salas Modulares", "emoji": "🏞️"}, "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)": {"curto": "Almoxarifado Container", "bloco": "Área Externa", "emoji": "📦"}, "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)": {"curto": "Container Patrimônio", "bloco": "Área Externa", "emoji": "📦"}, "CONTAINER QUADRA (QUADRA POLIESPORTIVA)": {"curto": "Container Quadra", "bloco": "Área Externa", "emoji": "🏀"}, "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)": {"curto": "Quadra Poliesportiva", "bloco": "Área Externa", "emoji": "🏀"}, "BOSQUE (BOSQUE)": {"curto": "Bosque", "bloco": "Área Externa", "emoji": "🌿"}, "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)": {"curto": "Estac. Veículos Oficiais", "bloco": "Área Externa", "emoji": "🚗"}, "ESTACIONAMENTO GERAL (ESTACIONAMENTO)": {"curto": "Estacionamento Geral", "bloco": "Área Externa", "emoji": "🚗"}, "GUARITA (GUARITA)": {"curto": "Guarita", "bloco": "Área Externa", "emoji": "🚪"}, "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)": {"curto": "Entrada Estudantes", "bloco": "Área Externa", "emoji": "🏫"}, "BARRACÃO (PÁTIO EXTERNO FUNDOS.)": {"curto": "Barracão", "bloco": "Área Externa", "emoji": "🏗️"}, "CRC (BARRACÃO CRC)": {"curto": "CRC", "bloco": "Área Externa", "emoji": "🏗️"}, "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)": {"curto": "Área de Convivência", "bloco": "Área Externa", "emoji": "🏞️"}};
-
-var SALA_GRUPOS = {"Bloco A": [{"nome": "Almoxarifado", "emoji": "🏛️", "original": "ALMOXARIFADO (Bloco A)"}, {"nome": "Apoio Almoxarifado", "emoji": "🍽️", "original": "APOIO ALMOXARIFADO (Bloco A)"}, {"nome": "Biblioteca", "emoji": "📚", "original": "BIBLIOTECA (Bloco A)"}, {"nome": "Copa", "emoji": "☕", "original": "COPA (Bloco A)"}, {"nome": "Coordenações", "emoji": "🏛️", "original": "COORDENAÇÕES (Bloco A)"}, {"nome": "Corredor Inferior", "emoji": "🚶", "original": "CORREDOR INFERIOR (Bloco A)"}, {"nome": "Corredor Superior", "emoji": "🚶", "original": "CORREDOR SUPERIOR (Bloco A)"}, {"nome": "Cozinha", "emoji": "🍳", "original": "COZINHA (Bloco A)"}, {"nome": "CEREL", "emoji": "🏥", "original": "CEREL (Bloco A)"}, {"nome": "DIRAD I", "emoji": "🏢", "original": "DIRAD I (Bloco A)"}, {"nome": "DIRAD II", "emoji": "🏢", "original": "DIRAD II (Bloco A)"}, {"nome": "DIREN", "emoji": "🏢", "original": "DIREN (Bloco A)"}, {"nome": "DIRGE", "emoji": "🏢", "original": "DIRGE (Bloco A)"}, {"nome": "Gabinete", "emoji": "🏛️", "original": "GABINETE (Bloco A)"}, {"nome": "NAPNE", "emoji": "♿", "original": "NAPNE (Bloco A)"}, {"nome": "NUGED", "emoji": "🏢", "original": "NUGED (Bloco A)"}, {"nome": "Inventário", "emoji": "📋", "original": "Inventário (Bloco A)"}, {"nome": "Refeitório Servidores", "emoji": "🍽️", "original": "REFEITORIO SERVIDORES (Bloco A)"}, {"nome": "Sala de Reuniões", "emoji": "🤝", "original": "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)"}, {"nome": "Sala dos Professores 1", "emoji": "👨‍🏫", "original": "SALA DOS PROFESSORES 1 (Bloco A)"}, {"nome": "Sala dos Professores 2", "emoji": "👨‍🏫", "original": "SALA DOS PROFESSORES 2 (Bloco A)"}, {"nome": "Sala dos Professores 3", "emoji": "👨‍🏫", "original": "SALA DOS PROFESSORES 3 (Bloco A)"}, {"nome": "Apoio COALP/COADS", "emoji": "🔧", "original": "SALA APOIO COALP / COADS (Bloco A)"}, {"nome": "Apoio Terceirizados", "emoji": "🔧", "original": "SALA DE APOIO TERCEIRIZADOS (Bloco A)"}, {"nome": "Atendimento NUGED", "emoji": "📋", "original": "SALA DE ATENDIMENTO NUGED (Bloco A)"}, {"nome": "Shaft Apoio COALP/COADS", "emoji": "⚙️", "original": "SHAFT SALA APOIO COALP / COADS (Bloco A)"}, {"nome": "Shaft Central Inf. Bloco A", "emoji": "⚙️", "original": "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)"}, {"nome": "Shaft Central Sup. Bloco A", "emoji": "⚙️", "original": "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)"}, {"nome": "Shaft Escada Bloco A", "emoji": "⚙️", "original": "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)"}, {"nome": "Shaft DIRAD 1", "emoji": "⚙️", "original": "SHAFT DIRAD 1 (Bloco A)"}, {"nome": "Cantina", "emoji": "🌿", "original": "CANTINA (Bloco A)"}], "Bloco B": [{"nome": "Apoio Lab. Informática", "emoji": "🔧", "original": "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)"}, {"nome": "DataCenter", "emoji": "🖥️", "original": "DATACENTER (Bloco B)"}, {"nome": "Corredor Inferior", "emoji": "🚶", "original": "CORREDOR INFERIOR (Bloco B)"}, {"nome": "Corredor Superior", "emoji": "🚶", "original": "CORREDOR SUPERIOR (Bloco B)"}, {"nome": "GameLab", "emoji": "🎮", "original": "GAMELAB (Bloco B)"}, {"nome": "IFStudio", "emoji": "🎵", "original": "IFSTUDIO (Bloco B)"}, {"nome": "IFMaker", "emoji": "🔬", "original": "IFMaker (Bloco B)"}, {"nome": "Lab. Informática 1", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 1 (Bloco B)"}, {"nome": "Lab. Informática 2", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 2 (Bloco B)"}, {"nome": "Lab. Informática 3", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 3 (Bloco B)"}, {"nome": "Lab. Informática 4", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 4 (Bloco B)"}, {"nome": "Lab. Informática 5", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 5 (Bloco B)"}, {"nome": "Lab. Biologia/Física", "emoji": "🔬", "original": "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)"}, {"nome": "Lab. Química/Mat.", "emoji": "⚗️", "original": "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)"}, {"nome": "Pátio Bloco B", "emoji": "🏞️", "original": "PÁTIO BLOCO B (Bloco B)"}, {"nome": "SERTI", "emoji": "🔬", "original": "SERTI (Bloco B)"}, {"nome": "Shaft Central Inf. Bloco B", "emoji": "⚙️", "original": "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)"}, {"nome": "Shaft Escada Bloco B", "emoji": "⚙️", "original": "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)"}, {"nome": "Shaft Lab. Informática 4", "emoji": "⚙️", "original": "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)"}, {"nome": "Estúdio 1", "emoji": "🎬", "original": "ESTUDIO 1 (Bloco B)"}, {"nome": "Estúdio 2", "emoji": "🎬", "original": "ESTUDIO 2 (Bloco B)"}, {"nome": "Sala Vaga", "emoji": "📦", "original": "SALA VAGA (Bloco B)"}], "Bloco C": [{"nome": "Sala de Aula 1", "emoji": "🎓", "original": "SL 01 (BLOCO C)"}, {"nome": "Sala de Aula 2", "emoji": "🎓", "original": "SL 02 (BLOCO C)"}, {"nome": "Sala de Aula 3", "emoji": "🎓", "original": "SL 03 (BLOCO C)"}, {"nome": "Sala de Aula 4", "emoji": "🎓", "original": "SL 04 (BLOCO C)"}, {"nome": "Sala de Aula 5", "emoji": "🎓", "original": "SL 05 (BLOCO C)"}, {"nome": "Sala de Aula 6", "emoji": "🎓", "original": "SL 06 (BLOCO C)"}, {"nome": "Sala de Aula 7", "emoji": "🎓", "original": "SL 07 (BLOCO C)"}, {"nome": "Sala de Aula 8", "emoji": "🎓", "original": "SL 08 (BLOCO C)"}, {"nome": "Sala de Aula 9", "emoji": "🎓", "original": "SL 09 (BLOCO C)"}, {"nome": "Sala de Aula 10", "emoji": "🎓", "original": "SL 10 (BLOCO C)"}, {"nome": "Enfermaria", "emoji": "👩‍⚕️", "original": "ENFERMARIA (BLOCO C)"}, {"nome": "Assistente de Alunos", "emoji": "👥", "original": "ASSISTENTE DE ALUNOS (BLOCO C)"}, {"nome": "Lógica", "emoji": "📖", "original": "LÓGICA (BLOCO C)"}, {"nome": "Corredor/Hall Bloco C", "emoji": "🚶", "original": "CORREDOR E HALL BLOCO C (BLOCO C)"}, {"nome": "Hall/Corredor", "emoji": "🚶", "original": "HALL E CORREDOR (BLOCO C)"}, {"nome": "Permanência Estudantil", "emoji": "🏠", "original": "PERMANÊNCIA ESTUDANTIL (BLOCO C)"}], "Salas Modulares": [{"nome": "Sala de Artes", "emoji": "🎨", "original": "Sala de Artes (SALAS MODULARES)"}, {"nome": "LAFIF", "emoji": "🏋️", "original": "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)"}, {"nome": "Lab. de Humanas", "emoji": "🔬", "original": "Laboratório de Humanas (SALAS MODULARES)"}, {"nome": "CENID", "emoji": "🏢", "original": "CENID (SALAS MODULARES)"}, {"nome": "M-01", "emoji": "🏢", "original": "M-01 (SALAS MODULARES)"}, {"nome": "Robótica", "emoji": "🤖", "original": "ROBÓTICA (SALAS MODULARES)"}, {"nome": "TECNOIF DR", "emoji": "💡", "original": "TECNOIF DR (SALAS MODULARES)"}, {"nome": "Área Salas Modulares", "emoji": "🏞️", "original": "ÁREA DAS SALAS MODULARES (SALAS MODULARES)"}], "Área Externa": [{"nome": "Almoxarifado Container", "emoji": "📦", "original": "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)"}, {"nome": "Container Patrimônio", "emoji": "📦", "original": "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)"}, {"nome": "Container Quadra", "emoji": "🏀", "original": "CONTAINER QUADRA (QUADRA POLIESPORTIVA)"}, {"nome": "Quadra Poliesportiva", "emoji": "🏀", "original": "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)"}, {"nome": "Bosque", "emoji": "🌿", "original": "BOSQUE (BOSQUE)"}, {"nome": "Estac. Veículos Oficiais", "emoji": "🚗", "original": "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)"}, {"nome": "Estacionamento Geral", "emoji": "🚗", "original": "ESTACIONAMENTO GERAL (ESTACIONAMENTO)"}, {"nome": "Guarita", "emoji": "🚪", "original": "GUARITA (GUARITA)"}, {"nome": "Entrada Estudantes", "emoji": "🏫", "original": "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)"}, {"nome": "Barracão", "emoji": "🏗️", "original": "BARRACÃO (PÁTIO EXTERNO FUNDOS.)"}, {"nome": "CRC", "emoji": "🏗️", "original": "CRC (BARRACÃO CRC)"}, {"nome": "Área de Convivência", "emoji": "🏞️", "original": "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)"}]};
-
-function abreviarSala(nome) {
-  if (SALA_MAP[nome]) return SALA_MAP[nome];
-  var ab = String(nome || '');
-  var bloco = '';
-  var pi = ab.indexOf('('), pf = ab.lastIndexOf(')');
-  if (pi > -1 && pf > pi) { bloco = ab.slice(pi+1, pf); ab = ab.slice(0, pi).trim(); }
-  return { curto: ab, bloco: bloco, emoji: '📦' };
-}
-
-
-function saveRoomPrefs() {
-  localStorage.setItem('pinnedRooms', JSON.stringify(state.pinnedRooms));
-  localStorage.setItem('hiddenRooms', JSON.stringify(state.hiddenRooms));
-}
-
-function togglePin(r, e) {
-  if (e) e.stopPropagation();
-  var idx = state.pinnedRooms.indexOf(r);
-  if (idx > -1) state.pinnedRooms.splice(idx, 1);
-  else state.pinnedRooms.unshift(r);
-  saveRoomPrefs();
-  renderRoomList(document.getElementById('roomSearch') ? document.getElementById('roomSearch').value : '');
-}
-
-function ocultarSalaBtn(btn) {
-  ocultarSala(btn.getAttribute('data-sala'));
-}
-
-function desocultarBtn(btn) {
-  desocultar(btn.getAttribute('data-sala'));
-}
-
-function ocultarSala(r, e) {
-  if (e) e.stopPropagation();
-  if (!confirm('Ocultar "' + abreviarSala(r).curto + '"?\nVocê poderá reativar em Configurações.')) return;
-  if (state.hiddenRooms.indexOf(r) === -1) state.hiddenRooms.push(r);
-  // Remove dos fixados também
-  var pi = state.pinnedRooms.indexOf(r);
-  if (pi > -1) state.pinnedRooms.splice(pi, 1);
-  saveRoomPrefs();
-  renderRoomList('');
-}
-
-function revelarTodasSalas() {
-  state.hiddenRooms = [];
-  state.pinnedRooms = [];
-  localStorage.setItem('hiddenRooms', '[]');
-  localStorage.setItem('pinnedRooms', '[]');
-  var emptyDiv = document.getElementById('roomListEmpty');
-  if (emptyDiv) emptyDiv.style.display = 'none';
-  renderSettRooms();
-  renderRoomList();
-  showToast('ok', '👁 Todas as salas reveladas', '');
-}
-
-function desocultar(r) {
-  var idx = state.hiddenRooms.indexOf(r);
-  if (idx > -1) state.hiddenRooms.splice(idx, 1);
-  saveRoomPrefs();
-  renderSettRooms();
-}
-
-function roomItemHTML(r) {
-  var cnt    = state.scans.filter(function(s){ return s.room === r; }).length;
-  var ab     = abreviarSala(r);
-  var sel    = state.currentRoom === r;
-  var emoji  = ab.emoji || '📍';
-  var isPinned = state.pinnedRooms.indexOf(r) > -1;
-  var modoComp = window._modoComparacao;
-  return '<div style="display:flex;align-items:center">'
-    +'<div class="room-item'+(sel?' selected':'')+'" onclick="selectRoom(\''+escJ(r)+'\')" style="flex:1">'
-    +'<span class="ri-icon">'+emoji+'</span>'
-    +'<div class="ri-info">'
-    +'<div class="ri-name">'+esc(ab.curto)+'</div>'
-    +'<div class="ri-count">'+(cnt?cnt+' itens escaneados':'Nenhum scan')+'</div>'
-    +'</div>'
-    +'<span class="ri-check">&#10003;</span>'
-    +'</div>'
-    +(!modoComp
-      ? '<button class="room-pin-btn'+(isPinned?' pinned':'')+'" onclick="togglePin(\''+escJ(r)+'\',event)" title="'+(isPinned?'Desafixar':'Fixar no topo')+'">'+(isPinned?'📌':'📍')+'</button>'
-      : '')
-    +'</div>';
-}
-
-function renderRoomList(filtro) {
-  var el = document.getElementById('roomList');
-  filtro = (filtro || '').toLowerCase().trim();
-
-  // Salas visíveis (não ocultas)
-  var visiveis = state.rooms.filter(function(r) {
-    return state.hiddenRooms.indexOf(r) === -1;
-  });
-
-  // Mostra botão revelar se todas ocultas (em vez de resetar automaticamente)
-  var emptyDiv = document.getElementById('roomListEmpty');
-  if (!visiveis.length && state.rooms.length) {
-    if (emptyDiv) emptyDiv.style.display = 'block';
-    el.innerHTML = '';
-    return;
-  }
-  if (emptyDiv) emptyDiv.style.display = 'none';
-
-  if (filtro) {
-    var resultados = visiveis.filter(function(r) {
-      var ab = abreviarSala(r);
-      return ab.curto.toLowerCase().indexOf(filtro) > -1
-          || (ab.bloco && ab.bloco.toLowerCase().indexOf(filtro) > -1)
-          || r.toLowerCase().indexOf(filtro) > -1;
-    });
-    if (!resultados.length) {
-      el.innerHTML = '<div class="empty" style="padding:24px">Nenhuma sala encontrada</div>';
-      return;
-    }
-    el.innerHTML = resultados.map(function(r){ return roomItemHTML(r); }).join('');
-    return;
-  }
-
-  // Fixadas no topo
-  var pinned  = state.pinnedRooms.filter(function(r){ return state.hiddenRooms.indexOf(r) === -1; });
-  // Agrupadas (excluindo fixadas)
-  var normais = visiveis.filter(function(r){ return state.pinnedRooms.indexOf(r) === -1; });
-
-  var html = '';
-
-  // Bloco de fixadas
-  if (pinned.length) {
-    html += '<div class="room-group room-group-pin">'
-      +'<div class="room-group-header" onclick="toggleGroup(this)">'
-      +'<span class="room-group-title">📌 Fixadas</span>'
-      +'<span class="room-group-chevron open">›</span>'
-      +'</div>'
-      +'<div class="room-group-items open">'
-      + pinned.map(function(r){ return roomItemHTML(r); }).join('')
-      +'</div></div>';
-  }
-
-  // Agrupadas por bloco
-  var porGrupo = {};
-  normais.forEach(function(r) {
-    var ab = abreviarSala(r);
-    var g  = ab.bloco || 'Outros';
-    if (!porGrupo[g]) porGrupo[g] = [];
-    porGrupo[g].push(r);
-  });
-
-  var ordem = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Área Externa','Outros'];
-  ordem.forEach(function(grupo) {
-    if (!porGrupo[grupo]) return;
-    html += '<div class="room-group">'
-      +'<div class="room-group-header" onclick="toggleGroup(this)">'
-      +'<span class="room-group-title">'+esc(grupo)+'</span>'
-      +'<span class="room-group-chevron open">›</span>'
-      +'</div>'
-      +'<div class="room-group-items open">'
-      + porGrupo[grupo].map(function(r){ return roomItemHTML(r); }).join('')
-      +'</div></div>';
-  });
-
-  el.innerHTML = html;
-}
-
-
-
-function renderSettRooms() {
-  var el = document.getElementById('settRoomList');
-  if (!el) return;
-  var visiveis = state.rooms.filter(function(r){ return state.hiddenRooms.indexOf(r) === -1; });
-  var ocultas  = state.hiddenRooms.filter(function(r){ return state.rooms.indexOf(r) > -1; });
-
-  var html = visiveis.map(function(r, i) {
-    var ab = abreviarSala(r);
-    return '<div class="sett-item"><span class="si-icon">'+(ab.emoji||roomIcon(i))+'</span>'
-      +'<div class="si-info"><div class="si-title">'+esc(ab.curto)+'</div>'
-      +(ab.bloco?'<div class="si-sub">'+esc(ab.bloco)+'</div>':'')+'</div>'
-      +'<button data-sala="'+escJ(r)+'" onclick="ocultarSalaBtn(this)" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2);font-size:11px;cursor:pointer">Ocultar</button>'
-      +'</div>';
-  }).join('');
-
-  if (ocultas.length) {
-    html += '<div class="hidden-rooms-section">'
-      +'<div class="sett-title" style="margin-top:8px">&#128584; Salas ocultas (só para você)</div>';
-    html += ocultas.map(function(r) {
-      var ab = abreviarSala(r);
-      return '<div class="hidden-room-item">'
-        +'<span style="font-size:18px">'+(ab.emoji||'&#128205;')+'</span>'
-        +'<span class="hidden-room-name">'+esc(ab.curto)+'</span>'
-        +'<button class="unhide-btn" data-sala="'+escJ(r)+'" onclick="desocultarBtn(this)">Reativar</button>'
-        +'</div>';
-    }).join('');
-    html += '</div>';
-  }
-
-  el.innerHTML = html;
-  // Mostra botão revelar se tiver salas ocultas
-  var btnRevelar = document.getElementById('btnRevelarSalas');
-  if (btnRevelar) btnRevelar.style.display = ocultas.length ? 'block' : 'none';
-}
-
-
-function selectRoom(name) {
-  if (window._modoComparacao) {
-    window._modoComparacao = false;
-    var title = document.querySelector('#scRooms .topbar-title');
-    if (title) title.textContent = 'Selecionar Local';
-    var sub = document.querySelector('#scRooms .topbar-sub');
-    if (sub) sub.textContent = 'Onde você está agora?';
-    goBack();
-    abrirComparacao(name);
-    return;
-  }
-  state.currentRoom = name;
-  localStorage.setItem('currentRoom', name);
-  updateRoomLabel();
-  goBack();
-}
-
-function updateRoomLabel() {
-  var lbl = state.currentRoom || 'Selecionar local';
-  document.getElementById('currentRoomLabel').textContent = lbl;
-  document.getElementById('scannerRoomLabel').textContent = lbl;
-  document.getElementById('scanRoomBadge').textContent = '📍 ' + lbl;
-  document.getElementById('noPatRoom').textContent = lbl || '(sem local)';
-}
-
-function addRoom() {
-  var name = prompt('Nome do local:');
-  if (!name || !name.trim()) return;
-  name = name.trim();
-  if (state.rooms.indexOf(name) > -1) { alert('Local já existe.'); return; }
-  state.rooms.push(name);
-  saveRooms();
-  renderRoomList();
-  renderSettRooms();
-}
-
-function removeRoom(name) {
-  if (!confirm('Remover "'+name+'"?')) return;
-  state.rooms = state.rooms.filter(function(r){ return r !== name; });
-  if (state.currentRoom === name) { state.currentRoom = ''; localStorage.removeItem('currentRoom'); updateRoomLabel(); }
-  saveRooms();
-  renderRoomList();
-  renderSettRooms();
-}
-
-function saveRooms() { localStorage.setItem('rooms', JSON.stringify(state.rooms)); }
-
-// ═══════════════════════════════════════════════
-//  SCANNER
-// ═══════════════════════════════════════════════
-function startScanner() {
-  if (!state.currentRoom) {
-    showToast('warn','📍 Selecione um local','Escolha onde você está antes de escanear');
-    showScreen('scRooms');
-    return;
-  }
-  showScreen('scScanner');
-  startCamera();
-}
-
-var html5Scanner = null;
-
-var zxingReader  = null;
-var mlkitCanvas  = document.createElement('canvas');
-var mlkitCtx     = null;
-var mlkitLoop    = null;
-var barcodeDetector = null;
-var hasBarcodeDetector = ('BarcodeDetector' in window);
-
-function startCamera() {
-  if (quaggaRunning) return;
-  var video = document.getElementById('scannerVideo');
-
-  navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
-  }).then(function(stream) {
-    scannerStream = stream;
-    video.srcObject = stream;
-    return video.play();
-  }).then(function() {
-    quaggaRunning = true;
-    if (hasBarcodeDetector) {
-      barcodeDetector = new BarcodeDetector({
-        formats: ['code_128','ean_13','ean_8','code_39','upc_a','upc_e','itf','pdf417','aztec','data_matrix','qr_code']
-      });
-      mlkitCanvas.width  = video.videoWidth  || 1280;
-      mlkitCanvas.height = video.videoHeight || 720;
-      mlkitCtx = mlkitCanvas.getContext('2d');
-      mlkitLoop = setInterval(function() {
-        if (!quaggaRunning || video.paused || video.ended) return;
-        mlkitCtx.drawImage(video, 0, 0, mlkitCanvas.width, mlkitCanvas.height);
-        barcodeDetector.detect(mlkitCanvas).then(function(barcodes) {
-          if (!barcodes.length) return;
-          var code = barcodes[0].rawValue;
-          var now  = Date.now();
-          if (code === lastScanned && now - lastScannedTime < 800) return;
-          lastScanned = code; lastScannedTime = now;
-          processScan(code);
-        }).catch(function(){});
-      }, 150);
-    } else {
-      try {
-        zxingReader = new ZXing.BrowserMultiFormatReader();
-        zxingReader.decodeFromVideoElement(video, function(result) {
-          if (!result) return;
-          var code = result.getText();
-          var now  = Date.now();
-          if (code === lastScanned && now - lastScannedTime < 800) return;
-          lastScanned = code; lastScannedTime = now;
-          processScan(code);
-        });
-      } catch(e) { showToast('warn','Scanner indisponível','Use entrada manual'); }
-    }
-  }).catch(function(e) {
-    showToast('warn','Câmera negada','Permita o acesso à câmera nas configurações');
-    console.error(e);
-  });
-}
-function stopScanner() {
-  quaggaRunning = false;
-  if (mlkitLoop) { clearInterval(mlkitLoop); mlkitLoop = null; }
-  if (zxingReader) { try { zxingReader.reset(); } catch(e){} zxingReader = null; }
-  if (scannerStream) { scannerStream.getTracks().forEach(function(t){ t.stop(); }); scannerStream = null; }
-  // Esconde overlay iOS
-  var overlay = document.getElementById('iosOverlay');
-  if (overlay) overlay.style.display = 'none';
-  goBack();
-}
-
-
-function processManual() {
-  var v = document.getElementById('manualInput').value.trim();
-  if (!v) return;
-  document.getElementById('manualInput').value = '';
-  processScan(v);
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    var inp = document.getElementById('manualInput');
-    if (document.activeElement === inp) processManual();
-  }
-});
-
-// ═══════════════════════════════════════════════
-//  CORE SCAN LOGIC
-// ═══════════════════════════════════════════════
-function normCod(c) { return String(c).replace(/^0+/, '') || '0'; }
-
-// ── Scan direto + desfazer ───────────────────────────────────
-var undoTimer   = null;
-var undoProgTimer = null;
-var lastEntry   = null;
-var UNDO_SECS   = 5;
-
-function processScan(rawCode) {
-  var code = normCod(rawCode);
-
-  var dup = state.scans.find(function(s){ return s.type==='scan' && normCod(s.code)===code; });
-  if (dup) {
-    flashScan('warn');
-    showToast('dup','⚠️ Já escaneado',''+dup.room+' · '+fmtTime(new Date(dup.ts)));
-    return;
-  }
-
-  // Registra imediatamente
-  commitScan(code);
-}
-
-function commitScan(code) {
-  var room  = state.currentRoom || '(sem local)';
-  // Recarrega currentUser do localStorage se necessário
-  if (!currentUser) {
-    var saved = localStorage.getItem('currentUser');
-    if (saved) try { currentUser = JSON.parse(saved); } catch(e){}
-  }
-  var entry = { id: uid(), type:'scan', code:code, room:room, funcionario: currentUser ? currentUser.nome : '', siape: currentUser ? currentUser.siape : '', ts:new Date().toISOString(), synced:false };
-  state.scans.push(entry);
-  lastEntry = entry;
-  saveScans();
-  addToPendingSync(entry);
-  updateStats();
-  renderHistList();
-  flashScan('ok');
-  navigator.vibrate && navigator.vibrate(60);
-  showUndoBar(code, room);
-}
-
-function showUndoBar(code, room) {
-  clearTimeout(undoTimer);
-  clearInterval(undoProgTimer);
-  document.getElementById('undoCode').textContent = '✅ ' + code;
-  document.getElementById('undoSub').textContent  = '📍 ' + room + ' · toque para desfazer';
-  var bar  = document.getElementById('undoBar');
-  var prog = document.getElementById('undoProg');
-  prog.style.transition = 'none';
-  prog.style.width = '100%';
-  bar.classList.add('show');
-  // Barra de progresso diminuindo
-  setTimeout(function() {
-    prog.style.transition = 'width ' + UNDO_SECS + 's linear';
-    prog.style.width = '0%';
-  }, 50);
-  undoTimer = setTimeout(function() { hideUndoBar(); }, UNDO_SECS * 1000);
-}
-
-function hideUndoBar() {
-  clearTimeout(undoTimer);
-  document.getElementById('undoBar').classList.remove('show');
-  lastEntry = null;
-}
-
-function undoLast() {
-  if (!lastEntry) return;
-  var id = lastEntry.id;
-  state.scans       = state.scans.filter(function(s){ return s.id !== id; });
-  state.pendingSync = state.pendingSync.filter(function(i){ return i !== id; });
-  saveScans();
-  localStorage.setItem('pendingSync', JSON.stringify(state.pendingSync));
-  updateStats();
-  renderHistList();
-  updateSyncBanner();
-  hideUndoBar();
-  showToast('warn','↩ Desfeito','Código removido do histórico');
-  navigator.vibrate && navigator.vibrate([40,30,40]);
-}
-
-
-function openNoPatModal() {
-  // Abre câmera direto — guia aparece após inicializar
-  abrirCamera();
-  noPatPhoto = null;
-  noPatEstado = 'Excelente';
-  document.getElementById('noPatDesc').value = '';
-  noPatRoom_selected = null;
-  var roomEl = document.getElementById('noPatRoom');
-  roomEl.innerHTML = esc(state.currentRoom || '(sem local)') + ' <span style="font-size:10px;opacity:.6">▼</span>';
-  document.getElementById('miniRoomPicker').style.display = 'none';
-  // Reset foto
-  var pa = document.getElementById('photoArea');
-  var img = pa.querySelector('img');
-  if (img) img.remove();
-  pa.querySelector('.photo-placeholder').style.display = '';
-  // foto será criada via abrirCamera() sob demanda
-  // Reset estado
-  document.querySelectorAll('.estado-chip').forEach(function(c){ c.classList.remove('selected'); });
-  document.querySelector('.estado-chip.excelente').classList.add('selected');
-  document.getElementById('noPatModal').classList.add('show');
-}
-
-function closeNoPatModal(e) {
-  document.getElementById('noPatModal').classList.remove('show');
-
-}
-
-// Redimensiona imagem para miniatura antes de salvar (~50KB)
-function resizeImage(base64, maxW, maxH, quality) {
-  return new Promise(function(resolve) {
-    var img = new Image();
-    img.onload = function() {
-      var w = img.width, h = img.height;
-      // Mantém proporção
-      if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-      if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
-      var canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      resolve(canvas.toDataURL('image/jpeg', quality || 0.75));
-    };
-    img.onerror = function() { resolve(base64); }; // fallback
-    img.src = base64;
-  });
-}
-
-// Cria um input novo a cada toque — único jeito garantido no mobile
-function abrirCamera() {
-  var inp = document.createElement('input');
-  inp.type    = 'file';
-  inp.accept  = 'image/*';
-  inp.setAttribute('capture', 'environment');
-  inp.style.display = 'none';
-  document.body.appendChild(inp);
-  inp.addEventListener('change', function(e) {
-    var file = e.target.files[0];
-    document.body.removeChild(inp); // limpa o DOM
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      var fullPhoto = ev.target.result;
-      // Mostra preview imediato em tamanho original
-      var pa  = document.getElementById('photoArea');
-      pa.querySelector('.photo-placeholder').style.display = 'none';
-      var previewImg = pa.querySelector('img') || document.createElement('img');
-      previewImg.src = fullPhoto;
-      previewImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:8px';
-      if (!pa.querySelector('img')) pa.appendChild(previewImg);
-      // Redimensiona em background para envio (400x400 max, 75% qualidade ~50-80KB)
-      resizeImage(fullPhoto, 400, 400, 0.75).then(function(resized) {
-        noPatPhoto = resized;
-        // Chama IA automaticamente após tirar a foto
-        if (state.scriptUrl) {
-          sugerirDescricao(true); // true = chamada automática
-        }
-        // Mostra botão refazer
-        var btn = document.getElementById('suggestBtn');
-        if (btn) {
-          btn.style.display = 'inline-flex';
-          btn.innerHTML = '🔄 Refazer';
-        }
-      });
-    };
-    reader.readAsDataURL(file);
-  });
-  // Pequeno delay antes de clicar — necessário em alguns Android
-  setTimeout(function() { inp.click(); }, 50);
-}
-
-function handlePhoto(e) {} // mantido por compatibilidade
-
-function selectEstado(val, btn) {
-  noPatEstado = val;
-  document.querySelectorAll('.estado-chip').forEach(function(c){ c.classList.remove('selected'); });
-  btn.classList.add('selected');
-}
-
-function saveNoPat() {
-  var desc = document.getElementById('noPatDesc').value.trim();
-  if (!desc) { document.getElementById('noPatDesc').focus(); return; }
-
-  var entryId = uid();
-  if (noPatPhoto) {
-    photoCache[entryId] = noPatPhoto; // espelho em memória para sync imediato
-    idbSalvarFoto(entryId, noPatPhoto); // persiste no IndexedDB (sobrevive ao fechar)
-  }
-
-  // Recarrega currentUser do localStorage se necessário
-  if (!currentUser) {
-    var saved = localStorage.getItem('currentUser');
-    if (saved) try { currentUser = JSON.parse(saved); } catch(e){}
-  }
-  var entry = {
-    id:     entryId,
-    type:   'nopat',
-    room:   noPatRoom_selected || state.currentRoom || '(sem local)',
-    funcionario: currentUser ? currentUser.nome : '',
-    siape: currentUser ? currentUser.siape : '',
-    desc:   desc,
-    estado: noPatEstado,
-    photo:  noPatPhoto || '', // em memória; saveScans não vai persistir isso
-    ts:     new Date().toISOString(),
-    synced: false,
-  };
-
-  state.scans.push(entry);
-  saveScans(); // salva sem a foto base64
-  addToPendingSync(entry);
-  updateStats();
-  renderHistList();
-  document.getElementById('noPatModal').classList.remove('show');
-  showToast('ok','📸 Item registrado','Estado: '+noPatEstado+' · '+entry.room);
-  navigator.vibrate && navigator.vibrate([60,30,60]);
-}
-
-// ═══════════════════════════════════════════════
-//  SYNC
-// ═══════════════════════════════════════════════
-function addToPendingSync(entry) {
-  // Evita duplicar o mesmo id na fila
-  if (state.pendingSync.indexOf(entry.id) === -1) {
-    state.pendingSync.push(entry.id);
-    localStorage.setItem('pendingSync', JSON.stringify(state.pendingSync));
-  }
-  updateSyncBanner();
-  if (state.isOnline) {
-    clearTimeout(syncTimer);
-    syncTimer = setTimeout(syncNow, 2000); // debounce maior para agrupar itens
-  }
-}
-
-var syncRunning    = false;
-var syncRunningTs  = 0;
-function syncNow() {
-  if (!state.scriptUrl || !state.isOnline || !state.pendingSync.length) return;
-  // Se syncRunning há mais de 30s, considera travado e reseta
-  if (syncRunning && (Date.now() - syncRunningTs) < 30000) return;
-  syncRunning   = true;
-  syncRunningTs = Date.now();
-  var toSync = state.scans.filter(function(s){ return state.pendingSync.indexOf(s.id) > -1; });
-  if (!toSync.length) return;
-
-  setSyncState('syncing');
-
-  // Envia como GET com ?action=batchSync&data=JSON
-  // Evita preflight CORS que o Apps Script não suporta
-  var items = toSync.map(function(s) {
-    // Restaura foto do cache em memória (ou IndexedDB via __idb__ marker)
-    var foto = (s.type === 'nopat' && photoCache[s.id]) ? photoCache[s.id] : (s.photo || '');
-    return {
-      id:          s.id,
-      type:        s.type,
-      code:        s.code        || '',
-      room:        s.room        || '',
-      desc:        s.desc        || '',
-      estado:      s.estado      || '',
-      photo:       foto,
-      ts:          s.ts,
-      funcionario: s.funcionario || '',
-      siape:       s.siape       || '',
-    };
-  });
-
-  // Restaura fotos do IndexedDB para itens nopat sem foto em memória
-  var nopats = toSync.filter(function(s){ return s.type==='nopat' && !photoCache[s.id]; });
-  Promise.all(nopats.map(function(s) {
-    return idbCarregarFoto(s.id).then(function(foto) { if (foto) photoCache[s.id] = foto; });
-  })).then(function() {
-
-  // Envia em lotes de 10 para evitar payload muito grande
-  var LOTE = 10;
-  var lotes = [];
-  for (var i = 0; i < items.length; i += LOTE) {
-    lotes.push(items.slice(i, i + LOTE));
-  }
-
-  var sincronizados = [];
-  var falhas        = [];
-
-  function enviarLote(idx) {
-    if (idx >= lotes.length) {
-      // Fim — atualiza estado
-      sincronizados.forEach(function(id) {
-        var scan = state.scans.find(function(s){ return s.id === id; });
-        if (scan) {
-          scan.synced = true;
-          delete photoCache[scan.id];
-          idbDeletarFoto(scan.id); // libera espaço no IndexedDB
-        }
-        var pi = state.pendingSync.indexOf(id);
-        if (pi > -1) state.pendingSync.splice(pi, 1);
-      });
-      saveScans();
-      localStorage.setItem('pendingSync', JSON.stringify(state.pendingSync));
-      renderHistList();
-      updateSyncBanner();
-      syncRunning = false;
-      if (falhas.length === 0) {
-        setSyncState('online');
-      } else {
-        setSyncState('offline');
-        // Retenta falhas em 10s
-        setTimeout(syncNow, 10000);
-      }
-      return;
-    }
-
-    var lote = lotes[idx];
-    fetch(state.scriptUrl, {
-      method:  'POST',
-      redirect: 'follow',
-      body:    JSON.stringify({ action: 'batchSync', items: lote }),
-      headers: { 'Content-Type': 'text/plain' },
-    })
-    .then(function(r) { return r.text(); })
-    .then(function(txt) {
-      var res;
-      try { res = JSON.parse(txt); } catch(e) { res = { ok: false }; }
-      if (res.ok) {
-        lote.forEach(function(item) { sincronizados.push(item.id); });
-      } else {
-        lote.forEach(function(item) { falhas.push(item.id); });
-        console.error('Lote falhou:', res.erro);
-      }
-      enviarLote(idx + 1);
-    })
-    .catch(function(e) {
-      lote.forEach(function(item) { falhas.push(item.id); });
-      console.error('Lote erro:', e);
-      enviarLote(idx + 1);
-    });
-  }
-
-  enviarLote(0);
-  }); // fim Promise.all IDB
-}
-
-function setSyncState(state_) {
-  var dot  = document.getElementById('syncDot');
-  var text = document.getElementById('syncText');
-  var cnt  = document.getElementById('syncCount');
-  var n    = state.pendingSync.length;
-
-  dot.className  = 'sync-dot ' + state_;
-  if (state_ === 'online')  { text.textContent = 'Conectado · tudo sincronizado'; cnt.textContent = ''; }
-  if (state_ === 'offline') { text.textContent = 'Sem conexão · dados salvos localmente'; cnt.textContent = n ? n+' pendentes' : ''; }
-  if (state_ === 'syncing') { text.textContent = 'Sincronizando...'; cnt.textContent = ''; }
-}
-
-function updateSyncBanner() {
-  var n = state.pendingSync.length;
-  if (!state.isOnline) {
-    setSyncState('offline');
-  } else if (n) {
-    setSyncState('offline');
-    document.getElementById('syncCount').textContent = n + ' pendentes';
-    // sync é iniciado pelo debounce do addToPendingSync, não aqui
+function criarAba(ss, nome, cab, cores) {
+  var s = ss.getSheetByName(nome);
+  if (!s) {
+    s = ss.insertSheet(nome);
+    s.getRange(1,1,1,cab.length).setValues([cab]);
   } else {
-    setSyncState('online');
+    // Sempre atualiza o cabeçalho para garantir colunas corretas
+    s.getRange(1,1,1,cab.length).setValues([cab]);
   }
+  s.getRange(1,1,1,cab.length).setBackground(cores[0]).setFontColor(cores[1]).setFontWeight("bold").setFontSize(10);
+  s.setFrozenRows(1);
+  return s;
 }
 
-function testConnection() {
-  var url = document.getElementById('scriptUrlInput').value.trim();
-  if (!url) { alert('Cole a URL primeiro.'); return; }
-  // Usa no-cors pois Apps Script não envia headers CORS no ping
-  fetch(url + '?action=ping')
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.ok) {
-        state.scriptUrl = url;
-        localStorage.setItem('scriptUrl', url);
-        updateSyncBanner();
-        showToast('ok','✅ Conexão OK!','URL salva com sucesso');
-      } else {
-        showToast('warn','⚠️ Resposta inesperada', JSON.stringify(d));
-      }
-    })
-    .catch(function(){ showToast('warn','❌ Erro de conexão','Verifique a URL'); });
-}
+// ── GET: ping ──────────────────────────────────────────────────
+function doGet(e) {
+  var action = (e && e.parameter && e.parameter.action) ? e.parameter.action : "ping";
 
-// ═══════════════════════════════════════════════
-//  HISTORY
-// ═══════════════════════════════════════════════
-function renderHistList() {
-  var el = document.getElementById('histList');
-  var sub = document.getElementById('histSub');
-  sub.textContent = state.scans.length + ' registros';
-
-  if (!state.scans.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-ico">📭</div>Nenhum scan ainda.</div>';
-    return;
+  if (action === "ping") {
+    return out({ ok: true, msg: "API ok", ts: new Date().toISOString() });
   }
 
-  var sorted = state.scans.slice().reverse();
-  el.innerHTML = sorted.map(function(s) {
-    var dot   = s.type === 'nopat' ? 'warn' : 'ok';
-    var title = s.type === 'nopat' ? (s.desc || 'Item sem patrimônio') : 'Cód. ' + s.code;
-    var meta  = '📍 ' + s.room + (s.type==='nopat' ? ' · ' + s.estado : '');
-    var sync  = s.synced ? '<div class="hi-sync done">☁ sincronizado</div>' : '<div class="hi-sync pending">⏳ pendente</div>';
-    var thumb = ''; // fotos ficam no IndexedDB, não exibidas no histórico
-    return '<div class="hist-item">'
-      +'<div class="hi-dot '+dot+'"></div>'
-      +'<div class="hi-info"><div class="hi-title">'+esc(title)+'</div>'
-      +'<div class="hi-meta">'+esc(meta)+'</div>'
-      +sync+'</div>'
-      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
-      +'<div class="hi-time">'+fmtTime(new Date(s.ts))+'</div>'
-      +thumb+'</div>'
-      +'</div>';
-  }).join('');
-}
-
-// ═══════════════════════════════════════════════
-//  STATS
-// ═══════════════════════════════════════════════
-function updateStats() {
-  var found = state.scans.filter(function(s){ return s.type==='scan'; }).length;
-  var nopat = state.scans.filter(function(s){ return s.type==='nopat'; }).length;
-  document.getElementById('statFound').textContent = found;
-  document.getElementById('statNoPat').textContent = nopat;
-  document.getElementById('statTotal').textContent = found + nopat;
-}
-
-// ═══════════════════════════════════════════════
-//  TOAST
-// ═══════════════════════════════════════════════
-function showToast(type, title, sub) {
-  var el = document.getElementById('toast');
-  document.getElementById('toastIco').textContent   = type==='ok'?'✅':type==='warn'?'⚠️':'🔁';
-  document.getElementById('toastTitle').textContent = title;
-  document.getElementById('toastSub').textContent   = sub||'';
-  el.className = 'result-toast ' + type + ' show';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2800);
-}
-
-function flashScan(type) {
-  var el = document.getElementById('scanFlash');
-  el.className = 'scan-flash ' + type + ' show';
-  setTimeout(function(){ el.classList.remove('show'); }, 300);
-}
-
-// ═══════════════════════════════════════════════
-//  SETTINGS / PERSIST
-// ═══════════════════════════════════════════════
-function saveScriptUrl() {
-  var url = document.getElementById('scriptUrlInput').value.trim();
-  state.scriptUrl = url;
-  localStorage.setItem('scriptUrl', url);
-  showToast('ok','URL salva','Conexão configurada');
-}
-
-function loadScriptUrl() {
-  document.getElementById('scriptUrlInput').value = state.scriptUrl || '';
-  // Persist default if not yet saved
-  if (!localStorage.getItem('scriptUrl') && state.scriptUrl) {
-    localStorage.setItem('scriptUrl', state.scriptUrl);
+  if (action === "login") {
+    return out(loginSiape(e.parameter.siape || ""));
   }
+
+  if (action === "totalPorSala") {
+    return out(getTotalPorSala());
+  }
+
+  if (action === "comparacaoSala") {
+    return out(getComparacaoSala(e.parameter.sala || ""));
+  }
+
+  return out({ ok: false, erro: "Ação desconhecida: " + action });
 }
 
-function saveScans() {
-  // Não salva fotos base64 no localStorage (limite 5MB)
-  // Fotos ficam só em memória e são enviadas ao Drive na sync
-  var semFoto = state.scans.map(function(s) {
-    if (s.type !== 'nopat' || !s.photo) return s;
-    var copia = JSON.parse(JSON.stringify(s));
-    copia.photo = s.synced ? '' : '__PENDENTE__'; // marca pendente sem guardar o base64
-    return copia;
-  });
+// ── POST: recebe form-encoded do PWA ───────────────────────────
+// O app envia: action=batchSync&data=[...]
+// Content-Type: application/x-www-form-urlencoded (sem preflight CORS)
+function doPost(e) {
   try {
-    localStorage.setItem('scans', JSON.stringify(semFoto));
-  } catch(e) {
-    // localStorage cheio — limpa entradas antigas sincronizadas
-    state.scans = state.scans.filter(function(s){ return !s.synced; });
-    localStorage.setItem('scans', JSON.stringify(semFoto.filter(function(s){ return !s.synced; })));
-  }
-}
+    var action, items;
 
-function exportCSV() {
-  var h = 'ID,Tipo,Código,Local,Descrição,Estado,Data,Sincronizado\n';
-  var rows = state.scans.map(function(s) {
-    return [s.id,s.type,s.code||'',s.room,s.desc||'',s.estado||'',s.ts,s.synced?'Sim':'Não'].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');
-  }).join('\n');
-  var blob = new Blob([h+rows], {type:'text/csv;charset=utf-8;'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'inventario_'+new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')+'.csv';
-  a.click();
-}
+    var fotoData = null;
 
-function confirmClear() {
-  if (!confirm('Apagar todos os dados da sessão? Esta ação não pode ser desfeita.')) return;
-  state.scans = []; state.pendingSync = [];
-  saveScans(); localStorage.setItem('pendingSync','[]');
-  updateStats(); renderHistList(); updateSyncBanner();
-  showToast('ok','Sessão limpa','Histórico apagado');
-}
-
-// ═══════════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════════
-function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escJ(s){ return String(s||'').replace(/'/g,"\\'"); }
-function toggleRoomPicker() {
-  var picker = document.getElementById('miniRoomPicker');
-  if (picker.style.display === 'none') {
-    picker.innerHTML = state.rooms.map(function(r) {
-      var sel = r === (noPatRoom_selected || state.currentRoom);
-      var div = document.createElement('div');
-      div.className = 'mini-room-item' + (sel ? ' selected' : '');
-      div.textContent = (sel ? '✓ ' : '') + r;
-      div.setAttribute('onclick', 'selectNoPatRoom(' + JSON.stringify(r) + ')');
-      return div.outerHTML;
-    }).join('');
-    picker.style.display = 'block';
-  } else {
-    picker.style.display = 'none';
-  }
-}
-
-var noPatRoom_selected = null;
-
-function selectNoPatRoom(name) {
-  noPatRoom_selected = name;
-  var el = document.getElementById('noPatRoom');
-  el.innerHTML = esc(name) + ' <span style="font-size:10px;opacity:.6">▼</span>';
-  document.getElementById('miniRoomPicker').style.display = 'none';
-}
-
-function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
-
-// ── Login / SIAPE ─────────────────────────────────────────────
-var currentUser = null; // { siape, nome }
-
-// ── Comparação por sala ──────────────────────────────────────
-var compCache = null;    // cache de TODAS as salas
-var compSalaAtual = ''; // sala sendo visualizada
-
-function abrirSelecaoComparacao() {
-  // Abre seletor de salas no modo comparação
-  compSalaAtual = '';
-  window._modoComparacao = true;
-  showScreen('scRooms');
-  // Muda título da tela de salas
-  var title = document.querySelector('#scRooms .topbar-title');
-  if (title) title.textContent = 'Selecionar sala';
-  var sub = document.querySelector('#scRooms .topbar-sub');
-  if (sub) sub.textContent = 'Toque para ver a comparação';
-}
-
-function abrirComparacao(sala) {
-  compSalaAtual = sala;
-  var ab = abreviarSala(sala);
-  document.getElementById('compTitle').textContent = ab.curto || sala;
-  document.getElementById('compSub').textContent   = ab.bloco || '';
-  showScreen('scComparacao');
-
-  // Se já tem cache, usa imediatamente
-  if (compCache) {
-    mostrarCompSala(sala);
-    return;
-  }
-
-  // Primeira vez — busca tudo de uma vez
-  document.getElementById('compList').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando dados...</div>';
-  document.getElementById('compCorreto').textContent = '—';
-  document.getElementById('compOutro').textContent   = '—';
-  document.getElementById('compNao').textContent     = '—';
-  document.getElementById('compPend').textContent    = '—';
-
-  fetch(state.scriptUrl + '?action=comparacaoSala&sala=' + encodeURIComponent(sala), {
-    cache: 'no-store', redirect: 'follow'
-  })
-  .then(function(r){ return r.text(); })
-  .then(function(txt) {
-    var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
-    if (!res.ok) {
-      document.getElementById('compList').innerHTML = '<div class="empty">⚠️ ' + (res.erro || 'Erro ao carregar') + '</div>';
-      return;
-    }
-    compCache = res.porSala || {};
-    mostrarCompSala(compSalaAtual);
-  })
-  .catch(function() {
-    document.getElementById('compList').innerHTML = '<div class="empty">❌ Erro de conexão</div>';
-  });
-}
-
-function mostrarCompSala(sala) {
-  var itensRaw = compCache[sala] || [];
-  // [numero, desc, tipo, localAchado, quemAchou]
-  var stats = { correto:0, outro_local:0, nao_localizado:0, pendente:0 };
-  itensRaw.forEach(function(it){ stats[it[2]] = (stats[it[2]]||0) + 1; });
-  document.getElementById('compCorreto').textContent = stats.correto || 0;
-  document.getElementById('compOutro').textContent   = stats.outro_local || 0;
-  document.getElementById('compNao').textContent     = stats.nao_localizado || 0;
-  document.getElementById('compPend').textContent    = stats.pendente || 0;
-  // Reset filtro
-  document.querySelectorAll('.comp-filter-btn').forEach(function(b){ b.classList.remove('active'); });
-  document.querySelector('.comp-filter-btn').classList.add('active');
-  renderCompList('todos');
-}
-
-function filtrarComp(tipo, btn) {
-  document.querySelectorAll('.comp-filter-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  renderCompList(tipo);
-}
-
-function renderCompList(filtro) {
-  if (!compCache) return;
-  var itensRaw = compCache[compSalaAtual] || [];
-  // [numero, desc, tipo, localAchado, quemAchou]
-  if (filtro !== 'todos') {
-    itensRaw = itensRaw.filter(function(it){ return it[2] === filtro; });
-  }
-  if (!itensRaw.length) {
-    document.getElementById('compList').innerHTML = '<div class="empty">Nenhum item nesta categoria</div>';
-    return;
-  }
-  var icons = { correto:'✅', outro_local:'🟡', nao_localizado:'❌', pendente:'⏳' };
-  document.getElementById('compList').innerHTML = itensRaw.map(function(it) {
-    var tipo = it[2], icon = icons[tipo] || '•';
-    var meta = '';
-    if (tipo === 'outro_local' && it[3]) meta = '📍 ' + esc(it[3]) + (it[4]?' · '+esc(it[4]):'');
-    if (tipo === 'nao_localizado')       meta = 'Não encontrado';
-    return '<div class="comp-item '+tipo+'">'
-      +'<div style="display:flex;align-items:center;gap:6px">'
-      +'<span>'+icon+'</span><span class="comp-item-num">'+esc(it[0])+'</span>'
-      +'</div>'
-      +'<div class="comp-item-desc">'+esc(it[1])+'</div>'
-      +(meta?'<div class="comp-item-meta">'+meta+'</div>':'')
-      +'</div>';
-  }).join('');
-}
-
-function mostrarInfoSala(nome) {
-  var ab = abreviarSala(nome);
-  showToast('ok', esc(ab.curto), ab.bloco ? '📍 ' + esc(ab.bloco) : nome);
-}
-
-// Cache de totais do SUAP
-var suapTotais = null;
-var suapEncontrados = null;
-var suapCarregando = false;
-
-function carregarTotaisSUAP(callback) {
-  if (suapTotais) { callback(); return; }
-  if (suapCarregando) { setTimeout(function(){ carregarTotaisSUAP(callback); }, 500); return; }
-  if (!state.scriptUrl) { callback(); return; }
-
-  suapCarregando = true;
-  fetch(state.scriptUrl + '?action=totalPorSala', { cache: 'no-store' })
-    .then(function(r) { return r.text(); })
-    .then(function(txt) {
-      var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
-      if (res.ok) {
-        suapTotais      = res.porSala      || {};
-        suapEncontrados = res.encontrados  || {};
+    // Tenta ler como form params (application/x-www-form-urlencoded)
+    if (e.parameter && e.parameter.action) {
+      action = e.parameter.action;
+      if (action === "batchSync") {
+        items = JSON.parse(e.parameter.data || "[]");
+      } else if (action === "descreverFoto") {
+        fotoData = JSON.parse(e.parameter.data || "{}");
       }
-    })
-    .catch(function(){})
-    .finally(function() {
-      suapCarregando = false;
-      callback();
-    });
+    }
+    // Fallback: JSON puro no body (text/plain)
+    else if (e.postData && e.postData.contents) {
+      var body = JSON.parse(e.postData.contents);
+      action   = body.action;
+      items    = body.items || [];
+      if (action === "testIA") {
+      return out(testIA());
+    }
+
+    if (action === "listModels") {
+      return out(listModels());
+    }
+
+    if (action === "descreverFoto") {
+        fotoData = body.data || {};
+      }
+    }
+
+    if (action === "batchSync") {
+      return out(batchSync(items));
+    }
+
+    if (action === "testIA") {
+      return out(testIA());
+    }
+
+    if (action === "listModels") {
+      return out(listModels());
+    }
+
+    if (action === "descreverFoto") {
+      var mime = fotoData && fotoData.mime ? fotoData.mime : "image/jpeg";
+      var b64  = fotoData && fotoData.b64  ? fotoData.b64  : "";
+      var descricao = descreverFoto(mime, b64);
+      if (descricao && descricao.indexOf('ERRO') === 0) {
+        return out({ ok: false, erro: descricao }); // retorna erro detalhado
+      }
+      return out(descricao ? { ok: true, descricao: descricao } : { ok: false, erro: "IA não retornou texto" });
+    }
+
+    return out({ ok: false, erro: "Ação desconhecida: " + action });
+  } catch(err) {
+    return out({ ok: false, erro: err.toString() });
+  }
 }
 
-function showProgress() {
-  // Atualiza dados antes de mostrar
-  var user = currentUser || { nome: 'Servidor', siape: '' };
-  document.getElementById('progUserName').textContent = user.nome;
-  document.getElementById('progDate').textContent =
-    new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('progSub').textContent =
-    'SIAPE ' + (user.siape || '—');
+function batchSync(items) {
+  var ss      = SpreadsheetApp.getActiveSpreadsheet();
+  var shInv   = getOrCreate(ss, CFG.ABA_INV,   ["Data/Hora","Código","Local","Sync em"],["#1a1d27","#4f8cff"]);
+  var shNoPat = getOrCreate(ss, CFG.ABA_NOPAT, ["Data/Hora","Local","Descrição","Estado","Foto","Sync em"],["#1a1d27","#f59e0b"]);
+  var shLog   = getOrCreate(ss, CFG.ABA_LOG,   ["Data/Hora","ID","Tipo","Código","Local","Desc","Estado","Sync em"],["#1a1d27","#8891b0"]);
+  var agora   = new Date();
+  var ok      = 0;
 
-  // Carrega totais do SUAP e atualiza tela
-  carregarTotaisSUAP(function() {
-    renderProgressRooms();
-  });
-
-  showScreen('scProgress');
-}
-
-function renderProgressRooms() {
-  // Stats gerais
-  var total  = state.scans.length;
-  var nopat  = state.scans.filter(function(s){ return s.type==='nopat'; }).length;
-  var _rms   = {}; state.scans.forEach(function(s){ _rms[s.room]=1; });
-  var salas  = Object.keys(_rms).length;
-  document.getElementById('progTotal').textContent = total;
-  document.getElementById('progSalas').textContent = salas;
-  document.getElementById('progNopat').textContent = nopat;
-
-  // Progresso por sala — combina scans locais com totais do SUAP
-  var porSala = {};
-  state.scans.forEach(function(s) {
-    if (!porSala[s.room]) porSala[s.room] = { scan:0, nopat:0 };
-    if (s.type === 'nopat') porSala[s.room].nopat++;
-    else porSala[s.room].scan++;
-  });
-
-  var salasSorted = Object.keys(porSala).sort(function(a,b){
-    return (porSala[b].scan + porSala[b].nopat) - (porSala[a].scan + porSala[a].nopat);
-  });
-
-  var el = document.getElementById('progRoomList');
-  if (!salasSorted.length) {
-    el.innerHTML = '<div class="prog-empty">📭<br>Nenhum item escaneado ainda</div>';
-    return;
-  }
-
-  el.innerHTML = salasSorted.map(function(r) {
-    var d       = porSala[r];
-    var ab      = abreviarSala(r);
-    var feitos  = d.scan + d.nopat;
-    var emoji   = ab.emoji || '📍';
-
-    // Busca total do SUAP para esta sala
-    var totalSuap = suapTotais ? (suapTotais[r] || 0) : 0;
-    var pct = totalSuap > 0 ? Math.min(100, Math.round(feitos / totalSuap * 100)) : null;
-    var cor = pct === null ? 'var(--accent)'
-            : pct >= 90  ? 'var(--green)'
-            : pct >= 50  ? 'var(--accent)'
-            : 'var(--yellow)';
-
-    var barLabel = totalSuap > 0
-      ? feitos + ' de ' + totalSuap + ' itens (' + pct + '%)'
-      : feitos + ' itens' + (d.nopat ? ' · ' + d.nopat + ' sem patrim.' : '');
-
-    var barWidth = pct !== null ? pct : Math.min(100, Math.round(feitos / 10 * 100));
-
-    return '<div class="prog-room-item">'
-      +'<div class="prog-room-header">'
-      +'<div style="display:flex;align-items:center;gap:8px">'
-      +'<span style="font-size:18px">'+(ab.emoji||'📍')+'</span>'
-      +'<div><div class="prog-room-name">'+esc(ab.curto)+'</div>'
-      +(ab.bloco?'<div class="prog-room-block">'+esc(ab.bloco)+'</div>':'')
-      +'</div></div>'
-      +'<div class="prog-room-count" style="color:'+cor+'">'+feitos+(totalSuap?' / '+totalSuap:'')+'</div>'
-      +'</div>'
-      +'<div class="prog-bar-wrap">'
-      +'<div class="prog-bar-bg"><div class="prog-bar-fill" style="width:'+barWidth+'%;background:'+cor+'"></div></div>'
-      +'<div class="prog-bar-label">'+barLabel+'</div>'
-      +'</div>'
-      +'</div>';
-  }).join('');
-}
-
-function iniciarApp() {
-  // Sanitiza hiddenRooms — só mantém salas que existem na lista atual
-  var roomSet = {};
-  state.rooms.forEach(function(r){ roomSet[r] = 1; });
-  state.hiddenRooms = state.hiddenRooms.filter(function(r){ return roomSet[r]; });
-  state.pinnedRooms = state.pinnedRooms.filter(function(r){ return roomSet[r]; });
-  // Reseta se corrompido (100% ocultas = claramente errado)
-  if (state.hiddenRooms.length >= state.rooms.length) {
-    state.hiddenRooms = [];
-    state.pinnedRooms = [];
-  }
-  localStorage.setItem('hiddenRooms', JSON.stringify(state.hiddenRooms));
-  localStorage.setItem('pinnedRooms', JSON.stringify(state.pinnedRooms));
-
-  // Atualiza lista de salas se versão mudou — também reseta hidden/pinned
-  if (localStorage.getItem('roomsVersion') !== ROOMS_VERSION) {
-    var novaLista = getSalasSUAP();
-    state.rooms = novaLista;
-    state.hiddenRooms = [];
-    state.pinnedRooms = [];
-    localStorage.setItem('rooms', JSON.stringify(novaLista));
-    localStorage.setItem('hiddenRooms', '[]');
-    localStorage.setItem('pinnedRooms', '[]');
-    localStorage.setItem('roomsVersion', ROOMS_VERSION);
-    console.log('Salas atualizadas para ' + ROOMS_VERSION);
-  }
-
-  var saved = localStorage.getItem('currentUser');
-  if (saved) {
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
     try {
-      currentUser = JSON.parse(saved);
-      aplicarUsuario(currentUser);
-      return;
-    } catch(e) {}
-  }
-  // Mostra tela de login
-  document.getElementById('loginWrap').style.display = 'flex';
-}
-
-function fazerLogin() {
-  var siape = document.getElementById('siapeInput').value.trim();
-  if (!siape || siape.length < 5) {
-    document.getElementById('loginError').textContent = 'Digite um SIAPE válido';
-    return;
-  }
-
-  var btn = document.getElementById('loginBtn');
-  btn.innerHTML = '<span class="login-spinner"></span>Verificando...';
-  btn.disabled  = true;
-  document.getElementById('loginError').textContent = '';
-
-  // Consulta planilha
-  fetch(state.scriptUrl + '?action=login&siape=' + encodeURIComponent(siape), {
-    redirect: 'follow',
-    cache: 'no-store'
-  })
-    .then(function(r) { return r.text(); })
-    .then(function(txt) {
-      var res; try { res = JSON.parse(txt); } catch(e) { res = { ok: false, erro: 'Resposta inválida: ' + txt.substring(0,100) }; }
-      return res;
-    })
-    .then(function(res) {
-      if (res.ok && res.nome) {
-        var user = { siape: siape, nome: res.nome };
-        currentUser = user;
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        document.getElementById('loginWrap').style.display = 'none';
-        aplicarUsuario(user);
-        // Carrega histórico do servidor
-        if (res.scans && res.scans.length) {
-          carregarHistoricoServidor(res.scans);
+      var ts = item.ts ? new Date(item.ts) : agora;
+      if (item.type === "scan") {
+        shInv.appendRow([ts, item.code, item.room, item.funcionario||'', item.siape||'', agora]);
+        shInv.getRange(shInv.getLastRow(), 1, 1, 6).setBackground("#d8f3dc");
+        // Marca como encontrado na lista do SUAP
+        marcarEncontrado(item.code, item.room, item.funcionario||'', item.siape||'');
+      } else if (item.type === "nopat") {
+        var fotoLink = "";
+        if (item.photo && item.photo.length > 10) {
+          try { fotoLink = salvarFotoDrive(item.photo, item.id, item.room); } catch(ef) { fotoLink = "erro: "+ef.toString(); }
         }
-        showToast('ok', 'Olá, ' + res.nome.split(' ')[0] + '!', 'SIAPE ' + siape);
-      } else {
-        document.getElementById('loginError').textContent = (res.erro || 'SIAPE não encontrado') + ' [raw: ' + JSON.stringify(res).substring(0,80) + ']';
+        // Coloca "" na coluna foto — preenchemos depois com rich text
+        shNoPat.appendRow([ts, item.room, item.desc, item.estado, "", "", item.funcionario||"", item.siape||"", agora]);
+        var ultimaLn = shNoPat.getLastRow();
+        shNoPat.getRange(ultimaLn, 1, 1, 9).setBackground("#fff9db");
+        if (fotoLink && fotoLink.indexOf("http") === 0) {
+          // Converte URL do Drive para URL direta de visualização (para =IMAGE funcionar)
+          var fileId = fotoLink.match(/[a-zA-Z0-9_-]{25,}/);
+          if (fileId) {
+            var fid = fileId[0];
+            // Insere imagem diretamente na célula via CellImage API
+            // (evita problemas de separador regional com fórmulas)
+            try {
+              var cellImg = SpreadsheetApp.newCellImage()
+                .setSourceUrl("https://drive.google.com/thumbnail?id=" + fid + "&sz=w300")
+                .setAltTextTitle(item.desc || "foto")
+                .build();
+              shNoPat.getRange(ultimaLn, 5).setValue(cellImg);
+            } catch(imgErr) {
+              // Fallback: rich text com link
+              var rt = SpreadsheetApp.newRichTextValue()
+                .setText("📷 Ver foto")
+                .setLinkUrl(fotoLink)
+                .build();
+              shNoPat.getRange(ultimaLn, 5).setRichTextValue(rt);
+            }
+            shNoPat.getRange(ultimaLn, 5).setNote(fotoLink);
+            var linkRt2 = SpreadsheetApp.newRichTextValue()
+              .setText("🔗 Abrir foto")
+              .setLinkUrl(fotoLink)
+              .build();
+            shNoPat.getRange(ultimaLn, 6).setRichTextValue(linkRt2);
+            shNoPat.setRowHeight(ultimaLn, 135);
+            // Link clicável na coluna ao lado
+            var linkRt = SpreadsheetApp.newRichTextValue()
+              .setText("🔗 Abrir foto")
+              .setLinkUrl(fotoLink)
+              .build();
+            shNoPat.getRange(ultimaLn, 6).setRichTextValue(linkRt);
+          } else {
+            shNoPat.getRange(ultimaLn, 5).setValue(fotoLink);
+          }
+        } else if (fotoLink) {
+          shNoPat.getRange(ultimaLn, 5).setValue(fotoLink);
+        }
       }
-    })
-    .catch(function(e) {
-      document.getElementById('loginError').textContent = 'Erro de conexão: ' + e.toString();
-    })
-    .finally(function() {
-      btn.innerHTML = 'Entrar';
-      btn.disabled  = false;
-    });
-}
-
-function aplicarUsuario(user) {
-  // Atualiza badge
-  var initials = user.nome.split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
-  document.getElementById('userAvatar').textContent = initials;
-  document.getElementById('userName').textContent   = user.nome;
-  document.getElementById('userSiape').textContent  = 'SIAPE: ' + user.siape;
-  document.getElementById('userBadge').style.display = 'flex';
-}
-
-function fazerLogout() {
-  if (!confirm('Sair da conta? Dados não sincronizados podem ser perdidos.')) return;
-  localStorage.removeItem('currentUser');
-  currentUser = null;
-  document.getElementById('userBadge').style.display = 'none';
-  document.getElementById('siapeInput').value = '';
-  document.getElementById('loginError').textContent = '';
-  document.getElementById('loginWrap').style.display = 'flex';
-  setTimeout(function(){ document.getElementById('siapeInput').focus(); }, 300);
-}
-
-function carregarHistoricoServidor(scans) {
-  // Mescla histórico do servidor com local (evita duplicatas)
-  var ids = state.scans.map(function(s){ return s.id; });
-  var novos = scans.filter(function(s){ return ids.indexOf(s.id) === -1; });
-  if (novos.length) {
-    state.scans = state.scans.concat(novos);
-    saveScans();
-    updateStats();
-    renderHistList();
+      shLog.appendRow([ts, item.id, item.type, item.code||"", item.room, item.desc||"", item.estado||"", agora]);
+      ok++;
+    } catch(e2) {
+      shLog.appendRow([agora, "ERRO", item.type||"", item.code||"", "", e2.toString(), "", agora]);
+    }
   }
+  return { ok: true, sincronizados: ok };
 }
 
-// ── Gemini IA ─────────────────────────────────────────────────
-var GEMINI_KEY_DEFAULT = ''; // chave gerenciada pelo Apps Script
+function getOrCreate(ss, nome, cab, cores) {
+  return ss.getSheetByName(nome) || criarAba(ss, nome, cab, cores);
+}
 
-// ── IndexedDB — armazena fotos persistentemente no celular ────
-var DB_NAME    = 'inventarioCampus';
-var DB_VERSION = 1;
-var DB_STORE   = 'fotos';
-var idb        = null;
+function resumo() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var i  = ss.getSheetByName(CFG.ABA_INV);
+  var n  = ss.getSheetByName(CFG.ABA_NOPAT);
+  atualizarDashboard(ss);
+  SpreadsheetApp.getUi().alert(
+    "📊 Resumo\n\n✅ Patrimônios: "    + (i ? Math.max(0,i.getLastRow()-1) : 0) +
+    "\n📸 Sem patrimônio: " + (n ? Math.max(0,n.getLastRow()-1) : 0)
+  );
+}
 
-function abrirIDB() {
-  return new Promise(function(resolve, reject) {
-    if (idb) { resolve(idb); return; }
-    var req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = function(e) {
-      e.target.result.createObjectStore(DB_STORE, { keyPath: 'id' });
+function resetar() {
+  var ui = SpreadsheetApp.getUi();
+  if (ui.alert("⚠️ Apagar tudo?","Limpa as 3 abas.",ui.ButtonSet.YES_NO) !== ui.Button.YES) return;
+  [CFG.ABA_INV, CFG.ABA_NOPAT, CFG.ABA_LOG].forEach(function(nome) {
+    var s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nome);
+    if (s && s.getLastRow() > 1) s.deleteRows(2, s.getLastRow()-1);
+  });
+  ui.alert("✅ Resetado.");
+}
+
+// ── Salva foto base64 no Google Drive e retorna link ──────────
+function salvarFotoDrive(base64data, itemId, local) {
+  // Remove prefixo "data:image/jpeg;base64," se houver
+  var dados = base64data;
+  var mimeType = "image/jpeg";
+  if (base64data.indexOf(",") > -1) {
+    var partes = base64data.split(",");
+    dados = partes[1];
+    var header = partes[0];
+    if (header.indexOf("png") > -1)  mimeType = "image/png";
+    if (header.indexOf("webp") > -1) mimeType = "image/webp";
+  }
+
+  var blob     = Utilities.newBlob(Utilities.base64Decode(dados), mimeType, "item_"+itemId+".jpg");
+  var pasta    = obterPastaInventario(local);
+  var arquivo  = pasta.createFile(blob);
+  arquivo.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return arquivo.getUrl();
+}
+
+// Cria/reutiliza pasta raiz e subpasta por local
+function obterPastaInventario(local) {
+  // Pasta raiz
+  var nomeRaiz = "Inventário Campus - Fotos";
+  var raiz;
+  var pastasRaiz = DriveApp.getFoldersByName(nomeRaiz);
+  raiz = pastasRaiz.hasNext() ? pastasRaiz.next() : DriveApp.createFolder(nomeRaiz);
+
+  // Subpasta pelo nome do local (sala, diretoria, etc)
+  var nomeLocal = local ? local.trim() : "Sem local";
+  // Remove caracteres inválidos para nome de pasta
+  nomeLocal = nomeLocal.replace(/[/:*?"<>|]/g, '-');
+  var subpastas = raiz.getFoldersByName(nomeLocal);
+  if (subpastas.hasNext()) return subpastas.next();
+  return raiz.createFolder(nomeLocal);
+}
+
+// ── Chave Gemini — só fica aqui no servidor ───────────────────
+var GEMINI_KEY = 'AIzaSyAHZndnO2i5U0FBiFutfLcfi910gtWCdMM';
+
+// ── Descreve foto via Gemini ───────────────────────────────────
+function descreverFoto(mime, b64) {
+  if (!b64 || b64.length < 50) {
+    return 'ERRO: imagem muito pequena';
+  }
+
+  var PROMPT = 'Descreva o objeto principal da imagem em uma frase curta em português. Inclua tipo, cor e marca se visível. Sem ponto final.';
+
+  var modelos = [
+    'gemini-2.5-flash',
+    'gemma-3-4b-it'
+  ];
+
+  for (var i = 0; i < modelos.length; i++) {
+    var modelo = modelos[i];
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelo + ':generateContent';
+
+    var payload = {
+      contents: [{
+        parts: [
+          { text: PROMPT },
+          { inline_data: { mime_type: mime || 'image/jpeg', data: b64 } }
+        ]
+      }],
+      generationConfig: { maxOutputTokens: 1000, temperature: 0.2 }
     };
-    req.onsuccess = function(e) { idb = e.target.result; resolve(idb); };
-    req.onerror   = function(e) { reject(e.target.error); };
-  });
-}
 
-function idbSalvarFoto(id, base64) {
-  return abrirIDB().then(function(db) {
-    return new Promise(function(resolve, reject) {
-      var tx  = db.transaction(DB_STORE, 'readwrite');
-      var req = tx.objectStore(DB_STORE).put({ id: id, foto: base64, ts: Date.now() });
-      req.onsuccess = resolve;
-      req.onerror   = reject;
-    });
-  });
-}
+    var options = {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'x-goog-api-key': GEMINI_KEY },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
 
-function idbCarregarFoto(id) {
-  return abrirIDB().then(function(db) {
-    return new Promise(function(resolve) {
-      var req = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).get(id);
-      req.onsuccess = function(e) { resolve(e.target.result ? e.target.result.foto : null); };
-      req.onerror   = function()  { resolve(null); };
-    });
-  });
-}
+    try {
+      var res  = UrlFetchApp.fetch(url, options);
+      var raw  = res.getContentText();
+      var code = res.getResponseCode();
 
-function idbDeletarFoto(id) {
-  return abrirIDB().then(function(db) {
-    return new Promise(function(resolve) {
-      db.transaction(DB_STORE, 'readwrite').objectStore(DB_STORE).delete(id);
-      resolve();
-    });
-  });
-}
+      Logger.log('Modelo: ' + modelo + ' | Status: ' + code);
+      Logger.log(raw.substring(0, 200));
 
-function idbCarregarTodas() {
-  return abrirIDB().then(function(db) {
-    return new Promise(function(resolve) {
-      var req = db.transaction(DB_STORE, 'readonly').objectStore(DB_STORE).getAll();
-      req.onsuccess = function(e) { resolve(e.target.result || []); };
-      req.onerror   = function()  { resolve([]); };
-    });
-  });
-}
+      var data = JSON.parse(raw);
+      if (data.error) continue;
 
-function getGeminiKey() {
-  return localStorage.getItem('geminiKey') || GEMINI_KEY_DEFAULT;
-}
+      var texto = data.candidates &&
+                  data.candidates[0] &&
+                  data.candidates[0].content &&
+                  data.candidates[0].content.parts &&
+                  data.candidates[0].content.parts[0].text;
 
-function saveGeminiKey() {
-  var key = document.getElementById('geminiKeyInput').value.trim();
-  if (!key) return;
-  localStorage.setItem('geminiKey', key);
-  showToast('ok','✅ Chave Gemini salva!','Botão ✨ Sugerir disponível após tirar foto');
-}
+      if (texto && texto.length > 3) return texto.trim();
 
-function testarIA() {
-  if (!state.scriptUrl) { showToast('warn','Configure a URL do Apps Script primeiro',''); return; }
-  var btn = document.getElementById('testIABtn');
-  btn.textContent = '⏳ Testando...';
-  btn.disabled = true;
-
-  fetch(state.scriptUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    body: JSON.stringify({ action: 'testIA' }),
-    headers: { 'Content-Type': 'text/plain' },
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(txt) {
-    var res; try { res = JSON.parse(txt); } catch(e) { res = { ok: false, erro: txt }; }
-    if (res.ok) {
-      showToast('ok', '✅ IA funcionando! Modelo: ' + res.modelo, 'Resposta: ' + res.texto);
-    } else {
-      showToast('warn', '❌ ' + (res.erro || 'Falhou'), 'Veja aba "Log IA" na planilha');
+    } catch(e) {
+      Logger.log('Erro: ' + e.toString());
     }
-  })
-  .catch(function(e) { showToast('warn','Erro de conexão', e.toString()); })
-  .finally(function() { btn.textContent = '🧪 Testar IA'; btn.disabled = false; });
+  }
+
+  return null;
 }
 
-function loadGeminiKey() {
-  var inp = document.getElementById('geminiKeyInput');
-  if (inp) inp.value = localStorage.getItem('geminiKey') || '';
-  if (inp && !inp.value) inp.placeholder = 'Usando chave padrão (AIza...)';
-}
+// ── Testa a IA e loga tudo na planilha ────────────────────────
+function testIA() {
+  var log = [];
+  var ss  = SpreadsheetApp.getActiveSpreadsheet();
 
-function sugerirDescricao(auto) {
-  if (!noPatPhoto) { if (!auto) showToast('warn','Tire uma foto primeiro',''); return; }
+  // Cria aba de log se não existir
+  var abaLog = ss.getSheetByName('Log IA') || ss.insertSheet('Log IA');
+  abaLog.clearContents();
+  abaLog.getRange(1,1,1,2).setValues([['Chave','Valor']]);
 
-  var btn = document.getElementById('suggestBtn');
-  btn.innerHTML = '<span class="spin"></span><span class="suggest-dots">Analisando</span>';
-  btn.disabled = true;
-  btn.style.opacity = '.85';
-  
-  // Mostra placeholder no campo enquanto carrega
-  var campo = document.getElementById('noPatDesc');
-  if (!campo.value) campo.placeholder = '✨ Gerando descrição...';
+  function addLog(chave, valor) {
+    log.push([chave, String(valor).substring(0, 500)]);
+    abaLog.appendRow([chave, String(valor).substring(0, 500)]);
+  }
 
-  // Remove prefixo data:image/...;base64,
-  var b64 = noPatPhoto.split(',')[1];
-  var mime = noPatPhoto.split(';')[0].split(':')[1] || 'image/jpeg';
+  addLog('Timestamp', new Date().toISOString());
+  addLog('GEMINI_KEY (primeiros 8 chars)', GEMINI_KEY ? GEMINI_KEY.substring(0,8)+'...' : 'VAZIA');
 
-  // Envia como text/plain JSON — form POST tem limite de tamanho pra fotos base64
-  fetch(state.scriptUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    body: JSON.stringify({ action: 'descreverFoto', data: { mime: mime, b64: b64 } }),
-    headers: { 'Content-Type': 'text/plain' },
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(txt) {
-    var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
-    if (res.descricao) {
-      var campo = document.getElementById('noPatDesc');
-      campo.value = res.descricao;
-      campo.style.borderColor = 'var(--accent)';
-      setTimeout(function(){ campo.style.borderColor = ''; }, 1500);
-      if (!auto) showToast('ok','✨ Descrição sugerida!','Edite se necessário');
-    } else {
-      showToast('warn', '⚠️ ' + (res.erro || 'IA não reconheceu o item'),'Descreva manualmente');
-    }
-  })
-  .catch(function() {
-    showToast('warn','Erro ao contatar servidor','Verifique a conexão');
-  })
-  .finally(function() {
-    btn.innerHTML = '🔄 Refazer';
-    btn.disabled = false;
-    btn.style.opacity = '1';
-    document.getElementById('noPatDesc').placeholder = "Ex: Cadeira giratória preta, impressora, monitor 19'...";
-  });
-}
+  // Imagem de teste: quadrado verde 1x1 pixel em base64
+  var b64Teste = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  var mimeTeste = 'image/png';
 
-// ── Verificação de atualização ───────────────────────────────
-var UPDATE_URL = 'https://leonardoolivera.github.io/inventarioifms/index.html';
-var checkUpdateTimer = null;
+  addLog('Tamanho b64 teste', b64Teste.length);
 
-function checkForUpdate() {
-  // Busca o HTML publicado e extrai a versão
-  fetch(UPDATE_URL + '?nocache=' + Date.now(), { cache: 'no-store' })
-    .then(function(r) { return r.text(); })
-    .then(function(html) {
-      var match = html.match(/APP_VERSION[^'"]*['"]([^'"]+)['"]/);
-      if (!match) return;
-      var remoteVersion = match[1];
-      var localVersion  = APP_VERSION;
-
-      if (remoteVersion !== localVersion) {
-        var msg1 = '🆕 Versão ' + remoteVersion + ' disponível!';
-        var msg2 = 'Você está na ' + localVersion + ' · Toque para atualizar';
-        document.getElementById('updateTitle').textContent = msg1;
-        document.getElementById('updateSub').textContent   = msg2;
-        document.getElementById('updateBanner').classList.add('show');
-        // Também mostra no login se estiver visível
-        var bl = document.getElementById('updateBannerLogin');
-        if (bl) { bl.style.display='flex'; document.getElementById('updateTitleLogin').textContent=msg1; document.getElementById('updateSubLogin').textContent=msg2; }
+  // Busca modelos disponíveis primeiro
+  var modelosDisponiveis = [];
+  try {
+    var listRes = UrlFetchApp.fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models?pageSize=50',
+      { method:'get', headers:{'x-goog-api-key': GEMINI_KEY}, muteHttpExceptions:true }
+    );
+    var listData = JSON.parse(listRes.getContentText());
+    addLog('Modelos disponíveis (raw)', listRes.getContentText().substring(0,800));
+    // Filtra só os que suportam generateContent e têm visão
+    (listData.models || []).forEach(function(m) {
+      var methods = m.supportedGenerationMethods || [];
+      if (methods.indexOf('generateContent') > -1) {
+        modelosDisponiveis.push(m.name.replace('models/', ''));
       }
-    })
-    .catch(function() {}); // silencioso se offline
-}
-
-function doUpdate() {
-  var pendentes = state.pendingSync.length;
-  if (pendentes > 0) {
-    // Sincroniza primeiro, depois atualiza
-    showToast('ok', '⬆ Sincronizando ' + pendentes + ' itens...', 'Aguarde para atualizar');
-    setSyncState('syncing');
-    // Força sync e aguarda
-    var toSync = state.scans.filter(function(s){ return state.pendingSync.indexOf(s.id) > -1; });
-    var items = toSync.map(function(s) {
-      return { id:s.id, type:s.type, code:s.code||'', room:s.room||'',
-               desc:s.desc||'', estado:s.estado||'',
-               photo: s.type==='nopat' && photoCache[s.id] ? photoCache[s.id] : (s.photo||''),
-               ts:s.ts };
     });
-    fetch(state.scriptUrl, {
-      method: 'POST', redirect: 'follow',
-      body: JSON.stringify({ action: 'batchSync', items: items }),
-      headers: { 'Content-Type': 'text/plain' }
-    })
-    .finally(function() { recarregarApp(); });
-  } else {
-    recarregarApp();
+    addLog('Modelos com generateContent', modelosDisponiveis.join(', ') || 'nenhum');
+  } catch(e) {
+    addLog('Erro ao listar modelos', e.toString());
   }
-}
 
-function recarregarApp() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(regs) {
-      regs.forEach(function(reg) { reg.unregister(); });
-      window.location.reload(true);
-    });
-  } else {
-    window.location.reload(true);
+  // Fallback manual se não conseguiu listar
+  if (!modelosDisponiveis.length) {
+    modelosDisponiveis = ['gemini-2.5-flash', 'gemma-3-4b-it'];
   }
-}
 
-// ── PWA Install prompt ────────────────────────────────────────
-var deferredInstallPrompt = null;
+  var modelos = modelosDisponiveis;
 
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  // Só mostra se nunca dispensou
-  if (!localStorage.getItem('installDismissed')) {
-    document.getElementById('installBanner').classList.add('show');
-  }
-});
+  for (var i = 0; i < modelos.length; i++) {
+    var modelo = modelos[i];
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + modelo + ':generateContent';
+    addLog('Tentando modelo', modelo);
+    addLog('URL', url);
 
-window.addEventListener('appinstalled', function() {
-  document.getElementById('installBanner').classList.remove('show');
-  deferredInstallPrompt = null;
-  showToast('ok','✅ App instalado!','Acesse pela tela inicial do celular');
-});
+    var payload = {
+      contents: [{ parts: [
+        { text: 'Descreva esta imagem em 1 palavra.' },
+        { inline_data: { mime_type: mimeTeste, data: b64Teste } }
+      ]}],
+      generationConfig: { maxOutputTokens: 20 }
+    };
 
-function doInstall() {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(function(choice) {
-    if (choice.outcome === 'accepted') {
-      document.getElementById('installBanner').classList.remove('show');
+    var options = {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'x-goog-api-key': GEMINI_KEY },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+
+    try {
+      var res  = UrlFetchApp.fetch(url, options);
+      var code = res.getResponseCode();
+      var raw  = res.getContentText();
+      addLog('HTTP status [' + modelo + ']', code);
+      addLog('Resposta bruta [' + modelo + ']', raw);
+
+      var data = JSON.parse(raw);
+      if (data.error) {
+        addLog('Erro API [' + modelo + ']', JSON.stringify(data.error));
+      } else {
+        var texto = data.candidates && data.candidates[0] &&
+                    data.candidates[0].content &&
+                    data.candidates[0].content.parts &&
+                    data.candidates[0].content.parts[0].text;
+        addLog('Texto retornado [' + modelo + ']', texto || '(vazio)');
+        if (texto) {
+          addLog('RESULTADO', 'SUCESSO com ' + modelo);
+          return { ok: true, modelo: modelo, texto: texto, logCount: log.length };
+        }
+      }
+    } catch(e) {
+      addLog('Exception [' + modelo + ']', e.toString());
     }
-    deferredInstallPrompt = null;
+  }
+
+  addLog('RESULTADO', 'TODOS OS MODELOS FALHARAM');
+  return { ok: false, erro: 'Todos os modelos falharam. Veja aba "Log IA" na planilha.', logCount: log.length };
+}
+
+// ── Login por SIAPE ───────────────────────────────────────────
+function loginSiape(siape) {
+  siape = String(siape).trim();
+  if (!siape) return { ok: false, erro: "SIAPE não informado" };
+
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CFG.ABA_FUNC);
+  if (!sheet) return { ok: false, erro: "Aba Funcionários não encontrada. Execute ⚙️ Configurar." };
+
+  var dados = sheet.getDataRange().getValues();
+  for (var i = 1; i < dados.length; i++) {
+    var patSiape = String(dados[i][0]).trim().replace(/^0+/,'');
+      var reqSiape  = String(siape).trim().replace(/^0+/,'');
+      if (patSiape === reqSiape && reqSiape.length > 0) {
+      var nome = String(dados[i][1]).trim();
+      // Busca histórico de scans desse funcionário
+      var shInv = ss.getSheetByName(CFG.ABA_INV);
+      var scans = [];
+      if (shInv) {
+        var inv = shInv.getDataRange().getValues();
+        for (var j = 1; j < inv.length; j++) {
+          if (String(inv[j][4]).trim() === siape) { // coluna SIAPE
+            scans.push({
+              id:   'srv_' + j,
+              type: 'scan',
+              code: String(inv[j][1]),
+              room: String(inv[j][2]),
+              funcionario: nome,
+              siape: siape,
+              ts:   inv[j][0] ? new Date(inv[j][0]).toISOString() : new Date().toISOString(),
+              synced: true
+            });
+          }
+        }
+      }
+      return { ok: true, nome: nome, siape: siape, scans: scans };
+    }
+  }
+  return { ok: false, erro: "SIAPE não cadastrado. Fale com o gestor." };
+}
+
+// ── Dashboard do Gestor ───────────────────────────────────────
+function atualizarDashboardMenu() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  atualizarDashboard(ss);
+  SpreadsheetApp.getUi().alert('Dashboard atualizado!');
+}
+
+function atualizarDashboard(ss) {
+  var shInv   = ss.getSheetByName(CFG.ABA_INV);
+  var shNoPat = ss.getSheetByName(CFG.ABA_NOPAT);
+  var shPat   = ss.getSheetByName(CFG.ABA_PAT);
+
+  var shDash = ss.getSheetByName(CFG.ABA_DASH);
+  if (!shDash) shDash = ss.insertSheet(CFG.ABA_DASH);
+  shDash.clearContents();
+  shDash.clearFormats();
+  ss.setActiveSheet(shDash);
+  ss.moveActiveSheet(1);
+
+  var BG      = '#0f1117';
+  var SURFACE = '#1a1d27';
+  var BORDER  = '#2e3347';
+
+  function setHeader(range, label, fg) {
+    range.setValue(label)
+      .setBackground(SURFACE).setFontColor(fg || '#8891b0')
+      .setFontWeight('bold').setFontSize(10)
+      .setHorizontalAlignment('center').setBorder(true,true,true,true,false,false,BORDER,SpreadsheetApp.BorderStyle.SOLID);
+  }
+
+  function setKpi(range, value, fg) {
+    range.setValue(value)
+      .setBackground(BG).setFontColor(fg)
+      .setFontSize(22).setFontWeight('bold')
+      .setHorizontalAlignment('center')
+      .setBorder(true,true,true,true,false,false,BORDER,SpreadsheetApp.BorderStyle.SOLID);
+  }
+
+  var row = 1;
+
+  // ── Título ──────────────────────────────────────────────────
+  shDash.getRange(row,1,1,8).merge()
+    .setValue('📊 Dashboard — Inventário Campus IFMS')
+    .setBackground('#1a1d27').setFontColor('#4f8cff')
+    .setFontWeight('bold').setFontSize(14).setHorizontalAlignment('center');
+  shDash.setRowHeight(row, 40);
+  row++;
+
+  shDash.getRange(row,1,1,8).merge()
+    .setValue('Atualizado em: ' + Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm'))
+    .setBackground(BG).setFontColor('#8891b0').setFontSize(10).setHorizontalAlignment('center');
+  row += 2;
+
+  // ── Coleta dados ─────────────────────────────────────────────
+  var invData   = shInv   ? shInv.getDataRange().getValues()   : [];
+  var nopatData = shNoPat ? shNoPat.getDataRange().getValues() : [];
+  var patData   = shPat   ? shPat.getDataRange().getValues()   : [];
+
+  var totalScans = Math.max(0, invData.length - 1);
+  var totalNopat = Math.max(0, nopatData.length - 1);
+  var totalPat   = Math.max(0, patData.length - 1);
+
+  // Funcionários únicos
+  var funcs = {};
+  for (var i = 1; i < invData.length; i++) {
+    var f = String(invData[i][3] || '').trim();
+    if (f) funcs[f] = (funcs[f] || 0) + 1;
+  }
+
+  // Estados conservação
+  var estados = {Excelente:0,Bom:0,Regular:0,Ruim:0};
+  for (var i = 1; i < nopatData.length; i++) {
+    var est = String(nopatData[i][3]||'').trim();
+    if (estados[est] !== undefined) estados[est]++;
+  }
+
+  // ── KPIs ────────────────────────────────────────────────────
+  shDash.getRange(row,1,1,8).merge().setValue('VISÃO GERAL')
+    .setBackground(BG).setFontColor('#8891b0').setFontSize(9).setFontWeight('bold');
+  row++;
+
+  var kpis = [
+    [totalScans + totalNopat, '#4f8cff', 'Total escaneados'],
+    [totalPat,                '#8891b0', 'Patrimônios SUAP'],
+    [totalPat > 0 ? Math.round((totalScans+totalNopat)/totalPat*100)+'%' : '-', '#22c55e', '% Encontrado'],
+    [Object.keys(funcs).length, '#f59e0b', 'Servidores ativos'],
+  ];
+
+  for (var ci = 0; ci < kpis.length; ci++) {
+    setKpi(shDash.getRange(row, ci*2+1, 1, 2).merge(), kpis[ci][0], kpis[ci][1]);
+    shDash.setRowHeight(row, 50);
+    shDash.getRange(row+1, ci*2+1, 1, 2).merge()
+      .setValue(kpis[ci][2]).setBackground(SURFACE)
+      .setFontColor('#8891b0').setFontSize(9).setHorizontalAlignment('center');
+  }
+  row += 3;
+
+  // ── Barra de progresso geral ─────────────────────────────────
+  var totalEnc = 0;
+  for (var i = 1; i < patData.length; i++) {
+    var rawSt = patData[i][4];
+    var st = (rawSt instanceof Date) ? '' : String(rawSt || '').trim();
+    if (st === '✅ Encontrado' || st === '🟡 Encontrado em outro local') totalEnc++;
+  }
+  var pctGeral = totalPat > 0 ? Math.round(totalEnc / totalPat * 100) : 0;
+  var barCells = 8; // número de colunas para a barra
+  var filled   = Math.round(pctGeral / 100 * barCells);
+
+  shDash.getRange(row,1,1,8).merge()
+    .setValue('PROGRESSO GERAL DO INVENTÁRIO')
+    .setBackground(BG).setFontColor('#8891b0').setFontSize(9).setFontWeight('bold');
+  row++;
+
+  // Label
+  shDash.getRange(row,1,1,8).merge()
+    .setValue(totalEnc + ' de ' + totalPat + ' patrimônios encontrados (' + pctGeral + '%)')
+    .setBackground(BG).setFontColor('#f0f2ff').setFontSize(11)
+    .setHorizontalAlignment('center').setFontWeight('bold');
+  shDash.setRowHeight(row, 24);
+  row++;
+
+  // Barra visual — células coloridas
+  for (var ci = 1; ci <= barCells; ci++) {
+    var isFilled = ci <= filled;
+    shDash.getRange(row, ci)
+      .setBackground(isFilled ? '#22c55e' : '#1e2535')
+      .setValue('');
+  }
+  shDash.setRowHeight(row, 18);
+  row += 2;
+
+  // ── Progresso por sala (com dados SUAP) ───────────────────────
+  shDash.getRange(row,1,1,8).merge().setValue('PROGRESSO POR SALA')
+    .setBackground(BG).setFontColor('#8891b0').setFontSize(9).setFontWeight('bold');
+  row++;
+
+  var cabSala = ['Sala','Total SUAP','Encontrados','✅ Correto','🟡 Outro local','❌ Não localiz.','⏳ Pendente','%'];
+  shDash.getRange(row,1,1,8).setValues([cabSala])
+    .setBackground(SURFACE).setFontColor('#4f8cff').setFontWeight('bold').setFontSize(10);
+  shDash.setRowHeight(row, 24);
+  row++;
+
+  // Monta mapa de patrimônios por sala
+  var patPorSala = {};
+  for (var i = 1; i < patData.length; i++) {
+    var num    = String(patData[i][0] || '').trim().replace(/\.0$/, '');
+    if (!num || num === '0' || num === '') continue; // pula linhas vazias
+    var sala   = String(patData[i][2] || '').trim();
+    // Garante que status seja sempre string (não Date ou Number)
+    var rawStatus = patData[i][4];
+    var status = (rawStatus instanceof Date) ? '' : String(rawStatus || '').trim();
+    if (!sala) continue;
+    if (!patPorSala[sala]) patPorSala[sala] = {total:0,correto:0,outro:0,nao:0,pend:0};
+    patPorSala[sala].total++;
+    if (status === '✅ Encontrado') {
+      patPorSala[sala].correto++;
+    } else if (status === '🟡 Encontrado em outro local') {
+      patPorSala[sala].outro++;
+    } else if (status === '❌ Não localizado') {
+      patPorSala[sala].nao++;
+    } else {
+      patPorSala[sala].pend++;
+    }
+  }
+
+  var SALA_GRUPO = {"ALMOXARIFADO (Bloco A)": "Bloco A", "APOIO ALMOXARIFADO (Bloco A)": "Bloco A", "BIBLIOTECA (Bloco A)": "Bloco A", "COPA (Bloco A)": "Bloco A", "COORDENAÇÕES (Bloco A)": "Bloco A", "CORREDOR INFERIOR (Bloco A)": "Bloco A", "CORREDOR SUPERIOR (Bloco A)": "Bloco A", "COZINHA (Bloco A)": "Bloco A", "CEREL (Bloco A)": "Bloco A", "DIRAD I (Bloco A)": "Bloco A", "DIRAD II (Bloco A)": "Bloco A", "DIREN (Bloco A)": "Bloco A", "DIRGE (Bloco A)": "Bloco A", "GABINETE (Bloco A)": "Bloco A", "NAPNE (Bloco A)": "Bloco A", "NUGED (Bloco A)": "Bloco A", "Inventário (Bloco A)": "Bloco A", "REFEITORIO SERVIDORES (Bloco A)": "Bloco A", "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)": "Bloco A", "SALA DOS PROFESSORES 1 (Bloco A)": "Bloco A", "SALA DOS PROFESSORES 2 (Bloco A)": "Bloco A", "SALA DOS PROFESSORES 3 (Bloco A)": "Bloco A", "SALA APOIO COALP / COADS (Bloco A)": "Bloco A", "SALA DE APOIO TERCEIRIZADOS (Bloco A)": "Bloco A", "SALA DE ATENDIMENTO NUGED (Bloco A)": "Bloco A", "SHAFT SALA APOIO COALP / COADS (Bloco A)": "Bloco A", "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)": "Bloco A", "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)": "Bloco A", "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)": "Bloco A", "SHAFT DIRAD 1 (Bloco A)": "Bloco A", "CANTINA (Bloco A)": "Bloco A", "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)": "Bloco B", "DATACENTER (Bloco B)": "Bloco B", "CORREDOR INFERIOR (Bloco B)": "Bloco B", "CORREDOR SUPERIOR (Bloco B)": "Bloco B", "GAMELAB (Bloco B)": "Bloco B", "IFSTUDIO (Bloco B)": "Bloco B", "IFMaker (Bloco B)": "Bloco B", "LABORATÓRIO INFORMÁTICA 1 (Bloco B)": "Bloco B", "LABORATÓRIO INFORMÁTICA 2 (Bloco B)": "Bloco B", "LABORATÓRIO INFORMÁTICA 3 (Bloco B)": "Bloco B", "LABORATÓRIO INFORMÁTICA 4 (Bloco B)": "Bloco B", "LABORATÓRIO INFORMÁTICA 5 (Bloco B)": "Bloco B", "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)": "Bloco B", "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)": "Bloco B", "PÁTIO BLOCO B (Bloco B)": "Bloco B", "SERTI (Bloco B)": "Bloco B", "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)": "Bloco B", "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)": "Bloco B", "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)": "Bloco B", "ESTUDIO 1 (Bloco B)": "Bloco B", "ESTUDIO 2 (Bloco B)": "Bloco B", "SALA VAGA (Bloco B)": "Bloco B", "SL 01 (BLOCO C)": "Bloco C", "SL 02 (BLOCO C)": "Bloco C", "SL 03 (BLOCO C)": "Bloco C", "SL 04 (BLOCO C)": "Bloco C", "SL 05 (BLOCO C)": "Bloco C", "SL 06 (BLOCO C)": "Bloco C", "SL 07 (BLOCO C)": "Bloco C", "SL 08 (BLOCO C)": "Bloco C", "SL 09 (BLOCO C)": "Bloco C", "SL 10 (BLOCO C)": "Bloco C", "ENFERMARIA (BLOCO C)": "Bloco C", "ASSISTENTE DE ALUNOS (BLOCO C)": "Bloco C", "LÓGICA (BLOCO C)": "Bloco C", "CORREDOR E HALL BLOCO C (BLOCO C)": "Bloco C", "HALL E CORREDOR (BLOCO C)": "Bloco C", "PERMANÊNCIA ESTUDANTIL (BLOCO C)": "Bloco C", "Sala de Artes (SALAS MODULARES)": "Salas Modulares", "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)": "Salas Modulares", "Laboratório de Humanas (SALAS MODULARES)": "Salas Modulares", "CENID (SALAS MODULARES)": "Salas Modulares", "M-01 (SALAS MODULARES)": "Salas Modulares", "ROBÓTICA (SALAS MODULARES)": "Salas Modulares", "TECNOIF DR (SALAS MODULARES)": "Salas Modulares", "ÁREA DAS SALAS MODULARES (SALAS MODULARES)": "Salas Modulares", "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)": "Área Externa", "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)": "Área Externa", "CONTAINER QUADRA (QUADRA POLIESPORTIVA)": "Área Externa", "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)": "Área Externa", "BOSQUE (BOSQUE)": "Área Externa", "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)": "Área Externa", "ESTACIONAMENTO GERAL (ESTACIONAMENTO)": "Área Externa", "GUARITA (GUARITA)": "Área Externa", "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)": "Área Externa", "BARRACÃO (PÁTIO EXTERNO FUNDOS.)": "Área Externa", "CRC (BARRACÃO CRC)": "Área Externa", "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)": "Área Externa"};
+  var ORDEM_GRUPOS = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Área Externa','Outros'];
+
+  // Agrupa salas por bloco
+  var porBloco = {};
+  Object.keys(patPorSala).forEach(function(sala) {
+    var g = SALA_GRUPO[sala] || 'Outros';
+    if (!porBloco[g]) porBloco[g] = [];
+    porBloco[g].push(sala);
   });
-}
 
-// Abre o app instalado automaticamente após instalar
-window.addEventListener('appinstalled', function() {
-  document.getElementById('installBanner').classList.remove('show');
-  deferredInstallPrompt = null;
-  // Tenta abrir a versão standalone (app instalado)
-  setTimeout(function() {
-    // Se ainda estiver no browser (não standalone), redireciona para o app
-    if (!window.matchMedia('(display-mode: standalone)').matches &&
-        !window.navigator.standalone) {
-      showToast('ok', '✅ App instalado!', 'Procure o ícone na tela inicial do celular');
-    }
-  }, 500);
-});
+  ORDEM_GRUPOS.forEach(function(grupo) {
+    var salasGrupo = porBloco[grupo];
+    if (!salasGrupo || !salasGrupo.length) return;
 
-// Se abriu via standalone após instalar, mostra boas-vindas
-if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-  var primeiraVez = !localStorage.getItem('appAberto');
-  if (primeiraVez) {
-    localStorage.setItem('appAberto', '1');
-    // Será mostrado após o app inicializar
-    window._mostrarBoasVindas = true;
+    // Cabeçalho do grupo
+    shDash.getRange(row,1,1,8).merge()
+      .setValue('▸ ' + grupo)
+      .setBackground('#1a1d27').setFontColor('#7c5cfc')
+      .setFontWeight('bold').setFontSize(10);
+    shDash.setRowHeight(row, 22);
+    row++;
+
+    // Salas do grupo ordenadas por total
+    salasGrupo.sort(function(a,b){ return patPorSala[b].total - patPorSala[a].total; });
+
+    salasGrupo.forEach(function(sala, idx) {
+      var d   = patPorSala[sala];
+      var enc = d.correto + d.outro;
+      var pct = d.total > 0 ? Math.round(enc / d.total * 100) : 0;
+      var bg  = idx % 2 === 0 ? BG : SURFACE;
+      var corPct = pct >= 90 ? '#22c55e' : pct >= 50 ? '#4f8cff' : '#f59e0b';
+
+      shDash.getRange(row, 1, 1, 8).setValues([[
+        '  ' + sala, d.total, enc, d.correto, d.outro, d.nao, d.pend, pct + '%'
+      ]]).setBackground(bg).setFontColor('#f0f2ff').setFontSize(10);
+
+      shDash.getRange(row, 8).setFontColor(corPct).setFontWeight('bold');
+      if (d.nao > 0)     shDash.getRange(row, 6).setFontColor('#ef4444');
+      if (d.correto > 0) shDash.getRange(row, 4).setFontColor('#22c55e');
+      if (d.outro > 0)   shDash.getRange(row, 5).setFontColor('#f59e0b');
+      shDash.setRowHeight(row, 20);
+      row++;
+    });
+    row++; // espaço entre grupos
+  });
+  row++;
+
+  // ── Atividade por servidor ───────────────────────────────────
+  shDash.getRange(row,1,1,8).merge().setValue('ATIVIDADE POR SERVIDOR')
+    .setBackground(BG).setFontColor('#8891b0').setFontSize(9).setFontWeight('bold');
+  row++;
+  shDash.getRange(row,1,1,4).setValues([['Servidor','SIAPE','Itens','Último registro']])
+    .setBackground(SURFACE).setFontColor('#f59e0b').setFontWeight('bold').setFontSize(10);
+  row++;
+
+  var porFunc = {};
+  for (var i = 1; i < invData.length; i++) {
+    var fn = String(invData[i][3] || '').trim();
+    var sp = String(invData[i][4] || '').trim();
+    var ts = invData[i][0];
+    if (!fn) continue;
+    if (!porFunc[fn]) porFunc[fn] = {siape:sp, count:0, ultimo:ts};
+    porFunc[fn].count++;
+    if (ts > porFunc[fn].ultimo) porFunc[fn].ultimo = ts;
   }
+
+  Object.keys(porFunc).sort(function(a,b){ return porFunc[b].count - porFunc[a].count; })
+  .forEach(function(fn, idx) {
+    var d = porFunc[fn];
+    var bg = idx % 2 === 0 ? BG : SURFACE;
+    var ult = d.ultimo ? Utilities.formatDate(new Date(d.ultimo), Session.getScriptTimeZone(), 'dd/MM HH:mm') : '-';
+    shDash.getRange(row,1,1,4).setValues([[fn, d.siape, d.count, ult]])
+      .setBackground(bg).setFontColor('#f0f2ff').setFontSize(10);
+    row++;
+  });
+  row++;
+
+  // ── Estado de conservação ────────────────────────────────────
+  shDash.getRange(row,1,1,4).merge().setValue('ESTADO DE CONSERVAÇÃO (Sem Patrimônio)')
+    .setBackground(BG).setFontColor('#8891b0').setFontSize(9).setFontWeight('bold');
+  row++;
+  shDash.getRange(row,1,1,3).setValues([['Estado','Qtd','%']])
+    .setBackground(SURFACE).setFontColor('#7c5cfc').setFontWeight('bold').setFontSize(10);
+  row++;
+
+  var coresEst = {Excelente:'#22c55e',Bom:'#4f8cff',Regular:'#f59e0b',Ruim:'#ef4444'};
+  Object.keys(estados).forEach(function(est) {
+    var qtd = estados[est];
+    var pct = totalNopat > 0 ? Math.round(qtd/totalNopat*100) : 0;
+    shDash.getRange(row,1,1,3).setValues([[est, qtd, pct+'%']])
+      .setBackground(BG).setFontColor(coresEst[est]||'#f0f2ff').setFontSize(10);
+    row++;
+  });
+
+  // ── Formatação final ─────────────────────────────────────────
+  shDash.setColumnWidth(1, 260);
+  shDash.setColumnWidth(2, 90);
+  shDash.setColumnWidth(3, 100);
+  shDash.setColumnWidth(4, 90);
+  shDash.setColumnWidth(5, 100);
+  shDash.setColumnWidth(6, 110);
+  shDash.setColumnWidth(7, 90);
+  shDash.setColumnWidth(8, 60);
+  shDash.setTabColor('#4f8cff');
+
+  Logger.log('Dashboard atualizado: ' + (totalScans+totalNopat) + ' itens, ' + Object.keys(patPorSala).length + ' salas');
 }
 
-function dismissInstall() {
-  document.getElementById('installBanner').classList.remove('show');
-  localStorage.setItem('installDismissed', '1');
+
+// ── Concluir Inventário ───────────────────────────────────────
+function concluirInventario() {
+  var ui = SpreadsheetApp.getUi();
+  var resp = ui.alert(
+    '✅ Concluir Inventário',
+    'Isso vai marcar todos os itens não localizados como "Não localizado" e atualizar o dashboard.\n\nTem certeza?',
+    ui.ButtonSet.YES_NO
+  );
+  if (resp !== ui.Button.YES) return;
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(CFG.ABA_PAT);
+  if (!sh) { ui.alert('Aba Patrimônios não encontrada.'); return; }
+
+  var dados = sh.getDataRange().getValues();
+  var ts    = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+  var count = 0;
+
+  for (var i = 1; i < dados.length; i++) {
+    var status = String(dados[i][4] || '').trim();
+    if (!status) {
+      sh.getRange(i+1, 5).setValue('❌ Não localizado')
+        .setBackground('#2d0f0f').setFontColor('#ef4444');
+      sh.getRange(i+1, 7).setValue('Concluído em ' + ts);
+      count++;
+    }
+  }
+
+  // Atualiza dashboard
+  atualizarDashboard(ss);
+
+  ui.alert('Inventario concluido! ' + count + ' itens marcados como Nao localizado. Dashboard atualizado.');
 }
-</script>
-</body>
-</html>
+
+// ── Comparação por sala — retorna TODAS as salas de uma vez ──
+// Cliente faz filtragem local, evitando múltiplas leituras da planilha
+function getComparacaoSala(sala) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(CFG.ABA_PAT);
+  if (!sh) return { ok: false, erro: 'Aba Patrimônios não encontrada.' };
+
+  // Lê tudo de uma vez
+  var dados = sh.getDataRange().getValues();
+  var porSala = {};
+
+  for (var i = 1; i < dados.length; i++) {
+    var salaSuap    = String(dados[i][2] || '').trim();
+    if (!salaSuap) continue;
+    var status      = String(dados[i][4] || '').trim();
+    var localAchado = String(dados[i][5] || '').trim();
+    var quemAchou   = String(dados[i][6] || '').trim();
+
+    var tipo = 'pendente';
+    if (status.indexOf('Encontrado') > -1 || status.indexOf('outro local') > -1) {
+      tipo = localAchado && localAchado !== salaSuap ? 'outro_local' : 'correto';
+    } else if (status.indexOf('localizado') > -1) {
+      tipo = 'nao_localizado';
+    }
+
+    if (!porSala[salaSuap]) porSala[salaSuap] = [];
+    porSala[salaSuap].push([
+      String(dados[i][0]),              // numero
+      String(dados[i][1] || '').substring(0, 80), // desc
+      tipo,
+      localAchado,
+      quemAchou.split(' · ')[0]        // só nome, sem data
+    ]);
+  }
+
+  return { ok: true, porSala: porSala };
+}
+
+// ── Simulação de inventário real ─────────────────────────────
+function simularInventario() {
+  var ui = SpreadsheetApp.getUi();
+  var resp = ui.alert(
+    '🧪 Simular Inventário',
+    'Isso vai:\n' +
+    '1. Limpar as abas Inventário e Sem Patrimônio\n' +
+    '2. Resetar status da aba Patrimônios SUAP\n' +
+    '3. Simular 10 servidores escaneando ~65% dos itens\n' +
+    '4. Gerar relatório de verificação\n\n' +
+    'Continuar?',
+    ui.ButtonSet.YES_NO
+  );
+  if (resp !== ui.Button.YES) return;
+
+  var ss     = SpreadsheetApp.getActiveSpreadsheet();
+  var shInv  = ss.getSheetByName(CFG.ABA_INV);
+  var shPat  = ss.getSheetByName(CFG.ABA_PAT);
+  var shFunc = ss.getSheetByName(CFG.ABA_FUNC);
+
+  if (!shPat) { ui.alert('Importe os patrimônios do SUAP primeiro.'); return; }
+
+  // ── 1. Limpa inventário ──────────────────────────────────────
+  if (shInv && shInv.getLastRow() > 1) {
+    shInv.getRange(2, 1, shInv.getLastRow()-1, shInv.getLastColumn()).clearContent();
+  }
+
+  // ── 2. Reseta status dos patrimônios ─────────────────────────
+  var patData = shPat.getDataRange().getValues();
+  for (var i = 1; i < patData.length; i++) {
+    shPat.getRange(i+1, 5, 1, 3).clearContent().setBackground(null).setFontColor(null);
+  }
+
+  // ── 3. Define 10 servidores fictícios ────────────────────────
+  var servidores = [
+    {nome: 'Ana Silva',      siape: '1111001'},
+    {nome: 'Bruno Costa',    siape: '1111002'},
+    {nome: 'Carlos Melo',    siape: '1111003'},
+    {nome: 'Daniela Souza',  siape: '1111004'},
+    {nome: 'Eduardo Lima',   siape: '1111005'},
+    {nome: 'Fernanda Rocha', siape: '1111006'},
+    {nome: 'Gabriel Nunes',  siape: '1111007'},
+    {nome: 'Helena Pires',   siape: '1111008'},
+    {nome: 'Igor Santos',    siape: '1111009'},
+    {nome: 'Julia Ferreira', siape: '1111010'},
+  ];
+
+  // ── 4. Distribui salas entre servidores ───────────────────────
+  // Pega salas únicas do SUAP
+  var salasMap = {};
+  for (var i = 1; i < patData.length; i++) {
+    var sala = String(patData[i][2] || '').trim();
+    if (sala) salasMap[sala] = true;
+  }
+  var todasSalas = Object.keys(salasMap);
+
+  // Embaralha salas
+  for (var i = todasSalas.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = todasSalas[i]; todasSalas[i] = todasSalas[j]; todasSalas[j] = tmp;
+  }
+
+  // Divide salas entre servidores (~8-9 salas por servidor)
+  var salasPorServidor = {};
+  servidores.forEach(function(s){ salasPorServidor[s.siape] = []; });
+  todasSalas.forEach(function(sala, idx) {
+    var srv = servidores[idx % servidores.length];
+    salasPorServidor[srv.siape].push(sala);
+  });
+
+  // ── 5. Simula scans (~65% dos itens por sala) ────────────────
+  var totalSimulado = 0;
+  var totalOutroLocal = 0;
+  var ts = new Date();
+
+  for (var i = 1; i < patData.length; i++) {
+    var num  = String(patData[i][0] || '').trim();
+    var sala = String(patData[i][2] || '').trim();
+    if (!num || !sala) continue;
+
+    // 65% de chance de ser escaneado
+    if (Math.random() > 0.65) continue;
+
+    // Encontra servidor responsável por essa sala
+    var servidor = null;
+    for (var si = 0; si < servidores.length; si++) {
+      if (salasPorServidor[servidores[si].siape].indexOf(sala) > -1) {
+        servidor = servidores[si];
+        break;
+      }
+    }
+    if (!servidor) servidor = servidores[0];
+
+    // 5% de chance de estar em sala errada (outro local)
+    var salaReal = sala;
+    if (Math.random() < 0.05 && todasSalas.length > 1) {
+      var outraSala = todasSalas[Math.floor(Math.random() * todasSalas.length)];
+      if (outraSala !== sala) {
+        salaReal = outraSala;
+        totalOutroLocal++;
+      }
+    }
+
+    // Grava na aba Inventário
+    ts = new Date(Date.now() - Math.floor(Math.random() * 7 * 24 * 3600 * 1000));
+    var agora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm');
+    shInv.appendRow([
+      Utilities.formatDate(ts, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm'),
+      num, salaReal, servidor.nome, servidor.siape, agora
+    ]);
+
+    // Marca na aba Patrimônios
+    var outroLocal = salaReal !== sala;
+    if (outroLocal) {
+      shPat.getRange(i+1,5).setValue('🟡 Encontrado em outro local').setBackground('#2d2200').setFontColor('#f59e0b');
+    } else {
+      shPat.getRange(i+1,5).setValue('✅ Encontrado').setBackground('#0f2d1f').setFontColor('#22c55e');
+    }
+    shPat.getRange(i+1,6).setValue(salaReal);
+    shPat.getRange(i+1,7).setValue(agora + ' · ' + servidor.nome + ' (' + servidor.siape + ')');
+
+    totalSimulado++;
+  }
+
+  // ── 6. Atualiza dashboard ─────────────────────────────────────
+  atualizarDashboard(ss);
+
+  // ── 7. Relatório de verificação ───────────────────────────────
+  var totalPat      = patData.length - 1;
+  var pctSimulado   = Math.round(totalSimulado / totalPat * 100);
+
+  // Verifica contagem real no dashboard
+  var shDash = ss.getSheetByName(CFG.ABA_DASH);
+  var erros  = [];
+
+  // Verifica se total escaneado bate
+  if (shInv.getLastRow() - 1 !== totalSimulado) {
+    erros.push('❌ Inventário: ' + (shInv.getLastRow()-1) + ' linhas vs ' + totalSimulado + ' simulados');
+  } else {
+    erros.push('✅ Inventário: ' + totalSimulado + ' itens gravados corretamente');
+  }
+
+  // Conta encontrados na aba Patrimônios
+  var encPat = 0; var outroPat = 0; var pendPat = 0;
+  var patRecheck = shPat.getDataRange().getValues();
+  for (var i = 1; i < patRecheck.length; i++) {
+    var st = String(patRecheck[i][4] || '').trim();
+    if (st === '✅ Encontrado') encPat++;
+    else if (st === '🟡 Encontrado em outro local') outroPat++;
+    else if (!st) pendPat++;
+  }
+
+  erros.push('✅ Encontrados corretos: ' + encPat);
+  erros.push('✅ Encontrados outro local: ' + outroPat + ' (esperado ~' + totalOutroLocal + ')');
+  erros.push('✅ Pendentes: ' + pendPat);
+  erros.push('✅ Total patrimônios: ' + totalPat);
+  erros.push('📊 % simulado: ' + pctSimulado + '% (alvo: ~65%)');
+
+  ui.alert(
+    '🧪 Simulação concluída!',
+    erros.join('\n') + '\n\nDashboard atualizado. Verifique a aba 📊 Dashboard.',
+    ui.ButtonSet.OK
+  );
+}
+
+function out(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
