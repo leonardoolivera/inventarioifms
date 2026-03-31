@@ -446,6 +446,11 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <div class="ac-title">Comparação</div>
         <div class="ac-sub">Itens por sala</div>
       </div>
+      <div class="action-card" onclick="showScreen('scBusca');setTimeout(function(){document.getElementById('buscaInput').focus();},300)">
+        <span class="ac-icon">🔎</span>
+        <div class="ac-title">Buscar</div>
+        <div class="ac-sub">Nº patrimônio</div>
+      </div>
     </div>
 
     <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter"></div>
@@ -534,6 +539,27 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="prog-stat"><div class="prog-stat-n y" id="progNopat">0</div><div class="prog-stat-l">Sem patrim.</div></div>
     </div>
     <div id="progRoomList"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCREEN: BUSCA DE PATRIMÔNIO
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scBusca">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div>
+      <div class="topbar-title">Buscar Patrimônio</div>
+      <div class="topbar-sub" id="buscaSub">Digite o número</div>
+    </div>
+  </div>
+  <div class="sbody">
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <input id="buscaInput" type="number" placeholder="Nº do patrimônio..." 
+        style="flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:15px;outline:none"
+        oninput="buscarPatrimonio(this.value)">
+    </div>
+    <div id="buscaResult"></div>
   </div>
 </div>
 
@@ -739,7 +765,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v9.0';
+var APP_VERSION = 'v9.1';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -1913,6 +1939,76 @@ var currentUser = null; // { siape, nome }
 var compCache = null;    // cache de TODAS as salas
 var compSalaAtual = ''; // sala sendo visualizada
 
+// ── Busca de patrimônio ──────────────────────────────────────
+var buscaTimer = null;
+function buscarPatrimonio(val) {
+  val = String(val || '').trim();
+  var res = document.getElementById('buscaResult');
+  var sub = document.getElementById('buscaSub');
+
+  if (!val || val.length < 3) {
+    res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">🔎</div>Digite pelo menos 3 dígitos</div>';
+    sub.textContent = 'Digite o número';
+    return;
+  }
+
+  // Busca local primeiro (instantânea)
+  var numStr = val.replace(/^0+/, '');
+  var localMatch = state.scans.filter(function(s){
+    return s.type === 'scan' && String(s.code).replace(/^0+/,'').indexOf(numStr) > -1;
+  });
+
+  if (localMatch.length) {
+    sub.textContent = localMatch.length + ' resultado(s) local';
+    res.innerHTML = localMatch.map(function(s) {
+      return renderBuscaItem({
+        numero: s.code, descricao: '—', sala: s.sala || s.room,
+        status: '✅ Encontrado (local)', quem: s.funcionario || '', data: s.ts
+      });
+    }).join('');
+  } else {
+    res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">🔍 Buscando...</div>';
+    sub.textContent = 'Buscando...';
+  }
+
+  // Busca no servidor (debounce 600ms)
+  clearTimeout(buscaTimer);
+  if (!state.scriptUrl || !state.isOnline) return;
+  buscaTimer = setTimeout(function() {
+    fetch(state.scriptUrl + '?action=buscarPatrimonio&code=' + encodeURIComponent(val), {
+      cache: 'no-store', redirect: 'follow'
+    })
+    .then(function(r){ return r.text(); })
+    .then(function(txt) {
+      var data; try { data = JSON.parse(txt); } catch(e) { return; }
+      if (!data.ok) return;
+      sub.textContent = data.resultados.length + ' resultado(s)';
+      if (!data.resultados.length) {
+        res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">📭</div>Patrimônio não encontrado</div>';
+        return;
+      }
+      res.innerHTML = data.resultados.map(renderBuscaItem).join('');
+    })
+    .catch(function(){});
+  }, 600);
+}
+
+function renderBuscaItem(d) {
+  var corStatus = d.status && d.status.indexOf('✅') > -1 ? 'var(--green)'
+                : d.status && d.status.indexOf('🟡') > -1 ? 'var(--yellow)'
+                : d.status && d.status.indexOf('🔴') > -1 ? 'var(--red)'
+                : 'var(--text2)';
+  var dataFmt = d.data ? (typeof d.data === 'string' ? d.data.substring(0,16) : fmtTime(new Date(d.data))) : '';
+  return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+    +'<span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)">Nº '+esc(d.numero)+'</span>'
+    +'<span style="font-size:11px;font-weight:700;color:'+corStatus+'">'+esc(d.status||'⏳ Pendente')+'</span>'
+    +'</div>'
+    +'<div style="font-size:12px;color:var(--text);margin-bottom:4px">'+esc(d.descricao||'—')+'</div>'
+    +'<div style="font-size:11px;color:var(--text2)">📍 '+esc(d.sala||'—')+(d.quem?' · '+esc(d.quem):'')+(dataFmt?' · '+esc(dataFmt):'')+'</div>'
+    +'</div>';
+}
+
 function mostrarAvisoSala(salaOriginal, idsErrados) {
   // Modal de aviso — servidor pode estar na sala errada
   var ab       = abreviarSala(state.currentRoom);
@@ -2184,6 +2280,49 @@ function showProgress() {
   showScreen('scProgress');
 }
 
+function calcularTempoEstimado() {
+  if (state.scans.length < 5) return; // poucos dados
+  var el = document.getElementById('progTempoEstimado');
+  if (!el) return;
+
+  // Calcula ritmo: scans por hora nas últimas 2h
+  var agora = Date.now();
+  var janela = 2 * 3600 * 1000; // 2 horas
+  var recentes = state.scans.filter(function(s){
+    return (agora - new Date(s.ts).getTime()) < janela;
+  });
+
+  if (recentes.length < 3) { el.style.display = 'none'; return; }
+
+  var ritmoHora = recentes.length / 2; // itens por hora
+  var totalSuap = 0;
+  if (suapTotais) {
+    Object.keys(suapTotais).forEach(function(k){ totalSuap += suapTotais[k]; });
+  }
+  if (!totalSuap) { el.style.display = 'none'; return; }
+
+  var faltam = Math.max(0, totalSuap - state.scans.filter(function(s){ return s.type==='scan'; }).length);
+  if (faltam === 0) {
+    el.innerHTML = '🎉 <strong>Inventário completo!</strong>';
+    el.style.display = 'block';
+    return;
+  }
+
+  var horasRestantes = faltam / ritmoHora;
+  var texto = '';
+  if (horasRestantes < 1) {
+    texto = 'menos de 1 hora';
+  } else if (horasRestantes < 24) {
+    texto = Math.ceil(horasRestantes) + ' hora(s)';
+  } else {
+    texto = Math.ceil(horasRestantes / 8) + ' dias úteis (8h/dia)';
+  }
+
+  el.innerHTML = '⏱ Ritmo atual: <strong>' + Math.round(ritmoHora) + ' itens/hora</strong> · '
+    + 'Faltam ~<strong>' + faltam + '</strong> itens · Estimativa: <strong>' + texto + '</strong>';
+  el.style.display = 'block';
+}
+
 function renderProgressRooms() {
   // Stats gerais
   var total  = state.scans.length;
@@ -2193,6 +2332,9 @@ function renderProgressRooms() {
   document.getElementById('progTotal').textContent = total;
   document.getElementById('progSalas').textContent = salas;
   document.getElementById('progNopat').textContent = nopat;
+
+  // ── Tempo estimado ──────────────────────────────────────────
+  calcularTempoEstimado();
 
   // Progresso por sala — combina scans locais com totais do SUAP
   var porSala = {};
@@ -2661,4 +2803,4 @@ function dismissInstall() {
   </div>
 </div>
 </body>
-</html>planilha.')) {
+</html>
