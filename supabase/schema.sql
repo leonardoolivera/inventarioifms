@@ -11,6 +11,7 @@ CREATE TABLE funcionarios (
   id        SERIAL PRIMARY KEY,
   siape     TEXT NOT NULL UNIQUE,
   nome      TEXT NOT NULL,
+  admin     BOOLEAN DEFAULT FALSE,
   ativo     BOOLEAN DEFAULT TRUE,
   criado_em TIMESTAMPTZ DEFAULT NOW()
 );

@@ -19,34 +19,32 @@ function sbFetch(path, opts) {
 }
 
 // ── LOGIN por SIAPE ───────────────────────────────────────────
-// Substitui: doGet?action=login&siape=...
 function loginSiape(siape) {
   var s = String(siape).trim().replace(/^0+/, '');
-  return sbFetch('/rest/v1/funcionarios?siape=eq.' + encodeURIComponent(s) + '&ativo=eq.true&select=siape,nome')
+  return sbFetch('/rest/v1/funcionarios?siape=eq.' + encodeURIComponent(s) + '&ativo=eq.true&select=siape,nome,admin')
     .then(function(rows) {
       if (!rows || !rows.length) return { ok: false, erro: 'SIAPE não cadastrado. Fale com o gestor.' };
-      return { ok: true, nome: rows[0].nome, siape: rows[0].siape, scans: [] };
+      return { ok: true, nome: rows[0].nome, siape: rows[0].siape, admin: !!rows[0].admin, scans: [] };
     });
 }
 
 // ── SYNC em lote ──────────────────────────────────────────────
-// Substitui: doPost action=batchSync
 function batchSync(items) {
   var scans  = items.filter(function(i){ return i.type === 'scan'; });
   var nopats = items.filter(function(i){ return i.type === 'nopat'; });
   var promises = [];
 
-  // Insere scans
+  // Insere scans + marca patrimônios
   if (scans.length) {
     var scanRows = scans.map(function(i) {
-      return { id: i.id, codigo: i.code, sala: i.room, funcionario: i.funcionario||null, siape: i.siape||null, criado_em: i.ts };
+      return { id: i.id, codigo: i.code, sala: i.room,
+               funcionario: i.funcionario||null, siape: i.siape||null, criado_em: i.ts };
     });
     promises.push(
       sbFetch('/rest/v1/scans', { method: 'POST', body: JSON.stringify(scanRows),
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON,
           'Content-Type': 'application/json', 'Prefer': 'resolution=ignore-duplicates' }
       }).then(function() {
-        // Marca cada patrimônio como encontrado
         return Promise.all(scans.map(function(i) {
           return marcarEncontrado(i.code, i.room, i.funcionario||'', i.siape||'');
         }));
@@ -54,16 +52,26 @@ function batchSync(items) {
     );
   }
 
-  // Insere sem_patrimônio (fotos já devem estar no Storage antes)
+  // Itens sem patrimônio — faz upload da foto antes de inserir
   if (nopats.length) {
-    var nopatRows = nopats.map(function(i) {
-      return { id: i.id, sala: i.room, descricao: i.desc, estado: i.estado,
-               foto_url: i.foto_url||null, funcionario: i.funcionario||null, siape: i.siape||null, criado_em: i.ts };
+    var nopatPromises = nopats.map(function(i) {
+      var uploadPromise = (i.photo && i.photo.length > 50)
+        ? uploadFoto(i.id, i.photo).catch(function() { return null; })
+        : Promise.resolve(null);
+
+      return uploadPromise.then(function(fotoUrl) {
+        return { id: i.id, sala: i.room, descricao: i.desc, estado: i.estado,
+                 foto_url: fotoUrl || i.foto_url || null,
+                 funcionario: i.funcionario||null, siape: i.siape||null, criado_em: i.ts };
+      });
     });
+
     promises.push(
-      sbFetch('/rest/v1/sem_patrimonio', { method: 'POST', body: JSON.stringify(nopatRows),
-        headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON,
-          'Content-Type': 'application/json', 'Prefer': 'resolution=ignore-duplicates' }
+      Promise.all(nopatPromises).then(function(nopatRows) {
+        return sbFetch('/rest/v1/sem_patrimonio', { method: 'POST', body: JSON.stringify(nopatRows),
+          headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON,
+            'Content-Type': 'application/json', 'Prefer': 'resolution=ignore-duplicates' }
+        });
       })
     );
   }
@@ -224,6 +232,17 @@ function corrigirSala(ids, novaSala) {
 function testConnection() {
   return sbFetch('/rest/v1/funcionarios?limit=1&select=id')
     .then(function() { return { ok: true, msg: 'Conexão OK' }; });
+}
+
+// ── ADMIN: chama Edge Function admin-ops ──────────────────────
+// siape = siape do admin logado (para autorização no servidor)
+function adminOp(action, siape, data) {
+  return fetch(SUPABASE_URL + '/functions/v1/admin-ops', {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON,
+               'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: action, siape: siape, data: data || {} })
+  }).then(function(r) { return r.json(); });
 }
 
 // ── DESCREVER FOTO via Edge Function ─────────────────────────
