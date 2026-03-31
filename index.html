@@ -11,6 +11,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script src="supabase/client.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -1347,13 +1348,9 @@ function processScan(rawCode) {
   commitScan(code);
 
   // 3. Verifica duplicata no servidor em background (outro servidor pode ter escaneado)
-  if (state.isOnline && state.scriptUrl) {
-    fetch(state.scriptUrl + '?action=checkDuplicate&code=' + encodeURIComponent(code), {
-      cache: 'no-store', redirect: 'follow'
-    })
-    .then(function(r){ return r.text(); })
-    .then(function(txt) {
-      var res; try { res = JSON.parse(txt); } catch(e) { return; }
+  if (state.isOnline) {
+    checkDuplicate(code)
+    .then(function(res) {
       if (res.duplicado) {
         // Outro servidor já escaneou — avisa mas mantém o scan (gestor decide)
         flashScan('warn');
@@ -1386,13 +1383,9 @@ function commitScan(code) {
   showUndoBar(code, room);
 
   // Confirmação visual — busca descrição do SUAP em background
-  if (state.isOnline && state.scriptUrl) {
-    fetch(state.scriptUrl + '?action=lookupPatrimonio&code=' + encodeURIComponent(code), {
-      cache: 'no-store', redirect: 'follow'
-    })
-    .then(function(r){ return r.text(); })
-    .then(function(txt) {
-      var res; try { res = JSON.parse(txt); } catch(e) { return; }
+  if (state.isOnline) {
+    lookupPatrimonio(code)
+    .then(function(res) {
       if (res.ok && res.descricao) {
         // Atualiza o undo bar com a descrição do item
         var sub = document.getElementById('undoSub');
@@ -1622,7 +1615,7 @@ function addToPendingSync(entry) {
 var syncRunning    = false;
 var syncRunningTs  = 0;
 function syncNow() {
-  if (!state.scriptUrl || !state.isOnline || !state.pendingSync.length) return;
+  if (!state.isOnline || !state.pendingSync.length) return;
   // Se syncRunning há mais de 30s, considera travado e reseta
   if (syncRunning && (Date.now() - syncRunningTs) < 30000) return;
   syncRunning   = true;
@@ -1696,16 +1689,8 @@ function syncNow() {
     }
 
     var lote = lotes[idx];
-    fetch(state.scriptUrl, {
-      method:  'POST',
-      redirect: 'follow',
-      body:    JSON.stringify({ action: 'batchSync', items: lote }),
-      headers: { 'Content-Type': 'text/plain' },
-    })
-    .then(function(r) { return r.text(); })
-    .then(function(txt) {
-      var res;
-      try { res = JSON.parse(txt); } catch(e) { res = { ok: false }; }
+    batchSync(lote)
+    .then(function(res) {
       if (res.ok) {
         lote.forEach(function(item) { sincronizados.push(item.id); });
       } else {
@@ -1762,22 +1747,12 @@ function updateSyncBanner() {
 }
 
 function testConnection() {
-  var url = document.getElementById('scriptUrlInput').value.trim();
-  if (!url) { alert('Cole a URL primeiro.'); return; }
-  // Usa no-cors pois Apps Script não envia headers CORS no ping
-  fetch(url + '?action=ping')
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.ok) {
-        state.scriptUrl = url;
-        localStorage.setItem('scriptUrl', url);
-        updateSyncBanner();
-        showToast('ok','✅ Conexão OK!','URL salva com sucesso');
-      } else {
-        showToast('warn','⚠️ Resposta inesperada', JSON.stringify(d));
-      }
+  testConnection()
+    .then(function() {
+      updateSyncBanner();
+      showToast('ok','✅ Supabase conectado!','Banco de dados OK');
     })
-    .catch(function(){ showToast('warn','❌ Erro de conexão','Verifique a URL'); });
+    .catch(function(e){ showToast('warn','❌ Erro de conexão', e.toString()); });
 }
 
 // ═══════════════════════════════════════════════
@@ -1973,14 +1948,10 @@ function buscarPatrimonio(val) {
 
   // Busca no servidor (debounce 600ms)
   clearTimeout(buscaTimer);
-  if (!state.scriptUrl || !state.isOnline) return;
+  if (!state.isOnline) return;
   buscaTimer = setTimeout(function() {
-    fetch(state.scriptUrl + '?action=buscarPatrimonio&code=' + encodeURIComponent(val), {
-      cache: 'no-store', redirect: 'follow'
-    })
-    .then(function(r){ return r.text(); })
-    .then(function(txt) {
-      var data; try { data = JSON.parse(txt); } catch(e) { return; }
+    buscarPatrimonio(val)
+    .then(function(data) {
       if (!data.ok) return;
       sub.textContent = data.resultados.length + ' resultado(s)';
       if (!data.resultados.length) {
@@ -2077,17 +2048,10 @@ function corrigirSalaScans(ids, novaSala) {
 
   showToast('ok', '✅ Corrigindo ' + ids.length + ' itens...', 'Sala: ' + abreviarSala(novaSala).curto);
 
-  // Corrige no servidor via nova action
-  if (state.isOnline && state.scriptUrl) {
-    fetch(state.scriptUrl, {
-      method: 'POST',
-      redirect: 'follow',
-      body: JSON.stringify({ action: 'corrigirSala', ids: ids, novaSala: novaSala }),
-      headers: { 'Content-Type': 'text/plain' }
-    })
-    .then(function(r){ return r.text(); })
-    .then(function(txt) {
-      var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
+  // Corrige no servidor
+  if (state.isOnline) {
+    corrigirSala(ids, novaSala)
+    .then(function(res) {
       if (res.ok) {
         showToast('ok', '✅ ' + ids.length + ' itens corrigidos na planilha', abreviarSala(novaSala).curto);
         compCache = null; // invalida cache de comparação
@@ -2135,12 +2099,8 @@ function abrirComparacao(sala) {
   document.getElementById('compNao').textContent     = '—';
   document.getElementById('compPend').textContent    = '—';
 
-  fetch(state.scriptUrl + '?action=comparacaoSala&sala=' + encodeURIComponent(sala), {
-    cache: 'no-store', redirect: 'follow'
-  })
-  .then(function(r){ return r.text(); })
-  .then(function(txt) {
-    var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
+  getComparacaoSala()
+  .then(function(res) {
     if (!res.ok) {
       document.getElementById('compList').innerHTML = '<div class="empty">⚠️ ' + (res.erro || 'Erro ao carregar') + '</div>';
       return;
@@ -2244,16 +2204,16 @@ var suapCarregando = false;
 function carregarTotaisSUAP(callback) {
   if (suapTotais) { callback(); return; }
   if (suapCarregando) { setTimeout(function(){ carregarTotaisSUAP(callback); }, 500); return; }
-  if (!state.scriptUrl) { callback(); return; }
-
   suapCarregando = true;
-  fetch(state.scriptUrl + '?action=totalPorSala', { cache: 'no-store' })
-    .then(function(r) { return r.text(); })
-    .then(function(txt) {
-      var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
-      if (res.ok) {
-        suapTotais      = res.porSala      || {};
-        suapEncontrados = res.encontrados  || {};
+  getTotalPorSala()
+    .then(function(res) {
+      if (res.ok && res.salas) {
+        suapTotais = {};
+        suapEncontrados = {};
+        res.salas.forEach(function(s) {
+          suapTotais[s.sala_suap]      = s.total;
+          suapEncontrados[s.sala_suap] = (s.correto || 0) + (s.outro_local || 0);
+        });
       }
     })
     .catch(function(){})
@@ -2446,16 +2406,8 @@ function fazerLogin() {
   btn.disabled  = true;
   document.getElementById('loginError').textContent = '';
 
-  // Consulta planilha
-  fetch(state.scriptUrl + '?action=login&siape=' + encodeURIComponent(siape), {
-    redirect: 'follow',
-    cache: 'no-store'
-  })
-    .then(function(r) { return r.text(); })
-    .then(function(txt) {
-      var res; try { res = JSON.parse(txt); } catch(e) { res = { ok: false, erro: 'Resposta inválida: ' + txt.substring(0,100) }; }
-      return res;
-    })
+  // Consulta Supabase
+  loginSiape(siape)
     .then(function(res) {
       if (res.ok && res.nome) {
         var user = { siape: siape, nome: res.nome };
@@ -2594,24 +2546,18 @@ function saveGeminiKey() {
 }
 
 function testarIA() {
-  if (!state.scriptUrl) { showToast('warn','Configure a URL do Apps Script primeiro',''); return; }
   var btn = document.getElementById('testIABtn');
   btn.textContent = '⏳ Testando...';
   btn.disabled = true;
 
-  fetch(state.scriptUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    body: JSON.stringify({ action: 'testIA' }),
-    headers: { 'Content-Type': 'text/plain' },
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(txt) {
-    var res; try { res = JSON.parse(txt); } catch(e) { res = { ok: false, erro: txt }; }
-    if (res.ok) {
-      showToast('ok', '✅ IA funcionando! Modelo: ' + res.modelo, 'Resposta: ' + res.texto);
+  // Testa com uma imagem mínima (pixel verde)
+  var b64Teste = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  descreverFoto('image/png', b64Teste)
+  .then(function(res) {
+    if (res.ok || res.descricao) {
+      showToast('ok', '✅ IA funcionando!', 'Resposta: ' + (res.descricao || res.texto || 'ok'));
     } else {
-      showToast('warn', '❌ ' + (res.erro || 'Falhou'), 'Veja aba "Log IA" na planilha');
+      showToast('warn', '❌ ' + (res.erro || 'Falhou'), 'Verifique a chave Gemini na Edge Function');
     }
   })
   .catch(function(e) { showToast('warn','Erro de conexão', e.toString()); })
@@ -2640,16 +2586,8 @@ function sugerirDescricao(auto) {
   var b64 = noPatPhoto.split(',')[1];
   var mime = noPatPhoto.split(';')[0].split(':')[1] || 'image/jpeg';
 
-  // Envia como text/plain JSON — form POST tem limite de tamanho pra fotos base64
-  fetch(state.scriptUrl, {
-    method: 'POST',
-    redirect: 'follow',
-    body: JSON.stringify({ action: 'descreverFoto', data: { mime: mime, b64: b64 } }),
-    headers: { 'Content-Type': 'text/plain' },
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(txt) {
-    var res; try { res = JSON.parse(txt); } catch(e) { res = {}; }
+  descreverFoto(mime, b64)
+  .then(function(res) {
     if (res.descricao) {
       var campo = document.getElementById('noPatDesc');
       campo.value = res.descricao;

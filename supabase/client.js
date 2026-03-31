@@ -3,8 +3,8 @@
 //  Cole SUPABASE_URL e SUPABASE_ANON_KEY após criar o projeto
 // ================================================================
 
-var SUPABASE_URL  = '';   // ex: https://xyzxyz.supabase.co
-var SUPABASE_ANON = '';   // chave pública (anon key) — pode ficar no código
+var SUPABASE_URL  = 'https://veazrwcnfamwjnaybpkd.supabase.co';
+var SUPABASE_ANON = 'sb_publishable__PGOsNopOsgVgHROJYlwvw_ZKi31B-8';
 
 // ── Helper base ───────────────────────────────────────────────
 function sbFetch(path, opts) {
@@ -193,6 +193,37 @@ function uploadFoto(itemId, base64data) {
     if (!r.ok) throw new Error('Upload falhou: ' + r.status);
     return SUPABASE_URL + '/storage/v1/object/public/sem-patrimonio/' + path;
   });
+}
+
+// ── LOOKUP patrimônio (número exato) ─────────────────────────
+// Substitui: doGet?action=lookupPatrimonio&code=...
+function lookupPatrimonio(code) {
+  var numStr = String(code).replace(/^0+/, '').trim();
+  return sbFetch('/rest/v1/patrimonios?numero=eq.' + encodeURIComponent(numStr) + '&select=numero,descricao,sala_suap,status,local_encontrado')
+    .then(function(rows) {
+      if (!rows || !rows.length) return { ok: false };
+      var r = rows[0];
+      return { ok: true, numero: r.numero, descricao: (r.descricao||'').substring(0,80),
+               salaOriginal: r.sala_suap, status: r.status };
+    });
+}
+
+// ── CORRIGIR SALA de scans existentes ─────────────────────────
+// Substitui: doPost action=corrigirSala
+function corrigirSala(ids, novaSala) {
+  // Atualiza a sala dos scans afetados
+  return Promise.all(ids.map(function(id) {
+    return sbFetch('/rest/v1/scans?id=eq.' + encodeURIComponent(id), {
+      method: 'PATCH',
+      body: JSON.stringify({ sala: novaSala })
+    });
+  })).then(function() { return { ok: true, corrigidos: ids.length }; });
+}
+
+// ── PING (teste de conexão) ───────────────────────────────────
+function testConnection() {
+  return sbFetch('/rest/v1/funcionarios?limit=1&select=id')
+    .then(function() { return { ok: true, msg: 'Conexão OK' }; });
 }
 
 // ── DESCREVER FOTO via Edge Function ─────────────────────────

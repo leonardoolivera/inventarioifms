@@ -3,6 +3,9 @@
 --  Espelha as abas do Google Sheets atual
 -- ================================================================
 
+-- Extensão para busca parcial (deve vir antes dos índices que a usam)
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 -- ── Funcionários (login por SIAPE) ────────────────────────────
 CREATE TABLE funcionarios (
   id        SERIAL PRIMARY KEY,
@@ -75,11 +78,6 @@ CREATE TABLE log_operacoes (
   criado_em     TIMESTAMPTZ NOT NULL,
   sincronizado_em TIMESTAMPTZ DEFAULT NOW()
 );
-
--- ================================================================
---  EXTENSÃO para busca por similaridade (busca parcial rápida)
--- ================================================================
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- ================================================================
 --  RLS (Row Level Security) — acesso público para ferramenta interna
