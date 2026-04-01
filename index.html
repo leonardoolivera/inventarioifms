@@ -864,16 +864,41 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   <div class="login-logo">📋</div>
   <div class="login-title">Inventário Campus</div>
   <div class="login-sub">IFMS — Sistema de Inventário Patrimonial</div>
-  <div class="login-card">
-    <div class="login-label">Digite seu SIAPE</div>
-    <input class="login-input" id="siapeInput" type="tel" maxlength="7"
-      placeholder="0000000" autocomplete="off" inputmode="numeric"
-      onkeydown="if(event.key==='Enter')fazerLogin()">
-    <div class="login-error" id="loginError"></div>
-    <button class="login-btn" id="loginBtn" onclick="fazerLogin()">Entrar</button>
+
+  <!-- Card SIAPE (padrão) -->
+  <div id="loginCardSiape">
+    <div class="login-card">
+      <div class="login-label">Digite seu SIAPE</div>
+      <input class="login-input" id="siapeInput" type="tel" maxlength="7"
+        placeholder="0000000" autocomplete="off" inputmode="numeric"
+        onkeydown="if(event.key==='Enter')fazerLogin()">
+      <div class="login-error" id="loginError"></div>
+      <button class="login-btn" id="loginBtn" onclick="fazerLogin()">Entrar</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);text-align:center">
+      Use seu número SIAPE para acessar
+    </div>
+    <button onclick="mostrarLoginAdmin()" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;margin-top:10px;font-family:'Space Grotesk',sans-serif;display:block;margin-left:auto;margin-right:auto">
+      Entrar como gestor ›
+    </button>
   </div>
-  <div style="font-size:11px;color:var(--text3);text-align:center">
-    Use seu número SIAPE para acessar
+
+  <!-- Card Admin (email + senha) -->
+  <div id="loginCardAdmin" style="display:none;width:100%;max-width:360px">
+    <div class="login-card">
+      <div class="login-label">Email</div>
+      <input class="login-input" id="adminEmailInput" type="email" placeholder="gestor@email.com"
+        autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('adminSenhaInput').focus()">
+      <div class="login-label" style="margin-top:10px">Senha</div>
+      <input class="login-input" id="adminSenhaInput" type="password" placeholder="••••••••"
+        autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLoginAdmin()">
+      <div class="login-error" id="loginErrorAdmin"></div>
+      <button class="login-btn" id="loginBtnAdmin" onclick="fazerLoginAdmin()">Entrar</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:6px;max-width:360px">
+      <button onclick="mostrarLoginSiape()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Space Grotesk',sans-serif">‹ Login por SIAPE</button>
+      <button onclick="abrirRecuperarSenha()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Space Grotesk',sans-serif">Esqueci a senha</button>
+    </div>
   </div>
   <!-- Update banner no login -->
   <div class="update-banner" id="updateBannerLogin" style="display:none;max-width:360px;width:100%">
@@ -885,6 +910,22 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <button class="update-btn" onclick="doUpdate()">Atualizar</button>
   </div>
   <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionLogin"></div>
+</div>
+
+<!-- Modal: Nova senha (após link de reset) -->
+<div id="resetSenhaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg);border-radius:16px;padding:24px;width:100%;max-width:340px">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px">🔑 Nova senha</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">Digite sua nova senha de acesso.</div>
+    <div class="login-label">Nova senha</div>
+    <input class="login-input" id="novaSenhaInput" type="password" placeholder="Mínimo 6 caracteres"
+      autocomplete="new-password" onkeydown="if(event.key==='Enter')document.getElementById('confirmarSenhaInput').focus()">
+    <div class="login-label" style="margin-top:10px">Confirmar senha</div>
+    <input class="login-input" id="confirmarSenhaInput" type="password" placeholder="Repita a senha"
+      autocomplete="new-password" onkeydown="if(event.key==='Enter')salvarNovaSenha()">
+    <div class="login-error" id="novaSenhaErro"></div>
+    <button class="login-btn" id="btnSalvarSenha" onclick="salvarNovaSenha()" style="margin-top:12px">Salvar senha</button>
+  </div>
 </div>
 
 <!-- Toast -->
@@ -905,6 +946,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (vs) vs.textContent = APP_VERSION;
   var vl = document.getElementById('versionLogin');
   if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
+  // Detecta link de reset de senha no hash da URL
+  verificarResetSenha();
 });
 
 // ═══════════════════════════════════════════════
@@ -1957,11 +2000,9 @@ function saveScriptUrl() {
 }
 
 function loadScriptUrl() {
-  document.getElementById('scriptUrlInput').value = state.scriptUrl || '';
-  // Persist default if not yet saved
-  if (!localStorage.getItem('scriptUrl') && state.scriptUrl) {
-    localStorage.setItem('scriptUrl', state.scriptUrl);
-  }
+  // scriptUrlInput foi removido na migração para Supabase — noop
+  var el = document.getElementById('scriptUrlInput');
+  if (el) el.value = state.scriptUrl || '';
 }
 
 function saveScans() {
@@ -2562,6 +2603,95 @@ function fazerLogin() {
     });
 }
 
+// ── Login admin por email ─────────────────────────────────────
+function mostrarLoginAdmin() {
+  document.getElementById('loginCardSiape').style.display = 'none';
+  document.getElementById('loginCardAdmin').style.display  = '';
+  document.getElementById('adminEmailInput').focus();
+}
+function mostrarLoginSiape() {
+  document.getElementById('loginCardAdmin').style.display  = 'none';
+  document.getElementById('loginCardSiape').style.display = '';
+  document.getElementById('siapeInput').focus();
+}
+
+function fazerLoginAdmin() {
+  var email = (document.getElementById('adminEmailInput').value || '').trim();
+  var senha  = document.getElementById('adminSenhaInput').value || '';
+  var errEl  = document.getElementById('loginErrorAdmin');
+  var btn    = document.getElementById('loginBtnAdmin');
+  errEl.textContent = '';
+  if (!email || !senha) { errEl.textContent = 'Preencha email e senha'; return; }
+  btn.innerHTML = '<span class="login-spinner"></span>Verificando...';
+  btn.disabled  = true;
+  loginEmail(email, senha)
+    .then(function(res) {
+      if (!res.ok) { errEl.textContent = res.erro || 'Email ou senha incorretos'; return; }
+      var user = { siape: res.siape, nome: res.nome, admin: true };
+      currentUser = user;
+      localStorage.setItem('currentUser', JSON.stringify(user));
+      document.getElementById('loginWrap').style.display = 'none';
+      aplicarUsuario(user);
+      showToast('ok', 'Olá, ' + res.nome.split(' ')[0] + '!', 'Admin');
+    })
+    .catch(function(e) { errEl.textContent = 'Erro de conexão: ' + e; })
+    .finally(function() { btn.innerHTML = 'Entrar'; btn.disabled = false; });
+}
+
+function abrirRecuperarSenha() {
+  var email = (document.getElementById('adminEmailInput').value || '').trim();
+  var input = prompt('Email para receber o link de recuperação:', email);
+  if (!input || !input.trim()) return;
+  recuperarSenha(input.trim())
+    .then(function(res) {
+      if (res.ok) showToast('ok', 'Email enviado!', 'Verifique sua caixa de entrada');
+      else        showToast('erro', 'Erro ao enviar', res.erro || '');
+    });
+}
+
+// ── Recuperação de senha via link do email ────────────────────
+var _resetToken = null;
+
+function verificarResetSenha() {
+  var hash = window.location.hash;
+  if (!hash) return;
+  var params = {};
+  hash.slice(1).split('&').forEach(function(p) {
+    var kv = p.split('='); params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '');
+  });
+  if (params.type === 'recovery' && params.access_token) {
+    _resetToken = params.access_token;
+    history.replaceState(null, '', window.location.pathname);
+    // Mostra modal de nova senha
+    var modal = document.getElementById('resetSenhaModal');
+    modal.style.display = 'flex';
+    document.getElementById('novaSenhaInput').focus();
+  }
+}
+
+function salvarNovaSenha() {
+  var nova     = document.getElementById('novaSenhaInput').value || '';
+  var confirma = document.getElementById('confirmarSenhaInput').value || '';
+  var errEl    = document.getElementById('novaSenhaErro');
+  var btn      = document.getElementById('btnSalvarSenha');
+  errEl.textContent = '';
+  if (nova.length < 6)        { errEl.textContent = 'Senha deve ter pelo menos 6 caracteres'; return; }
+  if (nova !== confirma)       { errEl.textContent = 'As senhas não coincidem'; return; }
+  if (!_resetToken)            { errEl.textContent = 'Token inválido, solicite novo link'; return; }
+  btn.disabled = true; btn.textContent = 'Salvando…';
+  trocarSenha(nova, _resetToken)
+    .then(function(res) {
+      if (!res.ok) { errEl.textContent = res.erro || 'Erro ao salvar'; return; }
+      document.getElementById('resetSenhaModal').style.display = 'none';
+      _resetToken = null;
+      showToast('ok', 'Senha alterada!', 'Use a nova senha para entrar');
+      mostrarLoginAdmin();
+      document.getElementById('loginWrap').style.display = 'flex';
+    })
+    .catch(function(e) { errEl.textContent = 'Erro: ' + e; })
+    .finally(function() { btn.disabled = false; btn.textContent = 'Salvar senha'; });
+}
+
 function aplicarUsuario(user) {
   // Atualiza badge
   var initials = user.nome.split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
@@ -2765,7 +2895,7 @@ function adminTab(tab) {
 function adminCarregarFunc() {
   var lista = document.getElementById('funcList');
   lista.innerHTML = '<p style="color:#888;text-align:center">Carregando…</p>';
-  adminOp('listarFuncionarios', state.user.siape)
+  adminOp('listarFuncionarios', currentUser.siape)
     .then(function(res) {
       if (!res.ok) { lista.innerHTML = '<p style="color:red">' + (res.erro||'Erro') + '</p>'; return; }
       var funcs = res.funcionarios || [];
@@ -2780,7 +2910,7 @@ function adminCarregarFunc() {
           +   '<div class="func-nome">' + escHtml(f.nome) + badge + inativo + '</div>'
           +   '<div class="func-siape">SIAPE: ' + escHtml(f.siape) + '</div>'
           + '</div>'
-          + (f.siape !== state.user.siape
+          + (f.siape !== currentUser.siape
               ? '<button class="func-remove" onclick="adminRemoverFunc(\'' + escHtml(f.siape) + '\',\'' + escHtml(f.nome) + '\')">Remover</button>'
               : '')
           + '</div>';
@@ -2808,7 +2938,7 @@ function adminSalvarFunc() {
   var isAdm = document.getElementById('addFuncAdmin').checked;
   if (!nome || !siape) { showToast('warn', 'Preencha nome e SIAPE', ''); return; }
   if (!/^\d+$/.test(siape)) { showToast('warn', 'SIAPE deve conter apenas números', ''); return; }
-  adminOp('addFuncionario', state.user.siape, { siape: siape, nome: nome, admin: isAdm })
+  adminOp('addFuncionario', currentUser.siape, { siape: siape, nome: nome, admin: isAdm })
     .then(function(res) {
       if (!res.ok) { showToast('erro', 'Erro ao salvar: ' + (res.erro||''), ''); return; }
       showToast('ok', 'Funcionário salvo!', nome + ' · ' + siape);
@@ -2821,7 +2951,7 @@ function adminSalvarFunc() {
 // ── Remover funcionário ───────────────────────────────────────
 function adminRemoverFunc(siape, nome) {
   if (!confirm('Remover "' + nome + '" (SIAPE ' + siape + ')?\n\nEle(a) não conseguirá mais fazer login.')) return;
-  adminOp('removeFuncionario', state.user.siape, { siape: siape })
+  adminOp('removeFuncionario', currentUser.siape, { siape: siape })
     .then(function(res) {
       if (!res.ok) { showToast('erro', 'Erro: ' + (res.erro||''), ''); return; }
       showToast('ok', 'Funcionário removido', nome);
@@ -2937,7 +3067,7 @@ function adminImportar() {
   btn.textContent = 'Importando…';
   document.getElementById('importStatus').textContent = 'Enviando ' + rows.length + ' itens…';
 
-  adminOp('importarPatrimonios', state.user.siape, { rows: rows })
+  adminOp('importarPatrimonios', currentUser.siape, { rows: rows })
     .then(function(res) {
       if (!res.ok) {
         showToast('erro', 'Erro na importação', res.erro || '');
@@ -2968,7 +3098,7 @@ function adminResetar() {
   var btn = document.getElementById('btnResetar');
   btn.disabled = true;
   btn.textContent = 'Resetando…';
-  adminOp('resetarInventario', state.user.siape)
+  adminOp('resetarInventario', currentUser.siape)
     .then(function(res) {
       if (!res.ok) {
         showToast('erro', 'Erro ao resetar: ' + (res.erro||''), '');

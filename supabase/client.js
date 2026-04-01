@@ -245,6 +245,56 @@ function adminOp(action, siape, data) {
   }).then(function(r) { return r.json(); });
 }
 
+// ── LOGIN por Email (admin) ───────────────────────────────────
+function loginEmail(email, senha) {
+  return fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, password: senha })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (res.error) return { ok: false, erro: res.error_description || res.error };
+    return sbFetch('/rest/v1/funcionarios?email=eq.' + encodeURIComponent(email)
+      + '&admin=eq.true&ativo=eq.true&select=siape,nome,admin')
+      .then(function(rows) {
+        if (!rows || !rows.length) return { ok: false, erro: 'Este email não tem acesso de administrador' };
+        return { ok: true, nome: rows[0].nome, siape: rows[0].siape, admin: true, scans: [] };
+      });
+  });
+}
+
+// ── RECUPERAR SENHA ───────────────────────────────────────────
+function recuperarSenha(email) {
+  var redirectTo = window.location.origin + window.location.pathname;
+  return fetch(SUPABASE_URL + '/auth/v1/recover', {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, redirect_to: redirectTo })
+  }).then(function(r) {
+    return r.ok ? { ok: true } : r.json().then(function(j) {
+      return { ok: false, erro: j.error_description || j.msg || 'Erro desconhecido' };
+    });
+  });
+}
+
+// ── TROCAR SENHA (após clicar no link de reset) ───────────────
+function trocarSenha(novaSenha, accessToken) {
+  return fetch(SUPABASE_URL + '/auth/v1/user', {
+    method: 'PUT',
+    headers: {
+      'apikey': SUPABASE_ANON,
+      'Authorization': 'Bearer ' + accessToken,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ password: novaSenha })
+  }).then(function(r) {
+    return r.ok ? { ok: true } : r.json().then(function(j) {
+      return { ok: false, erro: j.error_description || j.msg || 'Erro' };
+    });
+  });
+}
+
 // ── DESCREVER FOTO via Edge Function ─────────────────────────
 function descreverFoto(mime, b64) {
   return fetch(SUPABASE_URL + '/functions/v1/descrever-foto', {
