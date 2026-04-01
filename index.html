@@ -2000,11 +2000,9 @@ function saveScriptUrl() {
 }
 
 function loadScriptUrl() {
-  document.getElementById('scriptUrlInput').value = state.scriptUrl || '';
-  // Persist default if not yet saved
-  if (!localStorage.getItem('scriptUrl') && state.scriptUrl) {
-    localStorage.setItem('scriptUrl', state.scriptUrl);
-  }
+  // scriptUrlInput foi removido na migração para Supabase — noop
+  var el = document.getElementById('scriptUrlInput');
+  if (el) el.value = state.scriptUrl || '';
 }
 
 function saveScans() {
@@ -2897,7 +2895,7 @@ function adminTab(tab) {
 function adminCarregarFunc() {
   var lista = document.getElementById('funcList');
   lista.innerHTML = '<p style="color:#888;text-align:center">Carregando…</p>';
-  adminOp('listarFuncionarios', state.user.siape)
+  adminOp('listarFuncionarios', currentUser.siape)
     .then(function(res) {
       if (!res.ok) { lista.innerHTML = '<p style="color:red">' + (res.erro||'Erro') + '</p>'; return; }
       var funcs = res.funcionarios || [];
@@ -2912,7 +2910,7 @@ function adminCarregarFunc() {
           +   '<div class="func-nome">' + escHtml(f.nome) + badge + inativo + '</div>'
           +   '<div class="func-siape">SIAPE: ' + escHtml(f.siape) + '</div>'
           + '</div>'
-          + (f.siape !== state.user.siape
+          + (f.siape !== currentUser.siape
               ? '<button class="func-remove" onclick="adminRemoverFunc(\'' + escHtml(f.siape) + '\',\'' + escHtml(f.nome) + '\')">Remover</button>'
               : '')
           + '</div>';
@@ -2940,7 +2938,7 @@ function adminSalvarFunc() {
   var isAdm = document.getElementById('addFuncAdmin').checked;
   if (!nome || !siape) { showToast('warn', 'Preencha nome e SIAPE', ''); return; }
   if (!/^\d+$/.test(siape)) { showToast('warn', 'SIAPE deve conter apenas números', ''); return; }
-  adminOp('addFuncionario', state.user.siape, { siape: siape, nome: nome, admin: isAdm })
+  adminOp('addFuncionario', currentUser.siape, { siape: siape, nome: nome, admin: isAdm })
     .then(function(res) {
       if (!res.ok) { showToast('erro', 'Erro ao salvar: ' + (res.erro||''), ''); return; }
       showToast('ok', 'Funcionário salvo!', nome + ' · ' + siape);
@@ -2953,7 +2951,7 @@ function adminSalvarFunc() {
 // ── Remover funcionário ───────────────────────────────────────
 function adminRemoverFunc(siape, nome) {
   if (!confirm('Remover "' + nome + '" (SIAPE ' + siape + ')?\n\nEle(a) não conseguirá mais fazer login.')) return;
-  adminOp('removeFuncionario', state.user.siape, { siape: siape })
+  adminOp('removeFuncionario', currentUser.siape, { siape: siape })
     .then(function(res) {
       if (!res.ok) { showToast('erro', 'Erro: ' + (res.erro||''), ''); return; }
       showToast('ok', 'Funcionário removido', nome);
@@ -3069,7 +3067,7 @@ function adminImportar() {
   btn.textContent = 'Importando…';
   document.getElementById('importStatus').textContent = 'Enviando ' + rows.length + ' itens…';
 
-  adminOp('importarPatrimonios', state.user.siape, { rows: rows })
+  adminOp('importarPatrimonios', currentUser.siape, { rows: rows })
     .then(function(res) {
       if (!res.ok) {
         showToast('erro', 'Erro na importação', res.erro || '');
@@ -3100,7 +3098,7 @@ function adminResetar() {
   var btn = document.getElementById('btnResetar');
   btn.disabled = true;
   btn.textContent = 'Resetando…';
-  adminOp('resetarInventario', state.user.siape)
+  adminOp('resetarInventario', currentUser.siape)
     .then(function(res) {
       if (!res.ok) {
         showToast('erro', 'Erro ao resetar: ' + (res.erro||''), '');
