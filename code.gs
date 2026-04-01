@@ -81,6 +81,16 @@ function doGet(e) {
     return out(getComparacaoSala(e.parameter.sala || ""));
   }
 
+  if (action === "atualizarDashboard") {
+    try {
+      var items = JSON.parse(decodeURIComponent(e.parameter.data || "[]"));
+      if (items.length) batchSync(items);
+    } catch(ex) {}
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    atualizarDashboard(ss);
+    return out({ ok: true, msg: "Dashboard atualizado" });
+  }
+
   return out({ ok: false, erro: "Ação desconhecida: " + action });
 }
 
