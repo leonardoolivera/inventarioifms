@@ -226,7 +226,7 @@ async function carregarTudo() {
   setBadge('connecting');
   try {
     var [rPat, rInv] = await Promise.all([
-      sb.from('patrimonios').select('numero,sala_suap,status,local_encontrado'),
+      sb.from('patrimonios').select('numero,sala_suap,status,local_encontrado').limit(10000),
       sb.from('scans').select('codigo,sala,funcionario,siape,criado_em')
         .order('criado_em', { ascending: false }).limit(10000)
     ]);
