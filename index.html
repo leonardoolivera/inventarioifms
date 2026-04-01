@@ -661,6 +661,19 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
 
     <div class="sett-section">
+      <div class="sett-title">📊 Planilha Google Sheets (opcional)</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">
+        Se informado, o app atualiza a planilha em background após cada sincronização.
+        Deixe em branco para desativar.
+      </div>
+      <input class="field-input" id="scriptUrlInput" type="url"
+        placeholder="https://script.google.com/macros/s/..."
+        style="margin-bottom:8px;font-size:11px;font-family:'JetBrains Mono',monospace"
+        onchange="salvarScriptUrl()">
+      <button class="cfg-btn sec" onclick="testarPlanilha()">🧪 Testar conexão com planilha</button>
+    </div>
+
+    <div class="sett-section">
       <div class="sett-title">📍 Locais cadastrados</div>
       <div id="settRoomList"></div>
       <button class="add-room-btn" onclick="addRoom()">+ Adicionar local</button>
@@ -1852,6 +1865,8 @@ function syncNow() {
       syncRunning = false;
       if (falhas.length === 0) {
         setSyncState('online');
+        // Atualiza planilha em background (se URL configurada)
+        if (sincronizados.length > 0) sincronizarPlanilha();
       } else {
         setSyncState('offline');
         // Retenta falhas em 10s
@@ -2000,9 +2015,35 @@ function saveScriptUrl() {
 }
 
 function loadScriptUrl() {
-  // scriptUrlInput foi removido na migração para Supabase — noop
   var el = document.getElementById('scriptUrlInput');
   if (el) el.value = state.scriptUrl || '';
+}
+
+function salvarScriptUrl() {
+  var url = (document.getElementById('scriptUrlInput').value || '').trim();
+  state.scriptUrl = url;
+  localStorage.setItem('scriptUrl', url);
+  showToast('ok', url ? 'URL da planilha salva' : 'Planilha desativada', '');
+}
+
+function testarPlanilha() {
+  if (!state.scriptUrl) { showToast('warn', 'URL não configurada', 'Cole a URL do Apps Script acima'); return; }
+  fetch(state.scriptUrl + '?action=ping', { mode: 'no-cors' })
+    .then(function() { showToast('ok', 'Planilha acessível', 'Conexão OK'); })
+    .catch(function() { showToast('erro', 'Não foi possível acessar', 'Verifique a URL'); });
+}
+
+// Chama Apps Script para atualizar dashboard da planilha (fire-and-forget)
+function sincronizarPlanilha() {
+  if (!state.scriptUrl) return;
+  // Monta resumo dos scans sincronizados para enviar
+  var payload = state.scans.filter(function(s){ return s.synced; }).map(function(s) {
+    return { id: s.id, type: s.type, code: s.code||'', room: s.room||'',
+             desc: s.desc||'', estado: s.estado||'', ts: s.ts,
+             funcionario: s.funcionario||'', siape: s.siape||'' };
+  });
+  var url = state.scriptUrl + '?action=atualizarDashboard&data=' + encodeURIComponent(JSON.stringify(payload));
+  fetch(url, { mode: 'no-cors' }).catch(function() {}); // silencioso — é só dashboard
 }
 
 function saveScans() {
