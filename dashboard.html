@@ -160,9 +160,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="section-title">Estimativa de conclusão</div>
         <div class="est-grid">
           <div class="est-item">
-            <div class="est-lbl">Ritmo (última hora)</div>
+            <div class="est-lbl">Mediana diária</div>
             <div class="est-val c-blue" id="ritmoHora">—</div>
-            <div class="est-unit">scans/hora</div>
+            <div class="est-unit">scans/dia</div>
           </div>
           <div class="est-item">
             <div class="est-lbl">Faltam</div>
@@ -183,16 +183,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- LINHA 2: Ranking + Feed -->
-  <div class="grid2">
-    <div class="card">
-      <div class="section-title">Ranking de servidores</div>
-      <div id="rankingServs"><div class="loading">Carregando...</div></div>
-    </div>
-    <div class="card">
-      <div class="section-title">Feed ao vivo</div>
-      <div id="feedVivo"><div class="loading">Aguardando scans...</div></div>
-    </div>
+  <!-- Feed -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="section-title">Feed ao vivo</div>
+    <div id="feedVivo"><div class="loading">Aguardando scans...</div></div>
   </div>
 
 </div><!-- .dash -->
@@ -213,11 +207,17 @@ function getBloco(sala) {
   return 'Área Externa';
 }
 
+var MIN_SCANS_DIA = 50;
 var BLOCO_ORDER = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Área Externa', 'Outros'];
 
-// Status que conta como "encontrado"
 function isEncontrado(status) {
   return status === '✅ Encontrado' || status === '🟡 Outro local';
+}
+
+function mediana(arr) {
+  var sorted = arr.slice().sort(function(a, b){ return a - b; });
+  var mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid] : Math.round((sorted[mid-1] + sorted[mid]) / 2);
 }
 
 var state = { patrimonios: [], inventario: [] };
@@ -227,8 +227,8 @@ async function carregarTudo() {
   try {
     var [rPat, rInv] = await Promise.all([
       sb.from('patrimonios').select('numero,sala_suap,status,local_encontrado'),
-      sb.from('inventario').select('codigo,local,funcionario,siape,ts,tipo')
-        .order('ts', { ascending: false }).limit(500)
+      sb.from('scans').select('codigo,sala,funcionario,siape,criado_em')
+        .order('criado_em', { ascending: false }).limit(10000)
     ]);
     if (rPat.error) throw rPat.error;
     if (rInv.error) throw rInv.error;
@@ -261,21 +261,21 @@ function renderTudo() {
   var inv  = state.inventario;
 
   var total  = pats.length;
-  var enc    = pats.filter(function(p){ return isEncontrado(p.status); }).length;
+  // Progresso: patrimônios únicos escaneados (tabela scans)
+  var codigosEsc = new Set(inv.map(function(i){ return stripZeros(i.codigo||''); }).filter(Boolean));
+  var enc    = codigosEsc.size;
   var duplic = pats.filter(function(p){ return p.status === '🔴 DUPLICADO'; }).length;
   var pct    = total > 0 ? Math.round(enc / total * 100) : 0;
 
   // Servidores únicos
   var servMap = {};
   inv.forEach(function(i){ if (i.funcionario) servMap[i.funcionario] = (servMap[i.funcionario]||0) + 1; });
-  var servArr = Object.keys(servMap).map(function(n){ return { nome: n, count: servMap[n] }; })
-                  .sort(function(a,b){ return b.count - a.count; });
 
   // KPIs
   set('kpiEnc', enc.toLocaleString('pt-BR'));
   set('kpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimônios');
   set('kpiPct', pct + '%');
-  set('kpiSrv', servArr.length);
+  set('kpiSrv', Object.keys(servMap).length);
   set('kpiDup', duplic);
   document.getElementById('kpiDup').style.color = duplic > 0 ? '#ef4444' : '#22c55e';
 
@@ -311,20 +311,26 @@ function renderTudo() {
   document.getElementById('blocoProgress').innerHTML =
     blocoHtml || '<div style="font-size:12px;color:#8891b0">Sem dados de patrimônio</div>';
 
-  // Estimativa
-  var agora    = Date.now();
-  var recentes = inv.filter(function(i){ return i.ts && (agora - new Date(i.ts).getTime()) < 3600000; });
-  var ritmo    = recentes.length;
-  var faltam   = total - enc;
-  set('ritmoHora',   ritmo);
+  // Estimativa — mediana de dias com >= MIN_SCANS_DIA scans
+  var faltam = total - enc;
+  var porDia = {};
+  inv.forEach(function(i) {
+    if (!i.criado_em) return;
+    var dia = i.criado_em.substring(0, 10);
+    porDia[dia] = (porDia[dia] || 0) + 1;
+  });
+  var diasValidos = Object.keys(porDia).map(function(d){ return porDia[d]; })
+                          .filter(function(n){ return n >= MIN_SCANS_DIA; });
   set('faltamItens', faltam.toLocaleString('pt-BR'));
-  if (ritmo > 0) {
-    var horas = faltam / ritmo;
-    if (horas < 1)       { set('estimativa', '<1');                set('estimativaUnit', 'hora'); }
-    else if (horas < 8)  { set('estimativa', Math.ceil(horas));    set('estimativaUnit', 'horas'); }
-    else                 { set('estimativa', (horas/8).toFixed(1)); set('estimativaUnit', 'dias úteis'); }
+  if (diasValidos.length === 0) {
+    set('ritmoHora', '—');
+    set('estimativa', '—'); set('estimativaUnit', 'dados insuficientes');
   } else {
-    set('estimativa', '—'); set('estimativaUnit', 'sem atividade');
+    var medDiaria = mediana(diasValidos);
+    var diasEst   = faltam / medDiaria;
+    set('ritmoHora', medDiaria);
+    if (diasEst < 1)  { set('estimativa', '<1');               set('estimativaUnit', 'dia útil'); }
+    else              { set('estimativa', diasEst.toFixed(1));  set('estimativaUnit', 'dias úteis'); }
   }
 
   // Alertas
@@ -332,50 +338,13 @@ function renderTudo() {
   if (duplic > 0) {
     alertHtml += '<div class="alert-item alert-red">🔴 ' + duplic + ' patrimônio(s) duplicados precisam atenção</div>';
   }
-
-  // Blocos sem atividade nas últimas 2h
-  var limite2h = agora - 2 * 3600 * 1000;
-  var recentes2h = inv.filter(function(i){ return i.ts && new Date(i.ts).getTime() > limite2h; });
-  var blocosAtivos2h = {};
-  recentes2h.forEach(function(i){ blocosAtivos2h[getBloco(i.local)] = true; });
-  var blocosSemAtiv = BLOCO_ORDER.filter(function(b){
-    return blocoData[b] && blocoData[b].total > 0 && !blocosAtivos2h[b];
-  });
-  if (blocosSemAtiv.length) {
-    alertHtml += '<div class="alert-item alert-yellow">🟡 Sem atividade nas últimas 2h: ' + blocosSemAtiv.join(', ') + '</div>';
-  }
-
-  // Blocos concluídos
-  var blocosConcl = BLOCO_ORDER.filter(function(b){
+  BLOCO_ORDER.forEach(function(b){
     var d = blocoData[b];
-    return d && d.total > 0 && d.enc === d.total;
+    if (d && d.total > 0 && d.enc === d.total)
+      alertHtml += '<div class="alert-item alert-green">✅ ' + b + ' concluído!</div>';
   });
-  blocosConcl.forEach(function(b){
-    alertHtml += '<div class="alert-item alert-green">✅ ' + b + ' concluído!</div>';
-  });
-
   if (!alertHtml) alertHtml = '<div style="font-size:12px;color:#8891b0">✅ Tudo sob controle</div>';
   document.getElementById('alertas').innerHTML = alertHtml;
-
-  // Ranking
-  var colors = ['#4f8cff','#22c55e','#7c5cfc','#f59e0b','#ef4444','#22d3ee','#f472b6','#a3e635'];
-  var maxCount = servArr.length ? servArr[0].count : 1;
-  var medals   = ['🥇','🥈','🥉'];
-  var rankHtml = servArr.slice(0, 8).map(function(s, i) {
-    var init   = s.nome.split(' ').slice(0,2).map(function(n){ return n[0] || ''; }).join('').toUpperCase();
-    var pctBar = Math.round(s.count / maxCount * 100);
-    var medal  = medals[i] || '';
-    return '<div class="srv-row">' +
-      '<div class="avatar">' + init + '</div>' +
-      '<div class="srv-info">' +
-        '<div class="srv-name">' + medal + (medal ? ' ' : '') + escHtml(s.nome) + '</div>' +
-        '<div class="srv-bar-bg"><div class="srv-bar-fill" style="width:' + pctBar + '%;background:' + colors[i % colors.length] + '"></div></div>' +
-      '</div>' +
-      '<div class="srv-count">' + s.count + '</div>' +
-    '</div>';
-  }).join('');
-  document.getElementById('rankingServs').innerHTML =
-    rankHtml || '<div style="font-size:12px;color:#8891b0">Sem dados de servidores</div>';
 
   // Feed
   renderFeed(inv.slice(0, 8));
@@ -390,12 +359,12 @@ function renderFeed(items) {
     var dotCls = isDup ? 'dot-red' : isWrong ? 'dot-yellow' : 'dot-green';
     var extra  = isDup   ? '<span style="color:#ef4444;font-size:10px"> · duplicado!</span>' :
                  isWrong ? '<span style="color:#f59e0b;font-size:10px"> · sala errada</span>' : '';
-    var hora   = item.ts ? new Date(item.ts).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
+    var hora   = item.criado_em ? new Date(item.criado_em).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
     return '<div class="feed-item">' +
       '<div class="feed-dot ' + dotCls + '"></div>' +
       '<div>' +
         '<div class="feed-text"><strong>' + escHtml(item.funcionario || 'Servidor') + '</strong>' +
-        ' escaneou <strong>' + escHtml(item.codigo || '?') + '</strong> → ' + escHtml(item.local || '—') + extra + '</div>' +
+        ' escaneou <strong>' + escHtml(item.codigo || '?') + '</strong> → ' + escHtml(item.sala || '—') + extra + '</div>' +
         '<div class="feed-time">' + hora + '</div>' +
       '</div>' +
     '</div>';
@@ -411,9 +380,9 @@ function set(id, val)  { var el = document.getElementById(id); if (el) el.textCo
 // Realtime
 function iniciarRealtime() {
   sb.channel('dashboard-changes')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'inventario' }, function(payload) {
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scans' }, function(payload) {
       state.inventario.unshift(payload.new);
-      if (state.inventario.length > 500) state.inventario.pop();
+      if (state.inventario.length > 10000) state.inventario.pop();
       renderTudo();
       document.getElementById('lastUpdate').textContent =
         'Atualizado agora · ' + new Date().toLocaleTimeString('pt-BR');

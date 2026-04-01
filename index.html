@@ -911,9 +911,9 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="db-section-title">Estimativa de conclusão</div>
       <div class="db-est-row">
         <div>
-          <div class="db-est-lbl">Ritmo / hora</div>
+          <div class="db-est-lbl">Mediana diária</div>
           <div class="db-est-val" style="color:var(--accent)" id="dbRitmo">—</div>
-          <div class="db-est-unit">scans</div>
+          <div class="db-est-unit">scans/dia</div>
         </div>
         <div>
           <div class="db-est-lbl">Faltam</div>
@@ -932,12 +932,6 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="db-card">
       <div class="db-section-title">Alertas</div>
       <div id="dbAlertas"><div style="font-size:12px;color:var(--text2)">Carregando...</div></div>
-    </div>
-
-    <!-- Ranking -->
-    <div class="db-card">
-      <div class="db-section-title">Ranking de servidores</div>
-      <div id="dbRanking"><div style="font-size:12px;color:var(--text2);text-align:center;padding:20px">Carregando...</div></div>
     </div>
 
     <!-- Feed -->
@@ -3430,6 +3424,7 @@ function dismissInstall() {
 // ═══════════════════════════════════════════════
 //  DASHBOARD GESTOR
 // ═══════════════════════════════════════════════
+var MIN_SCANS_DIA = 50;
 var _dbPats = [];
 var _dbInv  = [];
 var _dbTimer = null;
@@ -3438,16 +3433,21 @@ var DB_BLOCOS = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Área Externa'
 function dbGetBloco(sala) {
   if (!sala) return 'Outros';
   var s = sala.toUpperCase();
-  if (s.indexOf('(BLOCO A)') > -1)          return 'Bloco A';
-  if (s.indexOf('(BLOCO B)') > -1)          return 'Bloco B';
-  if (s.indexOf('(BLOCO C)') > -1)          return 'Bloco C';
-  if (s.indexOf('(SALAS MODULARES)') > -1)  return 'Salas Modulares';
+  if (s.indexOf('(BLOCO A)') > -1)         return 'Bloco A';
+  if (s.indexOf('(BLOCO B)') > -1)         return 'Bloco B';
+  if (s.indexOf('(BLOCO C)') > -1)         return 'Bloco C';
+  if (s.indexOf('(SALAS MODULARES)') > -1) return 'Salas Modulares';
   return 'Área Externa';
 }
 function dbIsEnc(status) {
   return status === '✅ Encontrado' || status === '🟡 Outro local';
 }
 function dbSet(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; }
+function dbMediana(arr) {
+  var sorted = arr.slice().sort(function(a,b){ return a-b; });
+  var mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid] : Math.round((sorted[mid-1]+sorted[mid])/2);
+}
 
 function carregarDashboard() {
   var badge = document.getElementById('dbLiveBadge');
@@ -3455,14 +3455,13 @@ function carregarDashboard() {
 
   Promise.all([
     sbFetch('/rest/v1/patrimonios?select=numero,sala_suap,status&limit=10000'),
-    sbFetch('/rest/v1/scans?select=codigo,sala,funcionario,siape,criado_em&order=criado_em.desc&limit=500')
+    sbFetch('/rest/v1/scans?select=codigo,sala,funcionario,siape,criado_em&order=criado_em.desc&limit=10000')
   ]).then(function(results) {
     _dbPats = results[0] || [];
     _dbInv  = results[1] || [];
     dbRenderTudo();
     if (badge) { badge.textContent = '● ao vivo'; badge.className = 'db-live-badge'; }
     dbSet('dbLastUpdate', 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR'));
-    // Auto-refresh a cada 30s enquanto na tela
     clearInterval(_dbTimer);
     _dbTimer = setInterval(function() {
       var sc = document.getElementById('scDashboard');
@@ -3483,21 +3482,23 @@ function dbRenderTudo() {
   var pats  = _dbPats;
   var inv   = _dbInv;
   var total = pats.length;
-  var enc   = pats.filter(function(p){ return dbIsEnc(p.status); }).length;
-  var dup   = pats.filter(function(p){ return p.status === '🔴 DUPLICADO'; }).length;
-  var pct   = total > 0 ? Math.round(enc / total * 100) : 0;
+
+  // Progresso: conta patrimônios únicos escaneados na tabela scans
+  var codigosEsc = new Set(inv.map(function(i){ return dbStripZ(i.codigo||''); }).filter(Boolean));
+  var enc = codigosEsc.size;
+  var dup = pats.filter(function(p){ return p.status === '🔴 DUPLICADO'; }).length;
+  var pct = total > 0 ? Math.round(enc / total * 100) : 0;
 
   // Servidores únicos
   var servMap = {};
   inv.forEach(function(i){ if (i.funcionario) servMap[i.funcionario] = (servMap[i.funcionario]||0)+1; });
-  var servArr = Object.keys(servMap).map(function(n){ return {nome:n, count:servMap[n]}; })
-                  .sort(function(a,b){ return b.count-a.count; });
+  var kpiSrv = Object.keys(servMap).length;
 
   // KPIs
   dbSet('dbKpiEnc', enc.toLocaleString('pt-BR'));
   dbSet('dbKpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimônios');
   dbSet('dbKpiPct', pct + '%');
-  dbSet('dbKpiSrv', servArr.length);
+  dbSet('dbKpiSrv', kpiSrv);
   dbSet('dbKpiDup', dup);
   var dupEl = document.getElementById('dbKpiDup');
   if (dupEl) dupEl.style.color = dup > 0 ? 'var(--red)' : 'var(--green)';
@@ -3509,7 +3510,7 @@ function dbRenderTudo() {
   dbSet('dbBarPct',   pct + '%');
   dbSet('dbBarRight', total.toLocaleString('pt-BR') + ' total');
 
-  // Blocos
+  // Blocos — usa patrimônios marcados (status) para os blocos
   var blocoData = {};
   pats.forEach(function(p) {
     var b = dbGetBloco(p.sala_suap);
@@ -3534,31 +3535,31 @@ function dbRenderTudo() {
   var blocoEl = document.getElementById('dbBlocos');
   if (blocoEl) blocoEl.innerHTML = blocoHtml || '<div style="font-size:12px;color:var(--text2)">Sem dados</div>';
 
-  // Estimativa
-  var agora    = Date.now();
-  var recentes = inv.filter(function(i){ return i.criado_em && (agora - new Date(i.criado_em).getTime()) < 3600000; });
-  var ritmo    = recentes.length;
-  var faltam   = total - enc;
-  dbSet('dbRitmo',  ritmo);
+  // Estimativa — mediana de dias com >= MIN_SCANS_DIA scans
+  var faltam = total - enc;
+  var porDia = {};
+  inv.forEach(function(i) {
+    if (!i.criado_em) return;
+    var dia = i.criado_em.substring(0, 10);
+    porDia[dia] = (porDia[dia] || 0) + 1;
+  });
+  var diasValidos = Object.keys(porDia).map(function(d){ return porDia[d]; })
+                          .filter(function(n){ return n >= MIN_SCANS_DIA; });
   dbSet('dbFaltam', faltam.toLocaleString('pt-BR'));
-  if (ritmo > 0) {
-    var horas = faltam / ritmo;
-    if (horas < 1)      { dbSet('dbEstVal', '<1');                dbSet('dbEstUnit', 'hora'); }
-    else if (horas < 8) { dbSet('dbEstVal', Math.ceil(horas));    dbSet('dbEstUnit', 'horas'); }
-    else                { dbSet('dbEstVal', (horas/8).toFixed(1)); dbSet('dbEstUnit', 'dias úteis'); }
+  if (diasValidos.length === 0) {
+    dbSet('dbRitmo',  '—');
+    dbSet('dbEstVal', '—'); dbSet('dbEstUnit', 'dados insuficientes');
   } else {
-    dbSet('dbEstVal', '—'); dbSet('dbEstUnit', 'sem atividade recente');
+    var medDiaria = dbMediana(diasValidos);
+    var diasEst   = faltam / medDiaria;
+    dbSet('dbRitmo', medDiaria);
+    if (diasEst < 1)  { dbSet('dbEstVal', '<1');               dbSet('dbEstUnit', 'dia útil'); }
+    else              { dbSet('dbEstVal', diasEst.toFixed(1));  dbSet('dbEstUnit', 'dias úteis'); }
   }
 
   // Alertas
   var alertHtml = '';
   if (dup > 0) alertHtml += '<div class="db-alert db-alert-red">🔴 ' + dup + ' patrimônio(s) duplicado(s)</div>';
-  var limite2h = agora - 7200000;
-  var ativos2h = {};
-  inv.filter(function(i){ return i.criado_em && new Date(i.criado_em).getTime() > limite2h; })
-     .forEach(function(i){ ativos2h[dbGetBloco(i.sala)] = true; });
-  var semAtiv = DB_BLOCOS.filter(function(b){ return blocoData[b] && blocoData[b].total > 0 && !ativos2h[b]; });
-  if (semAtiv.length) alertHtml += '<div class="db-alert db-alert-yellow">🟡 Sem atividade (2h): ' + semAtiv.join(', ') + '</div>';
   DB_BLOCOS.forEach(function(b) {
     var d = blocoData[b];
     if (d && d.total > 0 && d.enc === d.total)
@@ -3566,25 +3567,6 @@ function dbRenderTudo() {
   });
   var alertEl = document.getElementById('dbAlertas');
   if (alertEl) alertEl.innerHTML = alertHtml || '<div style="font-size:12px;color:var(--text2)">✅ Tudo sob controle</div>';
-
-  // Ranking
-  var colors  = ['var(--accent)','var(--green)','var(--accent2)','var(--yellow)','var(--red)'];
-  var medals  = ['🥇','🥈','🥉'];
-  var maxC    = servArr.length ? servArr[0].count : 1;
-  var rankHtml = servArr.slice(0, 8).map(function(s, i) {
-    var init = s.nome.split(' ').slice(0,2).map(function(n){ return n[0]||''; }).join('').toUpperCase();
-    var pBar = Math.round(s.count / maxC * 100);
-    return '<div class="db-srv-row">' +
-      '<div class="db-avatar">'+init+'</div>' +
-      '<div class="db-srv-info">' +
-        '<div class="db-srv-name">'+(medals[i]||'  ')+' '+escHtml(s.nome)+'</div>' +
-        '<div class="db-srv-bar-bg"><div class="db-srv-bar-fill" style="width:'+pBar+'%;background:'+colors[i%colors.length]+'"></div></div>' +
-      '</div>' +
-      '<div style="font-size:12px;color:var(--text2);flex-shrink:0">'+s.count+'</div>' +
-    '</div>';
-  }).join('');
-  var rankEl = document.getElementById('dbRanking');
-  if (rankEl) rankEl.innerHTML = rankHtml || '<div style="font-size:12px;color:var(--text2)">Sem dados</div>';
 
   // Feed
   var feedHtml = inv.slice(0, 10).map(function(item) {
