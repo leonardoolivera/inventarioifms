@@ -2043,14 +2043,21 @@ function testarPlanilha() {
 // Chama Apps Script para atualizar dashboard da planilha (fire-and-forget)
 function sincronizarPlanilha() {
   if (!state.scriptUrl) return;
-  // Monta resumo dos scans sincronizados para enviar
-  var payload = state.scans.filter(function(s){ return s.synced; }).map(function(s) {
+  // Manda só os scans recém-sincronizados (não todos) em lotes pequenos
+  var recentes = state.scans.filter(function(s){ return s.synced; }).slice(-20);
+  var lote = recentes.map(function(s) {
     return { id: s.id, type: s.type, code: s.code||'', room: s.room||'',
              desc: s.desc||'', estado: s.estado||'', ts: s.ts,
              funcionario: s.funcionario||'', siape: s.siape||'' };
   });
-  var url = state.scriptUrl + '?action=atualizarDashboard&data=' + encodeURIComponent(JSON.stringify(payload));
-  fetch(url, { mode: 'no-cors' }).catch(function() {}); // silencioso — é só dashboard
+  var url = state.scriptUrl + '?action=atualizarDashboard&data=' + encodeURIComponent(JSON.stringify(lote));
+  // Se URL ficar muito longa, manda só o ping para atualizar dashboard
+  if (url.length > 2000) {
+    url = state.scriptUrl + '?action=atualizarDashboard&data=' + encodeURIComponent('[]');
+  }
+  fetch(url, { mode: 'no-cors' })
+    .then(function() { console.log('[Planilha] ping enviado para Apps Script'); })
+    .catch(function(e) { console.warn('[Planilha] erro ao chamar Apps Script:', e); });
 }
 
 function saveScans() {
