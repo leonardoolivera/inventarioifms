@@ -15,7 +15,10 @@ function sbFetch(path, opts) {
       'Content-Type': 'application/json',
       'Prefer': 'return=representation'
     }
-  }, opts)).then(function(r) { return r.json(); });
+  }, opts)).then(function(r) {
+    if (r.status === 204 || r.headers.get('content-length') === '0') return [];
+    return r.json();
+  });
 }
 
 // ── LOGIN por SIAPE ───────────────────────────────────────────

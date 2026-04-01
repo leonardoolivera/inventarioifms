@@ -27,18 +27,20 @@ self.addEventListener('activate', function(e) {
 });
 
 self.addEventListener('fetch', function(e) {
-  // Não intercepta APIs externas
+  // Não intercepta APIs externas nem requisições POST/PUT (Cache API não suporta)
+  if (e.request.method !== 'GET') return;
   if (e.request.url.indexOf('script.google.com') > -1) return;
   if (e.request.url.indexOf('googleapis.com') > -1) return;
   if (e.request.url.indexOf('unpkg.com') > -1) return;
   if (e.request.url.indexOf('fonts.googleapis.com') > -1) return;
   if (e.request.url.indexOf('cdnjs.cloudflare.com') > -1) return;
+  if (e.request.url.indexOf('supabase.co') > -1) return;
 
   // Network first — sempre tenta buscar versão nova
   e.respondWith(
     fetch(e.request, { cache: 'no-cache' })
       .then(function(res) {
-        if (res.ok) {
+        if (res.ok && res.status !== 206) {
           var clone = res.clone();
           caches.open(CACHE_NAME).then(function(c) { c.put(e.request, clone); });
         }
