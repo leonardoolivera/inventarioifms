@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
             { text: PROMPT },
             { inline_data: { mime_type: mime ?? 'image/jpeg', data: b64 } }
           ]}],
-          generationConfig: { maxOutputTokens: 100, temperature: 0.2 }
+          generationConfig: { maxOutputTokens: 600, temperature: 0.2 }
         })
       });
 
