@@ -372,6 +372,45 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 .fab{position:fixed;bottom:max(80px,calc(60px + env(safe-area-inset-bottom)));right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(79,140,255,.5);z-index:50;display:flex;align-items:center;justify-content:center;transition:transform .15s}
 .fab:active{transform:scale(.92)}
+
+/* ── DASHBOARD GESTOR ── */
+.db-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.db-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.db-kpi-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.db-kpi-val{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.db-kpi-sub{font-size:10px;color:var(--text2);margin-top:3px}
+.db-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.db-section-title{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.db-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.db-bar-label{font-size:11px;width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.db-bar-bg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.db-bar-fill{height:100%;border-radius:3px;transition:width .8s}
+.db-bar-pct{font-size:10px;width:30px;text-align:right;flex-shrink:0}
+.db-bar-sub{font-size:10px;color:var(--text2);margin:-5px 0 9px 128px}
+.db-gen-bar-bg{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:8px 0 4px}
+.db-gen-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--accent));transition:width 1s}
+.db-gen-bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text2)}
+.db-srv-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.db-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;background:var(--surface2);color:var(--accent);border:1px solid var(--border)}
+.db-srv-info{flex:1;min-width:0}
+.db-srv-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.db-srv-bar-bg{height:3px;background:var(--border);border-radius:2px;margin-top:4px}
+.db-srv-bar-fill{height:100%;border-radius:2px;transition:width .8s}
+.db-feed-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);animation:fadeIn .3s ease}
+.db-feed-item:last-child{border-bottom:none}
+.db-feed-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.db-feed-text{font-size:11px;line-height:1.5;color:var(--text)}
+.db-feed-time{font-size:10px;color:var(--text2);margin-top:1px}
+.db-alert{display:flex;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:6px;font-size:11px;line-height:1.4}
+.db-alert-red{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.db-alert-yellow{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.db-alert-green{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#86efac}
+.db-est-row{display:flex;gap:16px}
+.db-est-val{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.db-est-lbl{font-size:10px;color:var(--text2);margin-bottom:2px}
+.db-est-unit{font-size:10px;color:var(--text2);margin-top:2px}
+.db-live-badge{font-size:10px;padding:2px 8px;border-radius:12px;font-weight:600;background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.db-live-badge.connecting{background:rgba(245,158,11,.15);color:var(--yellow);border-color:rgba(245,158,11,.3)}
 </style>
 </head>
 <body>
@@ -409,8 +448,11 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <!-- Admin button (só aparece para admins) -->
 <div id="adminBtn" style="display:none;margin-bottom:10px">
-  <button onclick="showScreen('scAdmin');adminCarregarFunc()" style="width:100%;background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(79,140,255,.15));border:1px solid rgba(124,92,252,.4);border-radius:var(--r2);padding:12px 16px;color:var(--accent2);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px">
+  <button onclick="showScreen('scAdmin');adminCarregarFunc()" style="width:100%;background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(79,140,255,.15));border:1px solid rgba(124,92,252,.4);border-radius:var(--r2);padding:12px 16px;color:var(--accent2);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;margin-bottom:8px">
     <span>⚙️</span><span>Painel de Administração</span><span style="margin-left:auto;font-size:18px">›</span>
+  </button>
+  <button onclick="showScreen('scDashboard');carregarDashboard()" style="width:100%;background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(79,140,255,.1));border:1px solid rgba(34,197,94,.3);border-radius:var(--r2);padding:12px 16px;color:var(--green);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px">
+    <span>📊</span><span>Dashboard do Gestor</span><span style="margin-left:auto;font-size:18px">›</span>
   </button>
 </div>
 
@@ -810,6 +852,104 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 </div>
 
 <!-- ════════════════════════════════════════════
+     SCREEN: DASHBOARD GESTOR
+═══════════════════════════════════════════════ -->
+<div class="screen hidden" id="scDashboard">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div style="flex:1">
+      <div class="topbar-title">📊 Dashboard</div>
+      <div class="topbar-sub" id="dbLastUpdate">Carregando...</div>
+    </div>
+    <span class="db-live-badge connecting" id="dbLiveBadge">atualizando...</span>
+  </div>
+  <div class="sbody">
+
+    <!-- KPIs -->
+    <div class="db-kpi-grid">
+      <div class="db-kpi">
+        <div class="db-kpi-label">Encontrados</div>
+        <div class="db-kpi-val" style="color:var(--accent)" id="dbKpiEnc">—</div>
+        <div class="db-kpi-sub" id="dbKpiEncSub">de — patrimônios</div>
+      </div>
+      <div class="db-kpi">
+        <div class="db-kpi-label">Progresso</div>
+        <div class="db-kpi-val" style="color:var(--green)" id="dbKpiPct">—</div>
+        <div class="db-kpi-sub">do inventário</div>
+      </div>
+      <div class="db-kpi">
+        <div class="db-kpi-label">Servidores</div>
+        <div class="db-kpi-val" id="dbKpiSrv">—</div>
+        <div class="db-kpi-sub">ativos</div>
+      </div>
+      <div class="db-kpi">
+        <div class="db-kpi-label">Duplicados</div>
+        <div class="db-kpi-val" style="color:var(--red)" id="dbKpiDup">—</div>
+        <div class="db-kpi-sub">precisam atenção</div>
+      </div>
+    </div>
+
+    <!-- Barra geral -->
+    <div class="db-card">
+      <div class="db-section-title">Progresso geral</div>
+      <div class="db-gen-bar-bg"><div class="db-gen-bar-fill" id="dbGenBar" style="width:0%"></div></div>
+      <div class="db-gen-bar-labels">
+        <span id="dbBarLeft">0 encontrados</span>
+        <span id="dbBarPct" style="color:var(--text);font-weight:600">0%</span>
+        <span id="dbBarRight">0 total</span>
+      </div>
+    </div>
+
+    <!-- Blocos -->
+    <div class="db-card">
+      <div class="db-section-title">Progresso por bloco</div>
+      <div id="dbBlocos"><div style="font-size:12px;color:var(--text2);text-align:center;padding:20px">Carregando...</div></div>
+    </div>
+
+    <!-- Estimativa -->
+    <div class="db-card">
+      <div class="db-section-title">Estimativa de conclusão</div>
+      <div class="db-est-row">
+        <div>
+          <div class="db-est-lbl">Ritmo / hora</div>
+          <div class="db-est-val" style="color:var(--accent)" id="dbRitmo">—</div>
+          <div class="db-est-unit">scans</div>
+        </div>
+        <div>
+          <div class="db-est-lbl">Faltam</div>
+          <div class="db-est-val" style="color:var(--yellow)" id="dbFaltam">—</div>
+          <div class="db-est-unit">patrimônios</div>
+        </div>
+        <div>
+          <div class="db-est-lbl">Conclusão</div>
+          <div class="db-est-val" style="color:var(--green)" id="dbEstVal">—</div>
+          <div class="db-est-unit" id="dbEstUnit">dias úteis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alertas -->
+    <div class="db-card">
+      <div class="db-section-title">Alertas</div>
+      <div id="dbAlertas"><div style="font-size:12px;color:var(--text2)">Carregando...</div></div>
+    </div>
+
+    <!-- Ranking -->
+    <div class="db-card">
+      <div class="db-section-title">Ranking de servidores</div>
+      <div id="dbRanking"><div style="font-size:12px;color:var(--text2);text-align:center;padding:20px">Carregando...</div></div>
+    </div>
+
+    <!-- Feed -->
+    <div class="db-card">
+      <div class="db-section-title">Últimos scans</div>
+      <div id="dbFeed"><div style="font-size:12px;color:var(--text2);text-align:center;padding:20px">Carregando...</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
      MODAL: SEM PATRIMÔNIO
 ═══════════════════════════════════════════════ -->
 <div class="modal-bg" id="noPatModal" onclick="if(event.target===this)closeNoPatModal()">
@@ -1124,10 +1264,11 @@ function showScreen(id) {
   next.classList.remove('hidden','slide-left');
 
   // refresh on show
-  if (id === 'scHistory') renderHistList();
-  if (id === 'scRooms')   renderRoomList();
-  if (id === 'scSettings'){ renderSettRooms(); loadScriptUrl(); }
-  if (id === 'scHome')    { updateStats(); updateSyncBanner(); }
+  if (id === 'scHistory')   renderHistList();
+  if (id === 'scRooms')     renderRoomList();
+  if (id === 'scSettings')  { renderSettRooms(); loadScriptUrl(); }
+  if (id === 'scHome')      { updateStats(); updateSyncBanner(); }
+  if (id === 'scDashboard') carregarDashboard();
 }
 
 function goBack() {
@@ -3285,6 +3426,187 @@ function dismissInstall() {
   document.getElementById('installBanner').classList.remove('show');
   localStorage.setItem('installDismissed', '1');
 }
+
+// ═══════════════════════════════════════════════
+//  DASHBOARD GESTOR
+// ═══════════════════════════════════════════════
+var _dbPats = [];
+var _dbInv  = [];
+var _dbTimer = null;
+
+var DB_BLOCOS = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Área Externa'];
+function dbGetBloco(sala) {
+  if (!sala) return 'Outros';
+  var s = sala.toUpperCase();
+  if (s.indexOf('(BLOCO A)') > -1)          return 'Bloco A';
+  if (s.indexOf('(BLOCO B)') > -1)          return 'Bloco B';
+  if (s.indexOf('(BLOCO C)') > -1)          return 'Bloco C';
+  if (s.indexOf('(SALAS MODULARES)') > -1)  return 'Salas Modulares';
+  return 'Área Externa';
+}
+function dbIsEnc(status) {
+  return status === '✅ Encontrado' || status === '🟡 Outro local';
+}
+function dbSet(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; }
+
+function carregarDashboard() {
+  var badge = document.getElementById('dbLiveBadge');
+  if (badge) { badge.textContent = 'atualizando...'; badge.className = 'db-live-badge connecting'; }
+
+  Promise.all([
+    sbFetch('/rest/v1/patrimonios?select=numero,sala_suap,status&limit=10000'),
+    sbFetch('/rest/v1/scans?select=codigo,sala,funcionario,siape,criado_em&order=criado_em.desc&limit=500')
+  ]).then(function(results) {
+    _dbPats = results[0] || [];
+    _dbInv  = results[1] || [];
+    dbRenderTudo();
+    if (badge) { badge.textContent = '● ao vivo'; badge.className = 'db-live-badge'; }
+    dbSet('dbLastUpdate', 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR'));
+    // Auto-refresh a cada 30s enquanto na tela
+    clearInterval(_dbTimer);
+    _dbTimer = setInterval(function() {
+      var sc = document.getElementById('scDashboard');
+      if (sc && !sc.classList.contains('hidden') && !sc.classList.contains('slide-left')) {
+        carregarDashboard();
+      } else {
+        clearInterval(_dbTimer);
+      }
+    }, 30000);
+  }).catch(function(err) {
+    if (badge) { badge.textContent = 'erro'; badge.className = 'db-live-badge connecting'; }
+    dbSet('dbLastUpdate', 'Erro ao carregar dados');
+    console.error('[Dashboard]', err);
+  });
+}
+
+function dbRenderTudo() {
+  var pats  = _dbPats;
+  var inv   = _dbInv;
+  var total = pats.length;
+  var enc   = pats.filter(function(p){ return dbIsEnc(p.status); }).length;
+  var dup   = pats.filter(function(p){ return p.status === '🔴 DUPLICADO'; }).length;
+  var pct   = total > 0 ? Math.round(enc / total * 100) : 0;
+
+  // Servidores únicos
+  var servMap = {};
+  inv.forEach(function(i){ if (i.funcionario) servMap[i.funcionario] = (servMap[i.funcionario]||0)+1; });
+  var servArr = Object.keys(servMap).map(function(n){ return {nome:n, count:servMap[n]}; })
+                  .sort(function(a,b){ return b.count-a.count; });
+
+  // KPIs
+  dbSet('dbKpiEnc', enc.toLocaleString('pt-BR'));
+  dbSet('dbKpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimônios');
+  dbSet('dbKpiPct', pct + '%');
+  dbSet('dbKpiSrv', servArr.length);
+  dbSet('dbKpiDup', dup);
+  var dupEl = document.getElementById('dbKpiDup');
+  if (dupEl) dupEl.style.color = dup > 0 ? 'var(--red)' : 'var(--green)';
+
+  // Barra geral
+  var genBar = document.getElementById('dbGenBar');
+  if (genBar) genBar.style.width = pct + '%';
+  dbSet('dbBarLeft',  enc.toLocaleString('pt-BR') + ' encontrados');
+  dbSet('dbBarPct',   pct + '%');
+  dbSet('dbBarRight', total.toLocaleString('pt-BR') + ' total');
+
+  // Blocos
+  var blocoData = {};
+  pats.forEach(function(p) {
+    var b = dbGetBloco(p.sala_suap);
+    if (!blocoData[b]) blocoData[b] = {total:0, enc:0};
+    blocoData[b].total++;
+    if (dbIsEnc(p.status)) blocoData[b].enc++;
+  });
+  var blocoHtml = '';
+  DB_BLOCOS.forEach(function(b) {
+    var d = blocoData[b];
+    if (!d || !d.total) return;
+    var p   = Math.round(d.enc / d.total * 100);
+    var cor = p >= 80 ? 'var(--green)' : p >= 50 ? 'var(--accent)' : 'var(--yellow)';
+    blocoHtml +=
+      '<div class="db-bar-row">' +
+        '<div class="db-bar-label">' + b + '</div>' +
+        '<div class="db-bar-bg"><div class="db-bar-fill" style="width:'+p+'%;background:'+cor+'"></div></div>' +
+        '<div class="db-bar-pct" style="color:'+cor+'">'+p+'%</div>' +
+      '</div>' +
+      '<div class="db-bar-sub">'+d.enc+' / '+d.total+' itens</div>';
+  });
+  var blocoEl = document.getElementById('dbBlocos');
+  if (blocoEl) blocoEl.innerHTML = blocoHtml || '<div style="font-size:12px;color:var(--text2)">Sem dados</div>';
+
+  // Estimativa
+  var agora    = Date.now();
+  var recentes = inv.filter(function(i){ return i.criado_em && (agora - new Date(i.criado_em).getTime()) < 3600000; });
+  var ritmo    = recentes.length;
+  var faltam   = total - enc;
+  dbSet('dbRitmo',  ritmo);
+  dbSet('dbFaltam', faltam.toLocaleString('pt-BR'));
+  if (ritmo > 0) {
+    var horas = faltam / ritmo;
+    if (horas < 1)      { dbSet('dbEstVal', '<1');                dbSet('dbEstUnit', 'hora'); }
+    else if (horas < 8) { dbSet('dbEstVal', Math.ceil(horas));    dbSet('dbEstUnit', 'horas'); }
+    else                { dbSet('dbEstVal', (horas/8).toFixed(1)); dbSet('dbEstUnit', 'dias úteis'); }
+  } else {
+    dbSet('dbEstVal', '—'); dbSet('dbEstUnit', 'sem atividade recente');
+  }
+
+  // Alertas
+  var alertHtml = '';
+  if (dup > 0) alertHtml += '<div class="db-alert db-alert-red">🔴 ' + dup + ' patrimônio(s) duplicado(s)</div>';
+  var limite2h = agora - 7200000;
+  var ativos2h = {};
+  inv.filter(function(i){ return i.criado_em && new Date(i.criado_em).getTime() > limite2h; })
+     .forEach(function(i){ ativos2h[dbGetBloco(i.sala)] = true; });
+  var semAtiv = DB_BLOCOS.filter(function(b){ return blocoData[b] && blocoData[b].total > 0 && !ativos2h[b]; });
+  if (semAtiv.length) alertHtml += '<div class="db-alert db-alert-yellow">🟡 Sem atividade (2h): ' + semAtiv.join(', ') + '</div>';
+  DB_BLOCOS.forEach(function(b) {
+    var d = blocoData[b];
+    if (d && d.total > 0 && d.enc === d.total)
+      alertHtml += '<div class="db-alert db-alert-green">✅ ' + b + ' concluído!</div>';
+  });
+  var alertEl = document.getElementById('dbAlertas');
+  if (alertEl) alertEl.innerHTML = alertHtml || '<div style="font-size:12px;color:var(--text2)">✅ Tudo sob controle</div>';
+
+  // Ranking
+  var colors  = ['var(--accent)','var(--green)','var(--accent2)','var(--yellow)','var(--red)'];
+  var medals  = ['🥇','🥈','🥉'];
+  var maxC    = servArr.length ? servArr[0].count : 1;
+  var rankHtml = servArr.slice(0, 8).map(function(s, i) {
+    var init = s.nome.split(' ').slice(0,2).map(function(n){ return n[0]||''; }).join('').toUpperCase();
+    var pBar = Math.round(s.count / maxC * 100);
+    return '<div class="db-srv-row">' +
+      '<div class="db-avatar">'+init+'</div>' +
+      '<div class="db-srv-info">' +
+        '<div class="db-srv-name">'+(medals[i]||'  ')+' '+escHtml(s.nome)+'</div>' +
+        '<div class="db-srv-bar-bg"><div class="db-srv-bar-fill" style="width:'+pBar+'%;background:'+colors[i%colors.length]+'"></div></div>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--text2);flex-shrink:0">'+s.count+'</div>' +
+    '</div>';
+  }).join('');
+  var rankEl = document.getElementById('dbRanking');
+  if (rankEl) rankEl.innerHTML = rankHtml || '<div style="font-size:12px;color:var(--text2)">Sem dados</div>';
+
+  // Feed
+  var feedHtml = inv.slice(0, 10).map(function(item) {
+    var pat    = pats.find(function(p){ return dbStripZ(p.numero) === dbStripZ(item.codigo); });
+    var isDup  = pat && pat.status === '🔴 DUPLICADO';
+    var isWrong= pat && pat.status === '🟡 Outro local';
+    var dotColor = isDup ? 'var(--red)' : isWrong ? 'var(--yellow)' : 'var(--green)';
+    var extra    = isDup   ? ' <span style="color:var(--red);font-size:10px">· dup!</span>'
+                 : isWrong ? ' <span style="color:var(--yellow);font-size:10px">· sala errada</span>' : '';
+    var hora = item.criado_em ? new Date(item.criado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+    return '<div class="db-feed-item">' +
+      '<div class="db-feed-dot" style="background:'+dotColor+'"></div>' +
+      '<div><div class="db-feed-text"><strong>'+escHtml(item.funcionario||'Servidor')+'</strong>' +
+      ' escaneou <strong>'+escHtml(item.codigo||'?')+'</strong> → '+escHtml(item.sala||'—')+extra+'</div>' +
+      '<div class="db-feed-time">'+hora+'</div></div>' +
+    '</div>';
+  }).join('');
+  var feedEl = document.getElementById('dbFeed');
+  if (feedEl) feedEl.innerHTML = feedHtml || '<div style="font-size:12px;color:var(--text2)">Sem scans recentes</div>';
+}
+
+function dbStripZ(s) { return String(s||'').replace(/^0+/,''); }
 </script>
 <div class="wrong-room-modal" id="wrongRoomModal">
   <div class="wrong-room-box">
