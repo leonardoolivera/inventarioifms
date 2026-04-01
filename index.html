@@ -660,18 +660,6 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <button class="cfg-btn sec" id="testIABtn" onclick="testarIA()">🧪 Testar IA (Gemini)</button>
     </div>
 
-    <div class="sett-section">
-      <div class="sett-title">📊 Planilha Google Sheets (opcional)</div>
-      <div style="font-size:11px;color:var(--text2);margin-bottom:8px;line-height:1.5">
-        Se informado, o app atualiza a planilha em background após cada sincronização.
-        Deixe em branco para desativar.
-      </div>
-      <input class="field-input" id="scriptUrlInput" type="url"
-        placeholder="https://script.google.com/macros/s/..."
-        style="margin-bottom:8px;font-size:11px;font-family:'JetBrains Mono',monospace"
-        onchange="salvarScriptUrl()">
-      <button class="cfg-btn sec" onclick="testarPlanilha()">🧪 Testar conexão com planilha</button>
-    </div>
 
     <div class="sett-section">
       <div class="sett-title">📍 Locais cadastrados</div>
@@ -978,7 +966,7 @@ var state = {
   })(),
   pinnedRooms: JSON.parse(localStorage.getItem('pinnedRooms') || '[]'),
   hiddenRooms: JSON.parse(localStorage.getItem('hiddenRooms') || '[]'),
-  scriptUrl: localStorage.getItem('scriptUrl') || 'https://script.google.com/macros/s/AKfycbzTcYF5PjAKCEnAwAYS-y9Y0NpRqlifK6juO5WZ75n3uMuUTHhEtGtLOlA5XQlhxsH_ZA/exec',
+  scriptUrl: 'https://script.google.com/macros/s/AKfycbzTcYF5PjAKCEnAwAYS-y9Y0NpRqlifK6juO5WZ75n3uMuUTHhEtGtLOlA5XQlhxsH_ZA/exec',
   scans: JSON.parse(localStorage.getItem('scans') || '[]'),
   pendingSync: JSON.parse(localStorage.getItem('pendingSync') || '[]'),
   isOnline: navigator.onLine,
@@ -2041,23 +2029,25 @@ function testarPlanilha() {
 }
 
 // Chama Apps Script para atualizar dashboard da planilha (fire-and-forget)
+var SHEETS_TOKEN = 'inv-ifms-2394174';
+
 function sincronizarPlanilha() {
   if (!state.scriptUrl) return;
-  // Manda só os scans recém-sincronizados (não todos) em lotes pequenos
   var recentes = state.scans.filter(function(s){ return s.synced; }).slice(-20);
   var lote = recentes.map(function(s) {
     return { id: s.id, type: s.type, code: s.code||'', room: s.room||'',
              desc: s.desc||'', estado: s.estado||'', ts: s.ts,
              funcionario: s.funcionario||'', siape: s.siape||'' };
   });
-  var url = state.scriptUrl + '?action=atualizarDashboard&data=' + encodeURIComponent(JSON.stringify(lote));
-  // Se URL ficar muito longa, manda só o ping para atualizar dashboard
+  var data = JSON.stringify(lote);
+  var url = state.scriptUrl + '?action=atualizarDashboard&token=' + SHEETS_TOKEN
+          + '&data=' + encodeURIComponent(data);
   if (url.length > 2000) {
-    url = state.scriptUrl + '?action=atualizarDashboard&data=' + encodeURIComponent('[]');
+    url = state.scriptUrl + '?action=atualizarDashboard&token=' + SHEETS_TOKEN + '&data=' + encodeURIComponent('[]');
   }
   fetch(url, { mode: 'no-cors' })
-    .then(function() { console.log('[Planilha] ping enviado para Apps Script'); })
-    .catch(function(e) { console.warn('[Planilha] erro ao chamar Apps Script:', e); });
+    .then(function() { console.log('[Planilha] sincronizado'); })
+    .catch(function(e) { console.warn('[Planilha] erro:', e); });
 }
 
 function saveScans() {

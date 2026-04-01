@@ -82,6 +82,10 @@ function doGet(e) {
   }
 
   if (action === "atualizarDashboard") {
+    var TOKEN_ESPERADO = 'inv-ifms-2394174';
+    if ((e.parameter.token || '') !== TOKEN_ESPERADO) {
+      return out({ ok: false, erro: 'Não autorizado' });
+    }
     try {
       var items = JSON.parse(decodeURIComponent(e.parameter.data || "[]"));
       if (items.length) batchSync(items);
