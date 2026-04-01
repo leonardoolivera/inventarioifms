@@ -373,7 +373,7 @@ function descreverFoto(mime, b64) {
 
   // Fallback se não conseguiu listar
   if (!modelos.length) {
-    modelos = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
+    modelos = ['gemini-2.5-flash', 'gemini-2.5-pro'];
   }
 
   for (var i = 0; i < modelos.length; i++) {

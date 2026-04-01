@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     const GEMINI_KEY = Deno.env.get('GEMINI_KEY') ?? '';
     if (!GEMINI_KEY) return json({ ok: false, erro: 'Chave Gemini não configurada' });
 
-    const modelos = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
+    const modelos = ['gemini-2.5-flash', 'gemini-2.5-pro'];
     const erros: string[] = [];
 
     for (const modelo of modelos) {
