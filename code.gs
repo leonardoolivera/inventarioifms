@@ -121,15 +121,7 @@ function doPost(e) {
       var body = JSON.parse(e.postData.contents);
       action   = body.action;
       items    = body.items || [];
-      if (action === "testIA") {
-      return out(testIA());
-    }
-
-    if (action === "listModels") {
-      return out(listModels());
-    }
-
-    if (action === "descreverFoto") {
+      if (action === "descreverFoto") {
         fotoData = body.data || {};
       }
     }
@@ -140,10 +132,6 @@ function doPost(e) {
 
     if (action === "testIA") {
       return out(testIA());
-    }
-
-    if (action === "listModels") {
-      return out(listModels());
     }
 
     if (action === "descreverFoto") {
@@ -547,6 +535,7 @@ function loginSiape(siape) {
   if (!siape) return { ok: false, erro: "SIAPE não informado" };
 
   // Tenta cache primeiro (evita ler a planilha a cada login)
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
   var cache = CacheService.getScriptCache();
   var cached = cache.get('funcionarios');
   var dados;
@@ -554,7 +543,6 @@ function loginSiape(siape) {
     try { dados = JSON.parse(cached); } catch(e) { dados = null; }
   }
   if (!dados) {
-    var ss    = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(CFG.ABA_FUNC);
     if (!sheet) return { ok: false, erro: "Aba Funcionários não encontrada. Execute ⚙️ Configurar." };
     dados = sheet.getDataRange().getValues();

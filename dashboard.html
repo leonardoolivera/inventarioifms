@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Gestor — Inventário IFMS</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1117;color:#f0f2ff;min-height:100vh}
+.dash{padding:20px;max-width:1200px;margin:0 auto}
+
+/* Topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2e3347;flex-wrap:wrap;gap:10px}
+.topbar h1{font-size:18px;font-weight:600}
+.topbar-sub{font-size:12px;color:#8891b0;margin-top:3px}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.badge-live{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);font-weight:600}
+.badge-connecting{background:rgba(245,158,11,.15);color:#f59e0b;border-color:rgba(245,158,11,.3)}
+.badge-error{background:rgba(239,68,68,.15);color:#ef4444;border-color:rgba(239,68,68,.3)}
+.btn-reload{font-size:12px;padding:6px 14px;background:#1a1d27;border:1px solid #2e3347;border-radius:8px;color:#f0f2ff;cursor:pointer;transition:background .15s}
+.btn-reload:hover{background:#2e3347}
+
+/* Grid layouts */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:768px){
+  .grid4{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+}
+
+/* Card base */
+.card{background:#1a1d27;border:1px solid #2e3347;border-radius:12px;padding:16px}
+
+/* KPIs */
+.kpi-label{font-size:11px;color:#8891b0;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.kpi-val{font-size:28px;font-weight:700;font-family:monospace}
+.kpi-sub{font-size:11px;color:#8891b0;margin-top:4px}
+.c-blue{color:#4f8cff}.c-green{color:#22c55e}.c-yellow{color:#f59e0b}.c-red{color:#ef4444}
+
+/* Section titles */
+.section-title{font-size:11px;font-weight:600;color:#8891b0;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+
+/* Progress bar geral */
+.general-bar-wrap{margin:10px 0 4px}
+.general-bar-bg{height:10px;background:#2e3347;border-radius:5px;overflow:hidden}
+.general-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#22c55e,#4f8cff);transition:width 1s ease}
+.general-bar-labels{display:flex;justify-content:space-between;font-size:11px;color:#8891b0;margin-top:6px}
+
+/* Blocos */
+.bloco-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bloco-label{font-size:12px;width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-bg{flex:1;height:6px;background:#2e3347;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.bar-pct{font-size:11px;width:36px;text-align:right;flex-shrink:0}
+.bloco-sub{font-size:10px;color:#8891b0;margin:-6px 0 10px 150px}
+
+/* Estimativa */
+.est-grid{display:flex;gap:20px}
+.est-item .est-val{font-size:22px;font-weight:700}
+.est-item .est-lbl{font-size:10px;color:#8891b0;margin-bottom:2px}
+.est-item .est-unit{font-size:10px;color:#8891b0;margin-top:2px}
+
+/* Alertas */
+.alert-item{display:flex;gap:8px;padding:8px 12px;border-radius:8px;margin-bottom:8px;font-size:12px;line-height:1.4}
+.alert-red{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+.alert-yellow{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+.alert-green{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#86efac}
+
+/* Ranking */
+.srv-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;background:#1e2535;color:#4f8cff;border:1px solid #2e3347}
+.srv-info{flex:1;min-width:0}
+.srv-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srv-bar-bg{height:3px;background:#2e3347;border-radius:2px;margin-top:5px}
+.srv-bar-fill{height:100%;border-radius:2px;transition:width .8s}
+.srv-count{font-size:12px;color:#8891b0;flex-shrink:0}
+
+/* Feed */
+.feed-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #2e3347;animation:fadeIn .4s ease}
+.feed-item:last-child{border-bottom:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.dot-green{background:#22c55e}.dot-yellow{background:#f59e0b}.dot-red{background:#ef4444}
+.feed-text{font-size:12px;line-height:1.5}
+.feed-time{font-size:10px;color:#8891b0;margin-top:2px}
+
+/* Loading / error */
+.loading{text-align:center;padding:40px;color:#8891b0;font-size:13px}
+.error-msg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px;color:#fca5a5;font-size:13px;margin:0 0 16px}
+
+/* Coluna direita stacked */
+.stack-col{display:flex;flex-direction:column;gap:12px}
+</style>
+</head>
+<body>
+<div class="dash">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <h1>📊 Dashboard — Inventário Campus IFMS</h1>
+      <div class="topbar-sub" id="lastUpdate">Carregando dados...</div>
+    </div>
+    <div class="topbar-actions">
+      <span class="badge-live badge-connecting" id="liveBadge">conectando...</span>
+      <button class="btn-reload" onclick="carregarTudo()">↻ Atualizar</button>
+    </div>
+  </div>
+
+  <div id="errorMsg" style="display:none" class="error-msg"></div>
+
+  <!-- KPIs -->
+  <div class="grid4">
+    <div class="card">
+      <div class="kpi-label">Total encontrado</div>
+      <div class="kpi-val c-blue" id="kpiEnc">—</div>
+      <div class="kpi-sub" id="kpiEncSub">de — patrimônios</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Progresso geral</div>
+      <div class="kpi-val c-green" id="kpiPct">—</div>
+      <div class="kpi-sub">do inventário concluído</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Servidores ativos</div>
+      <div class="kpi-val" id="kpiSrv">—</div>
+      <div class="kpi-sub" id="kpiSrvSub">participando do inventário</div>
+    </div>
+    <div class="card">
+      <div class="kpi-label">Duplicados</div>
+      <div class="kpi-val c-red" id="kpiDup">—</div>
+      <div class="kpi-sub">precisam atenção</div>
+    </div>
+  </div>
+
+  <!-- BARRA GERAL -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="section-title">Progresso geral do inventário</div>
+    <div class="general-bar-wrap">
+      <div class="general-bar-bg">
+        <div class="general-bar-fill" id="generalBar" style="width:0%"></div>
+      </div>
+      <div class="general-bar-labels">
+        <span id="barLeft">0 encontrados</span>
+        <span id="barPct" style="font-weight:600;color:#f0f2ff">0%</span>
+        <span id="barRight">0 total</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINHA 1: Blocos + Estimativa/Alertas -->
+  <div class="grid2">
+    <div class="card">
+      <div class="section-title">Progresso por bloco</div>
+      <div id="blocoProgress"><div class="loading">Carregando...</div></div>
+    </div>
+    <div class="stack-col">
+      <div class="card">
+        <div class="section-title">Estimativa de conclusão</div>
+        <div class="est-grid">
+          <div class="est-item">
+            <div class="est-lbl">Ritmo (última hora)</div>
+            <div class="est-val c-blue" id="ritmoHora">—</div>
+            <div class="est-unit">scans/hora</div>
+          </div>
+          <div class="est-item">
+            <div class="est-lbl">Faltam</div>
+            <div class="est-val c-yellow" id="faltamItens">—</div>
+            <div class="est-unit">patrimônios</div>
+          </div>
+          <div class="est-item">
+            <div class="est-lbl">Conclusão</div>
+            <div class="est-val c-green" id="estimativa">—</div>
+            <div class="est-unit" id="estimativaUnit">dias úteis</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="flex:1">
+        <div class="section-title">Alertas</div>
+        <div id="alertas"><div style="font-size:12px;color:#8891b0">Carregando...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINHA 2: Ranking + Feed -->
+  <div class="grid2">
+    <div class="card">
+      <div class="section-title">Ranking de servidores</div>
+      <div id="rankingServs"><div class="loading">Carregando...</div></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Feed ao vivo</div>
+      <div id="feedVivo"><div class="loading">Aguardando scans...</div></div>
+    </div>
+  </div>
+
+</div><!-- .dash -->
+
+<script>
+var SUPABASE_URL  = 'https://veazrwcnfamwjnaybpkd.supabase.co';
+var SUPABASE_ANON = 'sb_publishable__PGOsNopOsgVgHROJYlwvw_ZKi31B-8';
+var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// Detecta bloco pelo nome da sala
+function getBloco(sala) {
+  if (!sala) return 'Outros';
+  var s = sala.toUpperCase();
+  if (s.indexOf('(BLOCO A)') > -1) return 'Bloco A';
+  if (s.indexOf('(BLOCO B)') > -1) return 'Bloco B';
+  if (s.indexOf('(BLOCO C)') > -1) return 'Bloco C';
+  if (s.indexOf('(SALAS MODULARES)') > -1) return 'Salas Modulares';
+  return 'Área Externa';
+}
+
+var BLOCO_ORDER = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Área Externa', 'Outros'];
+
+// Status que conta como "encontrado"
+function isEncontrado(status) {
+  return status === '✅ Encontrado' || status === '🟡 Outro local';
+}
+
+var state = { patrimonios: [], inventario: [] };
+
+async function carregarTudo() {
+  setBadge('connecting');
+  try {
+    var [rPat, rInv] = await Promise.all([
+      sb.from('patrimonios').select('numero,sala_suap,status,local_encontrado'),
+      sb.from('inventario').select('codigo,local,funcionario,siape,ts,tipo')
+        .order('ts', { ascending: false }).limit(500)
+    ]);
+    if (rPat.error) throw rPat.error;
+    if (rInv.error) throw rInv.error;
+
+    state.patrimonios = rPat.data || [];
+    state.inventario  = rInv.data  || [];
+
+    renderTudo();
+    setBadge('live');
+    document.getElementById('lastUpdate').textContent =
+      'Atualizado em ' + new Date().toLocaleTimeString('pt-BR');
+    document.getElementById('errorMsg').style.display = 'none';
+  } catch(err) {
+    setBadge('error');
+    document.getElementById('errorMsg').style.display = 'block';
+    document.getElementById('errorMsg').textContent = 'Erro ao carregar dados: ' + (err.message || String(err));
+  }
+}
+
+function setBadge(type) {
+  var el = document.getElementById('liveBadge');
+  el.className = 'badge-live';
+  if (type === 'live')       { el.className += ''; el.textContent = '● ao vivo'; }
+  else if (type === 'connecting') { el.className += ' badge-connecting'; el.textContent = 'conectando...'; }
+  else                        { el.className += ' badge-error';      el.textContent = 'erro'; }
+}
+
+function renderTudo() {
+  var pats = state.patrimonios;
+  var inv  = state.inventario;
+
+  var total  = pats.length;
+  var enc    = pats.filter(function(p){ return isEncontrado(p.status); }).length;
+  var duplic = pats.filter(function(p){ return p.status === '🔴 DUPLICADO'; }).length;
+  var pct    = total > 0 ? Math.round(enc / total * 100) : 0;
+
+  // Servidores únicos
+  var servMap = {};
+  inv.forEach(function(i){ if (i.funcionario) servMap[i.funcionario] = (servMap[i.funcionario]||0) + 1; });
+  var servArr = Object.keys(servMap).map(function(n){ return { nome: n, count: servMap[n] }; })
+                  .sort(function(a,b){ return b.count - a.count; });
+
+  // KPIs
+  set('kpiEnc', enc.toLocaleString('pt-BR'));
+  set('kpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimônios');
+  set('kpiPct', pct + '%');
+  set('kpiSrv', servArr.length);
+  set('kpiDup', duplic);
+  document.getElementById('kpiDup').style.color = duplic > 0 ? '#ef4444' : '#22c55e';
+
+  // Barra geral
+  document.getElementById('generalBar').style.width = pct + '%';
+  set('barLeft',  enc.toLocaleString('pt-BR') + ' encontrados');
+  set('barPct',   pct + '%');
+  set('barRight', total.toLocaleString('pt-BR') + ' total');
+
+  // Blocos
+  var blocoData = {};
+  pats.forEach(function(p) {
+    var b = getBloco(p.sala_suap);
+    if (!blocoData[b]) blocoData[b] = { total: 0, enc: 0 };
+    blocoData[b].total++;
+    if (isEncontrado(p.status)) blocoData[b].enc++;
+  });
+
+  var blocoHtml = '';
+  BLOCO_ORDER.forEach(function(bloco) {
+    var d = blocoData[bloco];
+    if (!d || d.total === 0) return;
+    var p   = Math.round(d.enc / d.total * 100);
+    var cor = p >= 80 ? '#22c55e' : p >= 50 ? '#4f8cff' : '#f59e0b';
+    blocoHtml +=
+      '<div class="bloco-row">' +
+        '<div class="bloco-label">' + bloco + '</div>' +
+        '<div class="bar-bg"><div class="bar-fill" style="width:' + p + '%;background:' + cor + '"></div></div>' +
+        '<div class="bar-pct" style="color:' + cor + '">' + p + '%</div>' +
+      '</div>' +
+      '<div class="bloco-sub">' + d.enc + ' / ' + d.total + ' itens</div>';
+  });
+  document.getElementById('blocoProgress').innerHTML =
+    blocoHtml || '<div style="font-size:12px;color:#8891b0">Sem dados de patrimônio</div>';
+
+  // Estimativa
+  var agora    = Date.now();
+  var recentes = inv.filter(function(i){ return i.ts && (agora - new Date(i.ts).getTime()) < 3600000; });
+  var ritmo    = recentes.length;
+  var faltam   = total - enc;
+  set('ritmoHora',   ritmo);
+  set('faltamItens', faltam.toLocaleString('pt-BR'));
+  if (ritmo > 0) {
+    var horas = faltam / ritmo;
+    if (horas < 1)       { set('estimativa', '<1');                set('estimativaUnit', 'hora'); }
+    else if (horas < 8)  { set('estimativa', Math.ceil(horas));    set('estimativaUnit', 'horas'); }
+    else                 { set('estimativa', (horas/8).toFixed(1)); set('estimativaUnit', 'dias úteis'); }
+  } else {
+    set('estimativa', '—'); set('estimativaUnit', 'sem atividade');
+  }
+
+  // Alertas
+  var alertHtml = '';
+  if (duplic > 0) {
+    alertHtml += '<div class="alert-item alert-red">🔴 ' + duplic + ' patrimônio(s) duplicados precisam atenção</div>';
+  }
+
+  // Blocos sem atividade nas últimas 2h
+  var limite2h = agora - 2 * 3600 * 1000;
+  var recentes2h = inv.filter(function(i){ return i.ts && new Date(i.ts).getTime() > limite2h; });
+  var blocosAtivos2h = {};
+  recentes2h.forEach(function(i){ blocosAtivos2h[getBloco(i.local)] = true; });
+  var blocosSemAtiv = BLOCO_ORDER.filter(function(b){
+    return blocoData[b] && blocoData[b].total > 0 && !blocosAtivos2h[b];
+  });
+  if (blocosSemAtiv.length) {
+    alertHtml += '<div class="alert-item alert-yellow">🟡 Sem atividade nas últimas 2h: ' + blocosSemAtiv.join(', ') + '</div>';
+  }
+
+  // Blocos concluídos
+  var blocosConcl = BLOCO_ORDER.filter(function(b){
+    var d = blocoData[b];
+    return d && d.total > 0 && d.enc === d.total;
+  });
+  blocosConcl.forEach(function(b){
+    alertHtml += '<div class="alert-item alert-green">✅ ' + b + ' concluído!</div>';
+  });
+
+  if (!alertHtml) alertHtml = '<div style="font-size:12px;color:#8891b0">✅ Tudo sob controle</div>';
+  document.getElementById('alertas').innerHTML = alertHtml;
+
+  // Ranking
+  var colors = ['#4f8cff','#22c55e','#7c5cfc','#f59e0b','#ef4444','#22d3ee','#f472b6','#a3e635'];
+  var maxCount = servArr.length ? servArr[0].count : 1;
+  var medals   = ['🥇','🥈','🥉'];
+  var rankHtml = servArr.slice(0, 8).map(function(s, i) {
+    var init   = s.nome.split(' ').slice(0,2).map(function(n){ return n[0] || ''; }).join('').toUpperCase();
+    var pctBar = Math.round(s.count / maxCount * 100);
+    var medal  = medals[i] || '';
+    return '<div class="srv-row">' +
+      '<div class="avatar">' + init + '</div>' +
+      '<div class="srv-info">' +
+        '<div class="srv-name">' + medal + (medal ? ' ' : '') + escHtml(s.nome) + '</div>' +
+        '<div class="srv-bar-bg"><div class="srv-bar-fill" style="width:' + pctBar + '%;background:' + colors[i % colors.length] + '"></div></div>' +
+      '</div>' +
+      '<div class="srv-count">' + s.count + '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('rankingServs').innerHTML =
+    rankHtml || '<div style="font-size:12px;color:#8891b0">Sem dados de servidores</div>';
+
+  // Feed
+  renderFeed(inv.slice(0, 8));
+}
+
+function renderFeed(items) {
+  var pats = state.patrimonios;
+  var feedHtml = items.map(function(item) {
+    var pat    = pats.find(function(p){ return stripZeros(p.numero) === stripZeros(item.codigo); });
+    var isDup  = pat && pat.status === '🔴 DUPLICADO';
+    var isWrong= pat && pat.status === '🟡 Outro local';
+    var dotCls = isDup ? 'dot-red' : isWrong ? 'dot-yellow' : 'dot-green';
+    var extra  = isDup   ? '<span style="color:#ef4444;font-size:10px"> · duplicado!</span>' :
+                 isWrong ? '<span style="color:#f59e0b;font-size:10px"> · sala errada</span>' : '';
+    var hora   = item.ts ? new Date(item.ts).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
+    return '<div class="feed-item">' +
+      '<div class="feed-dot ' + dotCls + '"></div>' +
+      '<div>' +
+        '<div class="feed-text"><strong>' + escHtml(item.funcionario || 'Servidor') + '</strong>' +
+        ' escaneou <strong>' + escHtml(item.codigo || '?') + '</strong> → ' + escHtml(item.local || '—') + extra + '</div>' +
+        '<div class="feed-time">' + hora + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('feedVivo').innerHTML =
+    feedHtml || '<div style="font-size:12px;color:#8891b0">Aguardando scans...</div>';
+}
+
+function stripZeros(s) { return String(s || '').replace(/^0+/, ''); }
+function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function set(id, val)  { var el = document.getElementById(id); if (el) el.textContent = val; }
+
+// Realtime
+function iniciarRealtime() {
+  sb.channel('dashboard-changes')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'inventario' }, function(payload) {
+      state.inventario.unshift(payload.new);
+      if (state.inventario.length > 500) state.inventario.pop();
+      renderTudo();
+      document.getElementById('lastUpdate').textContent =
+        'Atualizado agora · ' + new Date().toLocaleTimeString('pt-BR');
+    })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'patrimonios' }, function(payload) {
+      var idx = state.patrimonios.findIndex(function(p){ return p.numero === payload.new.numero; });
+      if (idx > -1) state.patrimonios[idx] = Object.assign({}, state.patrimonios[idx], payload.new);
+      else state.patrimonios.push(payload.new);
+      renderTudo();
+    })
+    .subscribe(function(status) {
+      if (status === 'SUBSCRIBED') setBadge('live');
+    });
+}
+
+// Boot
+carregarTudo().then(function(){ iniciarRealtime(); });
+// Fallback: recarrega a cada 5 min
+setInterval(carregarTudo, 5 * 60 * 1000);
+</script>
+</body>
+</html>
