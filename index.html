@@ -1375,6 +1375,13 @@ function selectRoom(name) {
   localStorage.setItem('currentRoom', name);
   wrongRoomStreak = 0;
   updateRoomLabel();
+  // Se veio do scanner (sem local definido antes), vai direto pra câmera
+  if (window._selecionandoParaScan) {
+    window._selecionandoParaScan = false;
+    showScreen('scScanner');
+    startCamera();
+    return;
+  }
   goBack();
 }
 
@@ -1413,7 +1420,7 @@ function saveRooms() { localStorage.setItem('rooms', JSON.stringify(state.rooms)
 // ═══════════════════════════════════════════════
 function startScanner() {
   if (!state.currentRoom) {
-    showToast('warn','📍 Selecione um local','Escolha onde você está antes de escanear');
+    window._selecionandoParaScan = true;
     showScreen('scRooms');
     return;
   }
@@ -1934,7 +1941,7 @@ function updateSyncBanner() {
 }
 
 function testConnection() {
-  testConnection()
+  testConnectionSupabase()
     .then(function() {
       updateSyncBanner();
       showToast('ok','✅ Supabase conectado!','Banco de dados OK');

@@ -232,7 +232,7 @@ function corrigirSala(ids, novaSala) {
 }
 
 // ── PING (teste de conexão) ───────────────────────────────────
-function testConnection() {
+function testConnectionSupabase() {
   return sbFetch('/rest/v1/funcionarios?limit=1&select=id')
     .then(function() { return { ok: true, msg: 'Conexão OK' }; });
 }
