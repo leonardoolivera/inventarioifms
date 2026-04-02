@@ -49,8 +49,9 @@ body{position:relative}
 .home-brand{display:flex;align-items:flex-start;gap:12px;min-width:0}
 .home-brand-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(29,158,117,.14);border:1px solid rgba(29,158,117,.3);color:#1D9E75;font-weight:800;font-size:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
 .home-title{font-size:30px;line-height:1.02;font-weight:700;letter-spacing:-.04em;color:var(--text);margin-top:1px}
-.home-campus{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-top:10px;font-weight:500}
-.home-campus-pin{font-size:13px;color:#1D9E75}
+.home-campus{display:grid;grid-template-columns:14px minmax(0,1fr);align-items:start;gap:8px;font-size:13px;color:var(--text2);margin-top:10px;font-weight:500}
+.home-campus-pin{font-size:13px;color:#1D9E75;line-height:1.2;margin-top:1px}
+.home-campus span:last-child{display:block;line-height:1.35}
 .home-status{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-size:12px;font-weight:700;color:#86efac;white-space:nowrap}
 .home-status.offline{color:var(--text2)}
 .home-status-dot{width:8px;height:8px;border-radius:50%;background:#1D9E75;box-shadow:0 0 0 4px rgba(29,158,117,.14)}
@@ -241,10 +242,11 @@ body{position:relative}
 .settings-linkarrow{font-size:20px;color:var(--accent)}
 .version-note{text-align:center;padding:8px 4px 0;font-size:11px;color:var(--text3);line-height:1.6}
 @media (max-width: 640px){.screen{width:100vw;left:0;transform:none;border-left:none;border-right:none;box-shadow:none}.screen.hidden{transform:translateY(100%)}.screen.slide-left{transform:translateX(-100%)}}
+@media (max-width: 420px){.home-headline{flex-direction:column;align-items:stretch;gap:10px}.home-status{align-self:flex-start}.home-title{font-size:28px}.home-campus{margin-top:8px}}
 @media (min-width: 760px){.action-grid{grid-template-columns:repeat(2,1fr)}.action-card.wide{grid-column:span 2}.sbody{padding-left:22px;padding-right:22px;width:100%}}
 
 /* ── NAV BAR ── */
-.navbar{display:flex;gap:8px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border-top:1px solid rgba(148,163,184,.12);padding:10px 12px calc(10px + env(safe-area-inset-bottom));flex-shrink:0;box-shadow:0 -14px 32px rgba(3,8,20,.26)}
+.navbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border-top:1px solid rgba(148,163,184,.12);padding:10px 12px calc(10px + env(safe-area-inset-bottom));flex-shrink:0;box-shadow:0 -14px 32px rgba(3,8,20,.26)}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 6px 10px;border:1px solid rgba(148,163,184,.1);border-radius:16px;background:rgba(255,255,255,.02);color:var(--text3);cursor:pointer;transition:color .15s,transform .15s,border-color .2s ease,background .2s ease;font-family:'Space Grotesk',sans-serif;min-height:58px}
 .nav-btn.active{color:var(--text);transform:translateY(-1px);background:rgba(29,158,117,.12);border-color:rgba(29,158,117,.28);box-shadow:0 12px 24px rgba(29,158,117,.18)}
 .nav-btn span:first-child{font-size:18px}
@@ -628,7 +630,6 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter"></div>
   </div>
   <div class="navbar">
-    <button class="nav-btn active" onclick="showScreen('scHome')"><span>&#127968;</span><span>Inicio</span></button>
     <button class="nav-btn" onclick="startScanner()"><span>&#128247;</span><span>Scanner</span></button>
     <button class="nav-btn" onclick="showMinhasSalas()"><span>&#128203;</span><span>Salas</span></button>
     <button class="nav-btn" onclick="showScreen('scSettings')"><span>&#9881;</span><span>Config</span></button>
