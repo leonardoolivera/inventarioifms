@@ -222,19 +222,30 @@ function mediana(arr) {
 
 var state = { patrimonios: [], inventario: [] };
 
+async function fetchAllRows(table, select, orderCol, ascending) {
+  var PAGE = 1000, from = 0, result = [];
+  while (true) {
+    var q = sb.from(table).select(select).range(from, from + PAGE - 1);
+    if (orderCol) q = q.order(orderCol, { ascending: !!ascending });
+    var { data, error } = await q;
+    if (error) throw error;
+    result = result.concat(data || []);
+    if (!data || data.length < PAGE) break;
+    from += PAGE;
+  }
+  return result;
+}
+
 async function carregarTudo() {
   setBadge('connecting');
   try {
-    var [rPat, rInv] = await Promise.all([
-      sb.from('patrimonios').select('numero,sala_suap,status,local_encontrado').limit(10000),
-      sb.from('scans').select('codigo,sala,funcionario,siape,criado_em')
-        .order('criado_em', { ascending: false }).limit(10000)
+    var [patsData, invData] = await Promise.all([
+      fetchAllRows('patrimonios', 'numero,sala_suap,status,local_encontrado'),
+      fetchAllRows('scans', 'codigo,sala,funcionario,siape,criado_em', 'criado_em', false)
     ]);
-    if (rPat.error) throw rPat.error;
-    if (rInv.error) throw rInv.error;
 
-    state.patrimonios = rPat.data || [];
-    state.inventario  = rInv.data  || [];
+    state.patrimonios = patsData;
+    state.inventario  = invData;
 
     renderTudo();
     setBadge('live');
