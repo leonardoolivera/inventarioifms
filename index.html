@@ -62,14 +62,39 @@ body{position:relative}
 .home-summary-value{font-size:24px;font-weight:700;letter-spacing:-.04em;color:var(--text);font-family:'JetBrains Mono',monospace}
 .home-summary-value.progress{color:#1D9E75}
 .home-summary-sub{font-size:11px;color:var(--text2);margin-top:6px}
-.home-progress-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.home-progress-row{display:block;margin-bottom:18px}
 .home-progress-track{flex:1;height:6px;border-radius:999px;background:rgba(148,163,184,.14);overflow:hidden}
 .home-progress-fill{height:100%;width:0;background:#1D9E75;border-radius:999px}
-.home-progress-text{font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap}
+.home-progress-text{display:none}
 .home-cta{width:100%;border:none;border-radius:14px;padding:14px 16px;background:#1D9E75;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:transform .18s ease,background .2s ease,box-shadow .2s ease;box-shadow:0 14px 28px rgba(29,158,117,.22)}
 .home-cta:hover{background:#178A66}
 .home-cta:active{transform:scale(.992)}
 .home-cta-icon{font-size:18px}
+
+.home-section{margin-bottom:14px}
+.home-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);font-weight:700;margin:0 0 10px 4px}
+.home-list{display:flex;flex-direction:column;gap:10px}
+.home-row,.home-row-btn,.user-badge,.sync-banner,.install-banner,.update-banner,.room-selector{display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--surface);border:1px solid rgba(148,163,184,.12);border-radius:18px;padding:14px 16px;box-shadow:var(--sh)}
+.home-row,.home-row-btn,.room-selector{cursor:pointer;transition:transform .16s ease,border-color .2s ease,background .2s ease}
+.home-row:active,.home-row-btn:active,.room-selector:active{transform:scale(.992);border-color:rgba(29,158,117,.28)}
+.home-row-icon,.install-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;flex-shrink:0;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);font-size:18px;color:var(--text)}
+.home-row-icon.green{background:rgba(29,158,117,.12);border-color:rgba(29,158,117,.24);color:#67e8b2}
+.home-row-icon.blue{background:rgba(91,140,255,.12);border-color:rgba(91,140,255,.2);color:#b9cbff}
+.home-row-icon.amber{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.2);color:#fbbf24}
+.home-row-icon.violet{background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.22);color:#c4b5fd}
+.home-row-main,.install-info,.update-info,.ub-info,.sync-main{flex:1;min-width:0}
+.home-row-title,.install-title,.update-title,.ub-name{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.home-row-sub,.install-sub,.update-sub,.ub-siape,.sync-text{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.45}
+.home-row-meta,.sync-count,.row-chevron,.install-close,.ub-logout{flex-shrink:0;color:var(--text3);font-size:14px;font-weight:700}
+.home-row-btn{width:100%;font-family:'Space Grotesk',sans-serif;background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--surface);text-align:left;border-radius:18px}
+.home-row-btn.admin{border-color:rgba(124,92,252,.22)}
+.home-row-btn.manager{border-color:rgba(29,158,117,.22)}
+.home-row-btn .home-row-title{font-size:14px}
+.home-row-btn .home-row-sub{margin-top:2px}
+.room-selector{margin-bottom:0}
+.rs-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:4px;font-weight:700}
+.rs-value{font-size:16px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--accent)}
+.rs-chevron{color:var(--text3);font-size:18px}
 
 .room-selector{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px 16px;margin-bottom:14px;cursor:pointer;transition:transform .18s ease,border-color .2s ease,box-shadow .2s ease;box-shadow:var(--sh)}
 .room-selector:active{transform:scale(.995);border-color:var(--accent);box-shadow:0 14px 32px rgba(3,8,20,.28)}
@@ -78,28 +103,17 @@ body{position:relative}
 .rs-value span{color:var(--accent)}
 .rs-chevron{color:var(--text3);font-size:18px}
 
-.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
-.action-card{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px;cursor:pointer;transition:transform .18s ease,border-color .2s ease,box-shadow .2s ease,background .2s ease;position:relative;overflow:hidden;min-height:134px;box-shadow:var(--sh)}
-.action-card:active{transform:scale(.985)}
-.action-card::after{content:'';position:absolute;inset:auto -18px -24px auto;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 65%);pointer-events:none}
-.action-card:hover{border-color:rgba(91,140,255,.36)}
-.action-card.wide{grid-column:1 / -1;min-height:112px}
-.action-card.primary{border-color:rgba(29,158,117,.3);background:linear-gradient(135deg,rgba(29,158,117,.18),rgba(29,158,117,.08) 55%,rgba(255,255,255,.03))}
-.ac-icon{font-size:28px;margin-bottom:16px;display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
-.ac-title{font-size:16px;font-weight:700;letter-spacing:-.02em}
-.ac-sub{font-size:12px;line-height:1.45;color:var(--text2);margin-top:6px;max-width:18ch}
-
 /* sync banner */
 .sync-banner{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:14px;cursor:pointer;box-shadow:var(--sh)}
 .offline-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:999;background:#7c3f00;color:#fde68a;font-size:12px;font-weight:600;text-align:center;padding:6px;font-family:'Space Grotesk',sans-serif}
 .offline-banner.show{display:block}
-.sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sync-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .sync-dot.online{background:var(--green);box-shadow:0 0 8px var(--green)}
 .sync-dot.offline{background:var(--yellow)}
 .sync-dot.syncing{background:var(--accent);animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .sync-text{flex:1;font-size:12px;color:var(--text2);font-weight:500}
-.sync-count{font-size:12px;font-weight:700;color:var(--yellow)}
+.sync-count{font-size:11px;font-weight:700;color:var(--yellow)}
 
 /* ── ROOM PICKER ── */
 .room-list{display:flex;flex-direction:column;gap:10px}
@@ -242,13 +256,13 @@ body{position:relative}
 .settings-linkarrow{font-size:20px;color:var(--accent)}
 .version-note{text-align:center;padding:8px 4px 0;font-size:11px;color:var(--text3);line-height:1.6}
 @media (max-width: 640px){.screen{width:100vw;left:0;transform:none;border-left:none;border-right:none;box-shadow:none}.screen.hidden{transform:translateY(100%)}.screen.slide-left{transform:translateX(-100%)}}
-@media (max-width: 420px){.home-headline{flex-direction:column;align-items:stretch;gap:10px}.home-status{align-self:flex-start}.home-title{font-size:28px}.home-campus{margin-top:8px}}
-@media (min-width: 760px){.action-grid{grid-template-columns:repeat(2,1fr)}.action-card.wide{grid-column:span 2}.sbody{padding-left:22px;padding-right:22px;width:100%}}
+@media (max-width: 420px){.home-headline{flex-direction:column;align-items:stretch;gap:10px}.home-status{align-self:flex-start}.home-title{font-size:28px}.home-campus{margin-top:8px}.home-summary-grid{gap:8px}.home-summary-card{padding:12px 10px}.home-row,.home-row-btn,.user-badge,.sync-banner,.install-banner,.update-banner,.room-selector{padding:13px 14px}}
+@media (min-width: 760px){.sbody{padding-left:22px;padding-right:22px;width:100%}}
 
 /* ── NAV BAR ── */
-.navbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border-top:1px solid rgba(148,163,184,.12);padding:10px 12px calc(10px + env(safe-area-inset-bottom));flex-shrink:0;box-shadow:0 -14px 32px rgba(3,8,20,.26)}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 6px 10px;border:1px solid rgba(148,163,184,.1);border-radius:16px;background:rgba(255,255,255,.02);color:var(--text3);cursor:pointer;transition:color .15s,transform .15s,border-color .2s ease,background .2s ease;font-family:'Space Grotesk',sans-serif;min-height:58px}
-.nav-btn.active{color:var(--text);transform:translateY(-1px);background:rgba(29,158,117,.12);border-color:rgba(29,158,117,.28);box-shadow:0 12px 24px rgba(29,158,117,.18)}
+.navbar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:rgba(11,16,32,.92);border-top:1px solid rgba(148,163,184,.12);padding:10px 14px calc(10px + env(safe-area-inset-bottom));flex-shrink:0;backdrop-filter:blur(18px)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 6px 8px;border:none;border-radius:14px;background:transparent;color:var(--text3);cursor:pointer;transition:color .15s,transform .15s;font-family:'Space Grotesk',sans-serif;min-height:52px}
+.nav-btn.active{color:#67e8b2}
 .nav-btn span:first-child{font-size:18px}
 .nav-btn span:last-child{font-size:10px;font-weight:700;letter-spacing:.04em}
 
@@ -262,7 +276,7 @@ body{position:relative}
 .undo-btn:active{background:var(--red);border-color:var(--red);color:#fff}
 
 /* ── UPDATE BANNER ── */
-.update-banner{display:none;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(29,158,117,.16),rgba(91,140,255,.08));border:1px solid rgba(29,158,117,.3);border-radius:18px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh)}
+.update-banner{display:none;border:1px solid rgba(29,158,117,.24);margin-bottom:0}
 .update-banner.show{display:flex}
 .update-info{flex:1}
 .update-title{font-size:13px;font-weight:700;color:#6be2b7}
@@ -271,7 +285,7 @@ body{position:relative}
 .update-btn:active{opacity:.85}
 
 /* ── INSTALL BANNER ── */
-.install-banner{display:none;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(91,140,255,.16),rgba(124,92,252,.08));border:1px solid rgba(91,140,255,.26);border-radius:18px;padding:14px 16px;margin-bottom:12px;cursor:pointer;box-shadow:var(--sh)}
+.install-banner{display:none;border:1px solid rgba(91,140,255,.22);margin-bottom:0;cursor:pointer}
 .install-banner.show{display:flex}
 .install-icon{font-size:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(91,140,255,.14);border:1px solid rgba(91,140,255,.2)}
 .install-info{flex:1}
@@ -305,11 +319,10 @@ body{position:relative}
 .login-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
 
 /* ── USER BADGE ── */
-.user-badge{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);border-radius:18px;padding:12px 14px;margin-bottom:12px;box-shadow:var(--sh)}
-.ub-avatar{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 10px 22px rgba(91,140,255,.22)}
-.ub-info{flex:1;min-width:0}
-.ub-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ub-siape{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.user-badge{margin-bottom:0}
+.ub-avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 10px 22px rgba(91,140,255,.22)}
+.ub-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ub-siape{font-family:'JetBrains Mono',monospace}
 .ub-logout{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px}
 
 /* ── ROOM SEARCH & GROUPS ── */
@@ -550,80 +563,123 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       </button>
     </div>
 
-    <!-- Install banner -->
-<div class="install-banner" id="installBanner">
-  <div class="install-icon">📲</div>
-  <div class="install-info">
-    <div class="install-title">Instalar como app</div>
-    <div class="install-sub">Acesso rápido sem abrir o navegador</div>
-  </div>
-  <button class="install-btn" onclick="doInstall()">Instalar</button>
-  <button class="install-close" onclick="dismissInstall()" title="Fechar">✕</button>
-</div>
+    <div class="home-section">
+      <div class="home-list">
+        <div class="install-banner" id="installBanner">
+          <div class="install-icon">+</div>
+          <div class="install-info">
+            <div class="install-title">Instalar como app</div>
+            <div class="install-sub">Acesso rapido sem abrir o navegador</div>
+          </div>
+          <button class="install-btn" onclick="doInstall()">Instalar</button>
+          <button class="install-close" onclick="dismissInstall()" title="Fechar">x</button>
+        </div>
 
-<!-- Update banner -->
-<div class="update-banner" id="updateBanner">
-  <div style="font-size:22px">🔄</div>
-  <div class="update-info">
-    <div class="update-title" id="updateTitle">Nova versão disponível!</div>
-    <div class="update-sub" id="updateSub">Atualize para continuar usando</div>
-  </div>
-  <button class="update-btn" onclick="doUpdate()">Atualizar</button>
-</div>
-
-<!-- Admin button (só aparece para admins) -->
-<div id="adminBtn" style="display:none;margin-bottom:10px">
-  <button onclick="showScreen('scAdmin');adminCarregarFunc()" style="width:100%;background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(79,140,255,.15));border:1px solid rgba(124,92,252,.4);border-radius:var(--r2);padding:12px 16px;color:var(--accent2);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;margin-bottom:8px">
-    <span>⚙️</span><span>Painel de Administração</span><span style="margin-left:auto;font-size:18px">›</span>
-  </button>
-  <button onclick="showScreen('scDashboard');carregarDashboard()" style="width:100%;background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(79,140,255,.1));border:1px solid rgba(34,197,94,.3);border-radius:var(--r2);padding:12px 16px;color:var(--green);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px">
-    <span>📊</span><span>Dashboard do Gestor</span><span style="margin-left:auto;font-size:18px">›</span>
-  </button>
-</div>
-
-<!-- User badge -->
-<div class="user-badge" id="userBadge" style="display:none">
-  <div class="ub-avatar" id="userAvatar">?</div>
-  <div class="ub-info">
-    <div class="ub-name" id="userName">—</div>
-    <div class="ub-siape" id="userSiape">SIAPE: —</div>
-  </div>
-  <button class="ub-logout" onclick="fazerLogout()" title="Sair">⇥</button>
-</div>
-
-<div class="sync-banner" id="syncBanner" onclick="syncNow()">
-      <div class="sync-dot offline" id="syncDot"></div>
-      <div class="sync-text" id="syncText">Verificando conexão...</div>
-      <div class="sync-count" id="syncCount"></div>
-    </div>
-
-    <div class="room-selector" onclick="showScreen('scRooms')">
-      <div class="rs-label">📍 Local atual</div>
-      <div class="rs-value">
-        <span id="currentRoomLabel">Selecionar local</span>
-        <span class="rs-chevron">›</span>
+        <div class="update-banner" id="updateBanner">
+          <div class="home-row-icon green">*</div>
+          <div class="update-info">
+            <div class="update-title" id="updateTitle">Nova versao disponivel</div>
+            <div class="update-sub" id="updateSub">Atualize para continuar usando</div>
+          </div>
+          <button class="update-btn" onclick="doUpdate()">Atualizar</button>
+        </div>
       </div>
     </div>
-    <div class="action-grid">
-      <div class="action-card" onclick="showMinhasSalas()">
-        <span class="ac-icon">&#128203;</span>
-        <div class="ac-title">Minhas salas</div>
-        <div class="ac-sub">Seu progresso</div>
+
+    <div class="home-section" id="adminBtn" style="display:none">
+      <div class="home-section-label">Gestao</div>
+      <div class="home-list">
+        <button class="home-row-btn admin" onclick="showScreen('scAdmin');adminCarregarFunc()">
+          <span class="home-row-icon violet">A</span>
+          <span class="home-row-main">
+            <span class="home-row-title">Painel de administracao</span>
+            <span class="home-row-sub" id="adminSub">Acessos e configuracoes do inventario</span>
+          </span>
+          <span class="row-chevron">&rsaquo;</span>
+        </button>
+        <button class="home-row-btn manager" onclick="showScreen('scDashboard');carregarDashboard()">
+          <span class="home-row-icon green">D</span>
+          <span class="home-row-main">
+            <span class="home-row-title">Dashboard do gestor</span>
+            <span class="home-row-sub">Indicadores e andamento do campus</span>
+          </span>
+          <span class="row-chevron">&rsaquo;</span>
+        </button>
       </div>
-      <div class="action-card" onclick="openNoPatModal(null)">
-        <span class="ac-icon">&#128248;</span>
-        <div class="ac-title">Sem patrim.</div>
-        <div class="ac-sub">Foto + descri&ccedil;&atilde;o</div>
+    </div>
+
+    <div class="home-section">
+      <div class="home-section-label">Conta</div>
+      <div class="home-list">
+        <div class="user-badge" id="userBadge" style="display:none">
+          <div class="ub-avatar" id="userAvatar">?</div>
+          <div class="ub-info">
+            <div class="ub-name" id="userName">-</div>
+            <div class="ub-siape" id="userSiape">SIAPE: -</div>
+          </div>
+          <button class="ub-logout" onclick="fazerLogout()" title="Sair">&rarr;</button>
+        </div>
+
+        <div class="sync-banner" id="syncBanner" onclick="syncNow()">
+          <div class="sync-dot offline" id="syncDot"></div>
+          <div class="sync-main">
+            <div class="home-row-title">Sincronizacao</div>
+            <div class="sync-text" id="syncText">Verificando conexao...</div>
+          </div>
+          <div class="sync-count" id="syncCount"></div>
+        </div>
       </div>
-      <div class="action-card" onclick="showCampus()">
-        <span class="ac-icon">&#127979;</span>
-        <div class="ac-title">Campus</div>
-        <div class="ac-sub">Salas e progresso</div>
+    </div>
+
+    <div class="home-section">
+      <div class="home-section-label">Fluxo atual</div>
+      <div class="home-list">
+        <div class="room-selector" onclick="showScreen('scRooms')">
+          <div class="home-row-icon blue">L</div>
+          <div class="home-row-main">
+            <div class="rs-label">Local atual</div>
+            <div class="rs-value"><span id="currentRoomLabel">Selecionar local</span></div>
+          </div>
+          <span class="rs-chevron">&rsaquo;</span>
+        </div>
       </div>
-      <div class="action-card" onclick="showScreen('scBusca');setTimeout(function(){document.getElementById('buscaInput').focus();},300)">
-        <span class="ac-icon">&#128270;</span>
-        <div class="ac-title">Buscar</div>
-        <div class="ac-sub">N&ordm; patrim&ocirc;nio</div>
+    </div>
+
+    <div class="home-section">
+      <div class="home-section-label">Acesso rapido</div>
+      <div class="home-list">
+        <div class="home-row" onclick="showMinhasSalas()">
+          <span class="home-row-icon blue">S</span>
+          <div class="home-row-main">
+            <div class="home-row-title">Minhas salas</div>
+            <div class="home-row-sub">Seu progresso por ambiente</div>
+          </div>
+          <span class="row-chevron">&rsaquo;</span>
+        </div>
+        <div class="home-row" onclick="openNoPatModal(null)">
+          <span class="home-row-icon amber">F</span>
+          <div class="home-row-main">
+            <div class="home-row-title">Sem patrimonio</div>
+            <div class="home-row-sub">Foto e descricao do item</div>
+          </div>
+          <span class="row-chevron">&rsaquo;</span>
+        </div>
+        <div class="home-row" onclick="showCampus()">
+          <span class="home-row-icon green">C</span>
+          <div class="home-row-main">
+            <div class="home-row-title">Campus</div>
+            <div class="home-row-sub">Salas, cobertura e detalhes</div>
+          </div>
+          <span class="row-chevron">&rsaquo;</span>
+        </div>
+        <div class="home-row" onclick="showScreen('scBusca');setTimeout(function(){document.getElementById('buscaInput').focus();},300)">
+          <span class="home-row-icon">B</span>
+          <div class="home-row-main">
+            <div class="home-row-title">Buscar patrimonio</div>
+            <div class="home-row-sub">Consulta rapida por numero</div>
+          </div>
+          <span class="row-chevron">&rsaquo;</span>
+        </div>
       </div>
     </div>
 
@@ -1428,14 +1484,14 @@ function renderHomeSummary() {
   var pct = document.getElementById('homeProgressPct');
   var fill = document.getElementById('homeProgressFill');
   var textEl = document.getElementById('homeProgressText');
-  if (!roomsDone || !roomsTotal || !assets || !pct || !fill || !textEl) return;
+  if (!roomsDone || !roomsTotal || !assets || !pct || !fill) return;
 
   roomsDone.textContent = resumo.salasConcluidas;
   roomsTotal.textContent = resumo.totalSalas;
   assets.textContent = resumo.bensEscaneados;
   pct.textContent = resumo.progresso + '%';
   fill.style.width = resumo.progresso + '%';
-  textEl.textContent = resumo.progresso + '% concluido';
+  if (textEl) textEl.textContent = resumo.progresso + '% concluido';
 }
 
 // ═══════════════════════════════════════════════
