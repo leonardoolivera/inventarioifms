@@ -6,7 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f1117">
-<title>Inventário Campus</title>
+<meta name="application-name" content="Censo">
+<meta name="apple-mobile-web-app-title" content="Censo">
+<title>Censo - IFMS Dourados</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -26,29 +28,32 @@
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow:hidden}
 
-/* ── SCREENS ── */
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;will-change:transform}
-.screen.hidden{transform:translateY(100%);opacity:0;pointer-events:none}
-.screen.slide-left{transform:translateX(-100%);opacity:0;pointer-events:none}
-
-/* ── TOPBAR ── */
-.topbar{display:flex;align-items:center;gap:12px;padding:18px 18px 12px;background:linear-gradient(180deg,rgba(11,16,32,.98),rgba(11,16,32,.92));border-bottom:1px solid var(--border);backdrop-filter:blur(18px);flex-shrink:0;padding-top:max(18px,env(safe-area-inset-top))}
-.topbar-title{font-size:16px;font-weight:700;letter-spacing:-.02em;flex:1}
-.topbar-sub{font-size:12px;color:var(--text2);margin-top:2px}
-.back-btn{min-width:44px;height:44px;border:none;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 12px;gap:4px;font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.02)}
-
-/* ── SCROLL BODY ── */
-.sbody{flex:1;overflow-y:auto;padding:18px 18px;padding-bottom:max(28px,env(safe-area-inset-bottom))}
-
-/* ── HOME SCREEN ── */
-.home-header{background:radial-gradient(circle at top left,rgba(255,255,255,.18),transparent 34%),linear-gradient(135deg,#5e5bf7 0%,#4f8cff 55%,#33c3f0 100%);border-radius:24px;padding:24px 22px 22px;margin-bottom:18px;position:relative;overflow:hidden;box-shadow:0 22px 46px rgba(59,91,246,.24)}
-.home-header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='72' height='72' viewBox='0 0 72 72' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='12' cy='12' r='2'/%3E%3Ccircle cx='36' cy='36' r='2'/%3E%3Ccircle cx='60' cy='60' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
-.home-header h2{font-size:28px;line-height:1.12;font-weight:700;letter-spacing:-.03em;color:#fff;position:relative;max-width:11ch}
-.home-header p{font-size:13px;color:rgba(255,255,255,.82);margin-top:8px;position:relative}
-.home-kicker{position:relative;display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(10,14,30,.18);border:1px solid rgba(255,255,255,.18);font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:rgba(255,255,255,.92);margin-bottom:14px}
-.home-pills{position:relative;display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.home-pill{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);font-size:11px;font-weight:600;color:#fff;backdrop-filter:blur(6px)}
-.home-glow{position:absolute;width:180px;height:180px;right:-44px;top:-40px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 62%);pointer-events:none}
+/* ?? HOME SCREEN ?? */
+.home-header{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),var(--surface);border:1px solid rgba(148,163,184,.14);border-radius:24px;padding:22px 18px 18px;margin-bottom:18px;position:relative;overflow:hidden;box-shadow:var(--sh)}
+.home-headline{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.home-brand{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.home-brand-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(29,158,117,.14);border:1px solid rgba(29,158,117,.3);color:#1D9E75;font-weight:800;font-size:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.home-title{font-size:30px;line-height:1.02;font-weight:700;letter-spacing:-.04em;color:var(--text);margin-top:1px}
+.home-campus{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-top:10px;font-weight:500}
+.home-campus-pin{font-size:13px;color:#1D9E75}
+.home-status{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-size:12px;font-weight:700;color:#86efac;white-space:nowrap}
+.home-status.offline{color:var(--text2)}
+.home-status-dot{width:8px;height:8px;border-radius:50%;background:#1D9E75;box-shadow:0 0 0 4px rgba(29,158,117,.14)}
+.home-status.offline .home-status-dot{background:#64748b;box-shadow:0 0 0 4px rgba(100,116,139,.16)}
+.home-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.home-summary-card{background:var(--surface2);border:1px solid rgba(148,163,184,.12);border-radius:18px;padding:14px 12px;text-align:center}
+.home-summary-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);font-weight:700;margin-bottom:8px}
+.home-summary-value{font-size:24px;font-weight:700;letter-spacing:-.04em;color:var(--text);font-family:'JetBrains Mono',monospace}
+.home-summary-value.progress{color:#1D9E75}
+.home-summary-sub{font-size:11px;color:var(--text2);margin-top:6px}
+.home-progress-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.home-progress-track{flex:1;height:6px;border-radius:999px;background:rgba(148,163,184,.14);overflow:hidden}
+.home-progress-fill{height:100%;width:0;background:#1D9E75;border-radius:999px}
+.home-progress-text{font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap}
+.home-cta{width:100%;border:none;border-radius:14px;padding:14px 16px;background:#1D9E75;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;transition:transform .18s ease,background .2s ease,box-shadow .2s ease;box-shadow:0 14px 28px rgba(29,158,117,.22)}
+.home-cta:hover{background:#178A66}
+.home-cta:active{transform:scale(.992)}
+.home-cta-icon{font-size:18px}
 
 .room-selector{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px 16px;margin-bottom:14px;cursor:pointer;transition:transform .18s ease,border-color .2s ease,box-shadow .2s ease;box-shadow:var(--sh)}
 .room-selector:active{transform:scale(.995);border-color:var(--accent);box-shadow:0 14px 32px rgba(3,8,20,.28)}
@@ -63,16 +68,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .action-card::after{content:'';position:absolute;inset:auto -18px -24px auto;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 65%);pointer-events:none}
 .action-card:hover{border-color:rgba(91,140,255,.36)}
 .action-card.wide{grid-column:1 / -1;min-height:112px}
-.action-card.primary{border-color:rgba(91,140,255,.45);background:linear-gradient(135deg,rgba(91,140,255,.22),rgba(139,92,246,.14) 55%,rgba(51,195,240,.1))}
+.action-card.primary{border-color:rgba(29,158,117,.3);background:linear-gradient(135deg,rgba(29,158,117,.18),rgba(29,158,117,.08) 55%,rgba(255,255,255,.03))}
 .ac-icon{font-size:28px;margin-bottom:16px;display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
 .ac-title{font-size:16px;font-weight:700;letter-spacing:-.02em}
 .ac-sub{font-size:12px;line-height:1.45;color:var(--text2);margin-top:6px;max-width:18ch}
-
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
-.stat-box{background:linear-gradient(180deg,rgba(255,255,255,.025),transparent),var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px 12px;text-align:center;box-shadow:var(--sh)}
-.stat-n{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-.03em}
-.stat-n.g{color:var(--green)}.stat-n.y{color:var(--yellow)}.stat-n.b{color:var(--accent)}
-.stat-l{font-size:11px;color:var(--text2);margin-top:6px;text-transform:uppercase;letter-spacing:.08em}
 
 /* sync banner */
 .sync-banner{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:14px;cursor:pointer;box-shadow:var(--sh)}
@@ -489,15 +488,44 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 <div class="screen" id="scHome">
   <div class="sbody">
     <div class="home-header">
-      <div class="home-kicker">Inventario patrimonial</div>
-      <h2>Inventario Campus</h2>
-      <p id="homeDate">Carregando...</p>
-      <div class="home-pills">
-        <span class="home-pill">PWA</span>
-        <span class="home-pill">Offline first</span>
-        <span class="home-pill">Campus IFMS</span>
+      <div class="home-headline">
+        <div class="home-brand">
+          <div class="home-brand-icon">C</div>
+          <div>
+            <div class="home-title">Censo</div>
+            <div class="home-campus"><span class="home-campus-pin">&#128205;</span><span>Campus Dourados &mdash; IFMS</span></div>
+          </div>
+        </div>
+        <div class="home-status" id="homeStatusBadge">
+          <span class="home-status-dot"></span>
+          <span id="homeStatusText">Online</span>
+        </div>
       </div>
-      <div class="home-glow"></div>
+      <div class="home-summary-grid">
+        <div class="home-summary-card">
+          <div class="home-summary-label">Salas</div>
+          <div class="home-summary-value" id="homeRoomsDone">0</div>
+          <div class="home-summary-sub">de <span id="homeRoomsTotal">0</span></div>
+        </div>
+        <div class="home-summary-card">
+          <div class="home-summary-label">Bens</div>
+          <div class="home-summary-value" id="homeAssetsTotal">0</div>
+          <div class="home-summary-sub">escaneados</div>
+        </div>
+        <div class="home-summary-card">
+          <div class="home-summary-label">Progresso</div>
+          <div class="home-summary-value progress" id="homeProgressPct">0%</div>
+          <div class="home-summary-sub">conclu&iacute;do</div>
+        </div>
+      </div>
+      <div class="home-progress-row">
+        <div class="home-progress-track"><div class="home-progress-fill" id="homeProgressFill"></div></div>
+        <div class="home-progress-text" id="homeProgressText">0%</div>
+      </div>
+      <button class="home-cta" onclick="startScanner()">
+        <span class="home-cta-icon">&#128247;</span>
+        <span>Escanear patrim&ocirc;nio</span>
+      </button>
     </div>
 
     <!-- Install banner -->
@@ -554,13 +582,6 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <span class="rs-chevron">›</span>
       </div>
     </div>
-
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-n g" id="statFound">0</div><div class="stat-l">Encontrados</div></div>
-      <div class="stat-box"><div class="stat-n y" id="statNoPat">0</div><div class="stat-l">Sem patrim.</div></div>
-      <div class="stat-box"><div class="stat-n b" id="statTotal">0</div><div class="stat-l">Total hoje</div></div>
-    </div>
-
     <div class="action-grid">
       <div class="action-card primary" onclick="startScanner()">
         <span class="ac-icon">📷</span>
@@ -823,7 +844,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       </div>
     </div>
 
-    <div class="version-note">Inventario Campus <span id="versionSettings"></span><br>PWA | Offline First</div>
+    <div class="version-note">Censo <span id="versionSettings"></span><br>IFMS Dourados</div>
   </div>
 </div>
 
@@ -1094,7 +1115,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 <!-- ════ LOGIN SCREEN ════ -->
 <div class="login-wrap" id="loginWrap" style="display:none">
   <div class="login-logo">📋</div>
-  <div class="login-title">Inventário Campus</div>
+  <div class="login-title">Censo</div>
   <div class="login-sub">IFMS — Sistema de Inventário Patrimonial</div>
 
   <!-- Card SIAPE (padrão) -->
@@ -1173,11 +1194,11 @@ var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
   var el = document.getElementById('versionFooter');
-  if (el) el.textContent = APP_VERSION + ' · Inventário Campus';
+  if (el) el.textContent = APP_VERSION + ' | Censo';
   var vs = document.getElementById('versionSettings');
   if (vs) vs.textContent = APP_VERSION;
   var vl = document.getElementById('versionLogin');
-  if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
+  if (vl) vl.textContent = APP_VERSION + ' | Censo';
   // Detecta link de reset de senha no hash da URL
   verificarResetSenha();
 });
@@ -1289,7 +1310,7 @@ window.addEventListener('load', function() {
   });
 
   iniciarApp();
-  updateHomeDate();
+  updateHomeStatus();
   updateRoomLabel();
   updateStats();
   updateSyncBanner();
@@ -1303,14 +1324,14 @@ window.addEventListener('load', function() {
   ['versionFooter','versionBadge','versionSettings'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.textContent = el.id === 'versionFooter'
-      ? APP_VERSION + ' · Inventário Campus'
+      ? APP_VERSION + ' | Censo'
       : APP_VERSION;
   });
   var vl = document.getElementById('versionLogin');
-  if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
+  if (vl) vl.textContent = APP_VERSION + ' | Censo';
 
-  window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); syncNow(); });
-  window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); });
+  window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); updateHomeStatus(); syncNow(); });
+  window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); updateHomeStatus(); });
 
   // Sync imediato ao abrir se tiver pendentes
   if (state.isOnline && state.pendingSync.length) {
@@ -1323,7 +1344,7 @@ window.addEventListener('load', function() {
   // Boas-vindas na primeira abertura como app instalado
   if (window._mostrarBoasVindas) {
     setTimeout(function() {
-      showToast('ok', '🎉 App instalado com sucesso!', 'Bem-vindo ao Inventário Campus');
+      showToast('ok', '🎉 App instalado com sucesso!', 'Bem-vindo ao Censo');
     }, 1500);
   }
 
@@ -1336,10 +1357,68 @@ window.addEventListener('load', function() {
   }, 5 * 60 * 1000);
 });
 
-function updateHomeDate() {
-  var d = new Date();
-  document.getElementById('homeDate').textContent =
-    d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+function updateHomeStatus() {
+  var badge = document.getElementById('homeStatusBadge');
+  var textEl = document.getElementById('homeStatusText');
+  if (!badge || !textEl) return;
+  var online = !!state.isOnline;
+  badge.classList.toggle('offline', !online);
+  textEl.textContent = online ? 'Online' : 'Offline';
+}
+
+function getHomeSummary() {
+  var scans = state.scans.filter(function(s){ return s.type === 'scan'; }).length;
+  var porSala = {};
+  state.scans.forEach(function(s) {
+    if (s.type !== 'scan' || !s.room) return;
+    porSala[s.room] = (porSala[s.room] || 0) + 1;
+  });
+
+  var totalSalas = state.rooms.length;
+  var salasConcluidas = Object.keys(porSala).length;
+  var progresso = 0;
+
+  if (suapTotais && Object.keys(suapTotais).length) {
+    var totalBens = 0;
+    totalSalas = Object.keys(suapTotais).length;
+    salasConcluidas = 0;
+
+    Object.keys(suapTotais).forEach(function(sala) {
+      var totalSala = suapTotais[sala] || 0;
+      var feitosSala = Math.max((porSala[sala] || 0), (suapEncontrados && suapEncontrados[sala]) || 0);
+      totalBens += totalSala;
+      if (totalSala > 0 && feitosSala >= totalSala) salasConcluidas++;
+    });
+
+    progresso = totalBens > 0 ? Math.min(100, Math.round((scans / totalBens) * 100)) : 0;
+  } else if (totalSalas > 0) {
+    progresso = Math.min(100, Math.round((salasConcluidas / totalSalas) * 100));
+  }
+
+  return {
+    salasConcluidas: salasConcluidas,
+    totalSalas: totalSalas,
+    bensEscaneados: scans,
+    progresso: progresso
+  };
+}
+
+function renderHomeSummary() {
+  var resumo = getHomeSummary();
+  var roomsDone = document.getElementById('homeRoomsDone');
+  var roomsTotal = document.getElementById('homeRoomsTotal');
+  var assets = document.getElementById('homeAssetsTotal');
+  var pct = document.getElementById('homeProgressPct');
+  var fill = document.getElementById('homeProgressFill');
+  var textEl = document.getElementById('homeProgressText');
+  if (!roomsDone || !roomsTotal || !assets || !pct || !fill || !textEl) return;
+
+  roomsDone.textContent = resumo.salasConcluidas;
+  roomsTotal.textContent = resumo.totalSalas;
+  assets.textContent = resumo.bensEscaneados;
+  pct.textContent = resumo.progresso + '%';
+  fill.style.width = resumo.progresso + '%';
+  textEl.textContent = resumo.progresso + '% conclu&iacute;do';
 }
 
 // ═══════════════════════════════════════════════
@@ -2256,11 +2335,7 @@ function renderHistList() {
 //  STATS
 // ═══════════════════════════════════════════════
 function updateStats() {
-  var found = state.scans.filter(function(s){ return s.type==='scan'; }).length;
-  var nopat = state.scans.filter(function(s){ return s.type==='nopat'; }).length;
-  document.getElementById('statFound').textContent = found;
-  document.getElementById('statNoPat').textContent = nopat;
-  document.getElementById('statTotal').textContent = found + nopat;
+  renderHomeSummary();
 }
 
 // ═══════════════════════════════════════════════
@@ -2968,6 +3043,7 @@ function carregarTotaisSUAP(callback) {
     .catch(function(){})
     .finally(function() {
       suapCarregando = false;
+      renderHomeSummary();
       callback();
     });
 }
