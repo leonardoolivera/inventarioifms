@@ -1,4 +1,4 @@
-var CFG = {
+﻿var CFG = {
   ABA_FUNC: 'Funcionarios',
   ABA_INV: 'Inventario',
   ABA_NOPAT: 'Sem Patrimonio',
@@ -11,6 +11,17 @@ var CFG = {
   PROP_ANON_KEY: 'SUPABASE_ANON_KEY',
   PROP_SYNC_TOKEN: 'SYNC_TOKEN',
   DEFAULT_SYNC_TOKEN: 'inv-ifms-2394174'
+};
+
+var TEMA = {
+  corPrimaria: '#1f4e78',
+  corPrimariaEscura: '#163a59',
+  corSecundaria: '#eaf2f8',
+  corDestaque: '#d9ead3',
+  corAlerta: '#fce5cd',
+  corErro: '#f4cccc',
+  corTexto: '#243447',
+  corBorda: '#d0d7de'
 };
 
 function onOpen() {
@@ -30,9 +41,10 @@ function setup() {
   criarOuAtualizarAba(ss, CFG.ABA_FUNC, ['SIAPE', 'Nome', 'Admin', 'Ativo', 'Criado em']);
   criarOuAtualizarAba(ss, CFG.ABA_PAT, ['Numero', 'Descricao', 'Sala SUAP', 'Estado SUAP', 'Status', 'Local encontrado', 'Encontrado por', 'Encontrado em']);
   criarOuAtualizarAba(ss, CFG.ABA_INV, ['ID', 'Data/Hora', 'Codigo', 'Local', 'Funcionario', 'SIAPE', 'Sincronizado em']);
-  criarOuAtualizarAba(ss, CFG.ABA_NOPAT, ['ID', 'Data/Hora', 'Local', 'Descricao', 'Estado', 'Foto URL', 'Funcionario', 'SIAPE', 'Sincronizado em']);
+  criarOuAtualizarAba(ss, CFG.ABA_NOPAT, ['ID', 'Data/Hora', 'Local', 'Descricao', 'Estado', 'Miniatura', 'Abrir foto', 'Foto URL', 'Funcionario', 'SIAPE', 'Sincronizado em']);
   criarOuAtualizarAba(ss, CFG.ABA_LOG, ['Item ID', 'Tipo', 'Codigo', 'Sala', 'Descricao', 'Estado', 'Criado em', 'Sincronizado em']);
   criarOuAtualizarAba(ss, CFG.ABA_DASH, ['Indicador', 'Valor']);
+  aplicarTemaPlanilha(ss);
   SpreadsheetApp.getUi().alert('Planilha configurada. Agora configure a conexao com o Supabase no menu.');
 }
 
@@ -322,15 +334,20 @@ function escreverScans(ss, rows) {
 }
 
 function escreverSemPatrimonio(ss, rows) {
-  var valores = [['ID', 'Data/Hora', 'Local', 'Descricao', 'Estado', 'Foto URL', 'Funcionario', 'SIAPE', 'Sincronizado em']];
+  var valores = [['ID', 'Data/Hora', 'Local', 'Descricao', 'Estado', 'Miniatura', 'Abrir foto', 'Foto URL', 'Funcionario', 'SIAPE', 'Sincronizado em']];
   rows.forEach(function(r) {
+    var fotoUrl = limpar(r.foto_url);
+    var formulaImagem = fotoUrl ? '=IMAGE("' + fotoUrl.replace(/"/g, '""') + '";4;90;90)' : '';
+    var formulaLink = fotoUrl ? '=HYPERLINK("' + fotoUrl.replace(/"/g, '""') + '";"Ver foto")' : '';
     valores.push([
       limpar(r.id),
       fmt(r.criado_em),
       limpar(r.sala),
       limpar(r.descricao),
       limpar(r.estado),
-      limpar(r.foto_url),
+      formulaImagem,
+      formulaLink,
+      fotoUrl,
       limpar(r.funcionario),
       limpar(r.siape),
       fmt(r.sincronizado_em)
@@ -362,49 +379,278 @@ function atualizarDashboard(ss, dados) {
   var semPatrimonio = dados.semPatrimonio || [];
   var total = patrimonios.length;
   var encontrados = patrimonios.filter(function(p) {
-    return p.status === '✅ Encontrado' || p.status === '🟡 Outro local';
+    return contemAlgumTexto(p.status, ['Encontrado', 'Outro local']);
   }).length;
-  var duplicados = patrimonios.filter(function(p) { return p.status === '🔴 DUPLICADO'; }).length;
+  var duplicados = patrimonios.filter(function(p) {
+    return contemAlgumTexto(p.status, ['DUPLICADO']);
+  }).length;
   var pendentes = patrimonios.filter(function(p) { return !limpar(p.status); }).length;
   var progresso = total ? Math.round((encontrados / total) * 100) : 0;
   var servidores = {};
+  var locais = {};
+  var agora = fmt(new Date().toISOString());
 
   scans.forEach(function(s) {
     var nome = limpar(s.funcionario) || 'Servidor';
+    var local = limpar(s.sala) || 'Local nao informado';
     servidores[nome] = (servidores[nome] || 0) + 1;
+    locais[local] = (locais[local] || 0) + 1;
   });
 
+  var topServidor = obterTopItem(servidores, 'Nenhum registro');
+  var topLocal = obterTopItem(locais, 'Nenhum registro');
   var linhas = [
-    ['Indicador', 'Valor'],
-    ['Atualizado em', fmt(new Date().toISOString())],
-    ['Patrimonios totais', total],
-    ['Patrimonios encontrados', encontrados],
-    ['Patrimonios pendentes', pendentes],
-    ['Duplicados', duplicados],
-    ['Scans registrados', scans.length],
-    ['Itens sem patrimonio', semPatrimonio.length],
-    ['Servidores ativos', Object.keys(servidores).length],
-    ['Progresso geral (%)', progresso]
+    ['Painel de Inventario IFMS', '', '', ''],
+    ['Atualizado em ' + agora, '', '', ''],
+    ['', '', '', ''],
+    ['Resumo Geral', '', 'Produtividade', ''],
+    ['Patrimonios totais', total, 'Scans registrados', scans.length],
+    ['Patrimonios encontrados', encontrados, 'Servidores ativos', Object.keys(servidores).length],
+    ['Patrimonios pendentes', pendentes, 'Itens sem patrimonio', semPatrimonio.length],
+    ['Duplicados', duplicados, 'Progresso geral', progresso + '%'],
+    ['', '', '', ''],
+    ['Destaques', '', 'Acompanhamento', ''],
+    ['Servidor com mais registros', topServidor.label, 'Percentual concluido', progresso + '%'],
+    ['Total desse servidor', topServidor.value, 'Ultima sincronizacao', agora],
+    ['Local com mais scans', topLocal.label, 'Status da base', total ? 'Ativa' : 'Aguardando dados'],
+    ['Total nesse local', topLocal.value, 'Pendencias abertas', pendentes]
   ];
 
-  escreverTabela(ss, CFG.ABA_DASH, linhas);
+  escreverDashboard(ss, linhas, progresso);
 }
 
 function escreverTabela(ss, nome, valores) {
   var sh = criarOuAtualizarAba(ss, nome, valores[0]);
-  sh.clearContents();
+  limparAbaVisual(sh);
   sh.getRange(1, 1, valores.length, valores[0].length).setValues(valores);
-  sh.setFrozenRows(1);
-  sh.autoResizeColumns(1, valores[0].length);
+  aplicarLayoutTabela(sh, nome, valores.length, valores[0].length);
 }
 
 function criarOuAtualizarAba(ss, nome, header) {
   var sh = ss.getSheetByName(nome);
   if (!sh) sh = ss.insertSheet(nome);
   sh.getRange(1, 1, 1, header.length).setValues([header]);
-  sh.getRange(1, 1, 1, header.length).setFontWeight('bold');
+  aplicarCabecalhoTabela(sh.getRange(1, 1, 1, header.length));
   sh.setFrozenRows(1);
   return sh;
+}
+
+function escreverDashboard(ss, valores, progresso) {
+  var sh = ss.getSheetByName(CFG.ABA_DASH);
+  if (!sh) sh = ss.insertSheet(CFG.ABA_DASH);
+
+  limparAbaVisual(sh);
+  sh.getRange(1, 1, valores.length, valores[0].length).setValues(valores);
+  estilizarDashboard(sh, progresso, valores.length, valores[0].length);
+}
+
+function aplicarTemaPlanilha(ss) {
+  ss.getSheets().forEach(function(sh) {
+    if (sh.getName() !== CFG.ABA_DASH) {
+      sh.setFrozenRows(1);
+      sh.setHiddenGridlines(false);
+    }
+  });
+}
+
+function limparAbaVisual(sh) {
+  if (sh.getFilter()) sh.getFilter().remove();
+  sh.getBandings().forEach(function(banding) { banding.remove(); });
+  sh.setConditionalFormatRules([]);
+  sh.getRange(1, 1, sh.getMaxRows(), sh.getMaxColumns()).breakApart();
+  sh.clear();
+}
+
+function aplicarCabecalhoTabela(range) {
+  range
+    .setBackground(TEMA.corPrimaria)
+    .setFontColor('#ffffff')
+    .setFontWeight('bold')
+    .setFontSize(11)
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle')
+    .setBorder(true, true, true, true, true, true, TEMA.corPrimariaEscura, SpreadsheetApp.BorderStyle.SOLID);
+}
+
+function aplicarLayoutTabela(sh, nome, totalLinhas, totalColunas) {
+  var ultimaLinha = Math.max(totalLinhas, 2);
+  var ultimaColuna = Math.max(totalColunas, 1);
+  var range = sh.getRange(1, 1, ultimaLinha, ultimaColuna);
+
+  aplicarCabecalhoTabela(sh.getRange(1, 1, 1, ultimaColuna));
+  sh.setHiddenGridlines(true);
+  sh.setFrozenRows(1);
+
+  if (totalLinhas > 1) {
+    sh.getRange(2, 1, totalLinhas - 1, ultimaColuna)
+      .setFontColor(TEMA.corTexto)
+      .setFontSize(10)
+      .setVerticalAlignment('middle');
+    range.createFilter();
+    range.applyRowBanding(SpreadsheetApp.BandingTheme.LIGHT_GREY);
+  }
+
+  sh.getRange(1, 1, ultimaLinha, ultimaColuna)
+    .setBorder(true, true, true, true, true, true, TEMA.corBorda, SpreadsheetApp.BorderStyle.SOLID_THIN);
+
+  definirLarguras(sh, nome);
+  aplicarFormatosEspecificos(sh, nome, totalLinhas);
+}
+
+function definirLarguras(sh, nome) {
+  var larguras = {
+    Funcionarios: [110, 240, 90, 90, 160],
+    'Patrimonios SUAP': [110, 320, 140, 140, 160, 170, 180, 170],
+    Inventario: [90, 160, 120, 140, 180, 110, 160],
+    'Sem Patrimonio': [90, 160, 140, 280, 120, 120, 110, 260, 180, 110, 160],
+    Log: [100, 110, 120, 140, 260, 120, 160, 160]
+  };
+  var cols = larguras[nome];
+  if (!cols) {
+    sh.autoResizeColumns(1, sh.getLastColumn() || 1);
+    return;
+  }
+  for (var i = 0; i < cols.length; i++) {
+    sh.setColumnWidth(i + 1, cols[i]);
+  }
+}
+
+function aplicarFormatosEspecificos(sh, nome, totalLinhas) {
+  if (totalLinhas < 2) return;
+
+  var regras = [];
+  if (nome === CFG.ABA_FUNC) {
+    regras.push(
+      SpreadsheetApp.newConditionalFormatRule()
+        .whenTextEqualTo('Sim')
+        .setBackground(TEMA.corDestaque)
+        .setRanges([sh.getRange(2, 3, totalLinhas - 1, 2)])
+        .build()
+    );
+    regras.push(
+      SpreadsheetApp.newConditionalFormatRule()
+        .whenTextEqualTo('Nao')
+        .setBackground(TEMA.corErro)
+        .setRanges([sh.getRange(2, 3, totalLinhas - 1, 2)])
+        .build()
+    );
+  }
+
+  if (nome === CFG.ABA_PAT) {
+    var statusRange = sh.getRange(2, 5, totalLinhas - 1, 1);
+    regras.push(
+      SpreadsheetApp.newConditionalFormatRule()
+        .whenTextContains('Encontrado')
+        .setBackground(TEMA.corDestaque)
+        .setRanges([statusRange])
+        .build()
+    );
+    regras.push(
+      SpreadsheetApp.newConditionalFormatRule()
+        .whenTextContains('Outro local')
+        .setBackground(TEMA.corAlerta)
+        .setRanges([statusRange])
+        .build()
+    );
+    regras.push(
+      SpreadsheetApp.newConditionalFormatRule()
+        .whenTextContains('DUPLICADO')
+        .setBackground(TEMA.corErro)
+        .setRanges([statusRange])
+        .build()
+    );
+  }
+
+  if (nome === CFG.ABA_NOPAT) {
+    sh.getRange(2, 4, totalLinhas - 1, 1).setWrap(true);
+    sh.getRange(2, 8, totalLinhas - 1, 1).setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP);
+    sh.getRange(2, 7, totalLinhas - 1, 1).setHorizontalAlignment('center');
+    sh.setRowHeights(2, totalLinhas - 1, 96);
+  }
+
+  if (nome === CFG.ABA_LOG) {
+    sh.getRange(2, 5, totalLinhas - 1, 1).setWrap(true);
+  }
+
+  sh.setConditionalFormatRules(regras);
+}
+
+function estilizarDashboard(sh, progresso, totalLinhas, totalColunas) {
+  sh.setHiddenGridlines(true);
+  sh.setFrozenRows(0);
+  sh.setColumnWidths(1, 4, 210);
+  sh.setRowHeights(1, totalLinhas, 28);
+
+  sh.getRange(1, 1, totalLinhas, totalColunas)
+    .setFontColor(TEMA.corTexto)
+    .setVerticalAlignment('middle')
+    .setHorizontalAlignment('left')
+    .setBorder(false, false, false, false, false, false);
+
+  sh.getRange('A1:D2')
+    .merge()
+    .setBackground(TEMA.corPrimaria)
+    .setFontColor('#ffffff')
+    .setFontWeight('bold')
+    .setFontSize(18)
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle');
+
+  estilizarSecaoDashboard(sh.getRange('A4:B4'));
+  estilizarSecaoDashboard(sh.getRange('C4:D4'));
+  estilizarSecaoDashboard(sh.getRange('A10:B10'));
+  estilizarSecaoDashboard(sh.getRange('C10:D10'));
+
+  destacarBloco(sh.getRange('A5:B8'), TEMA.corSecundaria);
+  destacarBloco(sh.getRange('C5:D8'), '#edf7ed');
+  destacarBloco(sh.getRange('A11:B14'), '#f8f9fa');
+  destacarBloco(sh.getRange('C11:D14'), '#fff7e6');
+
+  sh.getRange('A5:A14').setFontWeight('bold');
+  sh.getRange('C5:C14').setFontWeight('bold');
+  sh.getRange('B5:B14').setHorizontalAlignment('right');
+  sh.getRange('D5:D14').setHorizontalAlignment('right');
+  sh.getRange('D11').setBackground(corProgresso(progresso)).setFontWeight('bold');
+}
+
+function estilizarSecaoDashboard(range) {
+  range
+    .merge()
+    .setBackground(TEMA.corPrimariaEscura)
+    .setFontColor('#ffffff')
+    .setFontWeight('bold')
+    .setHorizontalAlignment('center')
+    .setVerticalAlignment('middle');
+}
+
+function destacarBloco(range, cor) {
+  range
+    .setBackground(cor)
+    .setBorder(true, true, true, true, true, true, TEMA.corBorda, SpreadsheetApp.BorderStyle.SOLID_MEDIUM);
+}
+
+function corProgresso(progresso) {
+  if (progresso >= 80) return '#c6e0b4';
+  if (progresso >= 50) return '#ffe699';
+  return '#f4cccc';
+}
+
+function obterTopItem(mapa, fallback) {
+  var top = { label: fallback, value: 0 };
+  Object.keys(mapa).forEach(function(chave) {
+    if (mapa[chave] > top.value) {
+      top = { label: chave, value: mapa[chave] };
+    }
+  });
+  return top;
+}
+
+function contemAlgumTexto(valor, termos) {
+  var texto = limpar(valor).toLowerCase();
+  for (var i = 0; i < termos.length; i++) {
+    if (texto.indexOf(String(termos[i]).toLowerCase()) > -1) return true;
+  }
+  return false;
 }
 
 function encontrarIndice(header, opcoes) {
