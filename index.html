@@ -244,11 +244,11 @@ body{position:relative}
 @media (min-width: 760px){.action-grid{grid-template-columns:repeat(2,1fr)}.action-card.wide{grid-column:span 2}.sbody{padding-left:22px;padding-right:22px;width:100%}}
 
 /* ── NAV BAR ── */
-.navbar{display:flex;background:var(--surface);border-top:1px solid var(--border);padding-bottom:max(8px,env(safe-area-inset-bottom));flex-shrink:0}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px 8px;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:color .15s,transform .15s;font-family:'Space Grotesk',sans-serif}
-.nav-btn.active{color:var(--accent);transform:translateY(-1px)}
-.nav-btn span:first-child{font-size:20px}
-.nav-btn span:last-child{font-size:10px;font-weight:600}
+.navbar{display:flex;gap:8px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border-top:1px solid rgba(148,163,184,.12);padding:10px 12px calc(10px + env(safe-area-inset-bottom));flex-shrink:0;box-shadow:0 -14px 32px rgba(3,8,20,.26)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 6px 10px;border:1px solid rgba(148,163,184,.1);border-radius:16px;background:rgba(255,255,255,.02);color:var(--text3);cursor:pointer;transition:color .15s,transform .15s,border-color .2s ease,background .2s ease;font-family:'Space Grotesk',sans-serif;min-height:58px}
+.nav-btn.active{color:var(--text);transform:translateY(-1px);background:rgba(29,158,117,.12);border-color:rgba(29,158,117,.28);box-shadow:0 12px 24px rgba(29,158,117,.18)}
+.nav-btn span:first-child{font-size:18px}
+.nav-btn span:last-child{font-size:10px;font-weight:700;letter-spacing:.04em}
 
 /* ── UNDO TOAST ── */
 .undo-bar{position:fixed;bottom:max(160px,calc(140px + env(safe-area-inset-bottom)));left:12px;right:12px;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.4,0,.2,1)}
@@ -260,22 +260,22 @@ body{position:relative}
 .undo-btn:active{background:var(--red);border-color:var(--red);color:#fff}
 
 /* ── UPDATE BANNER ── */
-.update-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(79,140,255,.1));border:1px solid rgba(34,197,94,.4);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px}
+.update-banner{display:none;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(29,158,117,.16),rgba(91,140,255,.08));border:1px solid rgba(29,158,117,.3);border-radius:18px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh)}
 .update-banner.show{display:flex}
 .update-info{flex:1}
-.update-title{font-size:13px;font-weight:700;color:var(--green)}
+.update-title{font-size:13px;font-weight:700;color:#6be2b7}
 .update-sub{font-size:11px;color:var(--text2);margin-top:1px}
-.update-btn{background:var(--green);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.update-btn{background:linear-gradient(135deg,#1D9E75,#178A66);border:none;border-radius:12px;padding:10px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 10px 22px rgba(29,158,117,.2)}
 .update-btn:active{opacity:.85}
 
 /* ── INSTALL BANNER ── */
-.install-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(79,140,255,.15),rgba(124,92,252,.1));border:1px solid rgba(79,140,255,.3);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px;cursor:pointer}
+.install-banner{display:none;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(91,140,255,.16),rgba(124,92,252,.08));border:1px solid rgba(91,140,255,.26);border-radius:18px;padding:14px 16px;margin-bottom:12px;cursor:pointer;box-shadow:var(--sh)}
 .install-banner.show{display:flex}
-.install-icon{font-size:24px;flex-shrink:0}
+.install-icon{font-size:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(91,140,255,.14);border:1px solid rgba(91,140,255,.2)}
 .install-info{flex:1}
 .install-title{font-size:13px;font-weight:700;color:var(--text)}
 .install-sub{font-size:11px;color:var(--text2);margin-top:1px}
-.install-btn{background:var(--accent);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.install-btn{background:linear-gradient(135deg,var(--accent),#709eff);border:none;border-radius:12px;padding:10px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:0 10px 20px rgba(79,140,255,.2)}
 .install-close{background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0}
 
 .mini-room-item{padding:8px 12px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;transition:background .15s}
@@ -288,23 +288,23 @@ body{position:relative}
 @keyframes dots { 0%,20% { content: '.'; } 40%,60% { content: '..'; } 80%,100% { content: '...'; } }
 
 /* ── LOGIN ── */
-.login-wrap{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
-.login-logo{font-size:56px;margin-bottom:4px}
-.login-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--text);text-align:center}
-.login-sub{font-size:13px;color:var(--text2);text-align:center;line-height:1.5;margin-top:-8px}
-.login-card{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:14px}
+.login-wrap{position:fixed;inset:0;background:radial-gradient(circle at top,rgba(91,140,255,.12),transparent 26%),var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
+.login-logo{display:flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:22px;background:rgba(29,158,117,.14);border:1px solid rgba(29,158,117,.26);font-size:34px;margin-bottom:2px;box-shadow:0 18px 36px rgba(29,158,117,.18)}
+.login-title{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;letter-spacing:-.04em;color:var(--text);text-align:center}
+.login-sub{font-size:13px;color:var(--text2);text-align:center;line-height:1.6;margin-top:-8px;max-width:34ch}
+.login-card{width:100%;max-width:380px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--sh)}
 .login-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600}
-.login-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:14px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:3px;outline:none;text-align:center}
+.login-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:3px;outline:none;text-align:center}
 .login-input:focus{border-color:var(--accent)}
-.login-btn{width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:8px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.login-btn{width:100%;background:linear-gradient(135deg,#1D9E75,#178A66);border:none;border-radius:14px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .15s;box-shadow:0 16px 28px rgba(29,158,117,.24)}
 .login-btn:active{opacity:.85}
 .login-btn:disabled{opacity:.5;cursor:not-allowed}
 .login-error{font-size:12px;color:var(--red);text-align:center;min-height:16px}
 .login-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
 
 /* ── USER BADGE ── */
-.user-badge{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;margin-bottom:12px}
-.ub-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.user-badge{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);border-radius:18px;padding:12px 14px;margin-bottom:12px;box-shadow:var(--sh)}
+.ub-avatar{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 10px 22px rgba(91,140,255,.22)}
 .ub-info{flex:1;min-width:0}
 .ub-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ub-siape{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace}
@@ -628,12 +628,11 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter"></div>
   </div>
   <div class="navbar">
-    <button class="nav-btn active" onclick="showScreen('scHome')"><span>🏠</span><span>Início</span></button>
-    <button class="nav-btn" onclick="startScanner()"><span>📷</span><span>Scanner</span></button>
-    <button class="nav-btn" onclick="showMinhasSalas()"><span>📋</span><span>Minhas salas</span></button>
-    <button class="nav-btn" onclick="showScreen('scSettings')"><span>⚙️</span><span>Config</span></button>
-  </div>
-</div>
+    <button class="nav-btn active" onclick="showScreen('scHome')"><span>&#127968;</span><span>Inicio</span></button>
+    <button class="nav-btn" onclick="startScanner()"><span>&#128247;</span><span>Scanner</span></button>
+    <button class="nav-btn" onclick="showMinhasSalas()"><span>&#128203;</span><span>Salas</span></button>
+    <button class="nav-btn" onclick="showScreen('scSettings')"><span>&#9881;</span><span>Config</span></button>
+  </div></div>
 
 <!-- ════════════════════════════════════════════
      SCREEN: ROOM PICKER
@@ -1134,11 +1133,10 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <!-- ════ LOGIN SCREEN ════ -->
 <div class="login-wrap" id="loginWrap" style="display:none">
-  <div class="login-logo">📋</div>
+  <div class="login-logo">C</div>
   <div class="login-title">Censo</div>
-  <div class="login-sub">IFMS — Sistema de Inventário Patrimonial</div>
+  <div class="login-sub">IFMS Dourados<br>Censo patrimonial do campus</div>
 
-  <!-- Card SIAPE (padrão) -->
   <div id="loginCardSiape">
     <div class="login-card">
       <div class="login-label">Digite seu SIAPE</div>
@@ -1149,35 +1147,34 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <button class="login-btn" id="loginBtn" onclick="fazerLogin()">Entrar</button>
     </div>
     <div style="font-size:11px;color:var(--text3);text-align:center">
-      Use seu número SIAPE para acessar
+      Use seu numero SIAPE para acessar
     </div>
     <button onclick="mostrarLoginAdmin()" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;margin-top:10px;font-family:'Space Grotesk',sans-serif;display:block;margin-left:auto;margin-right:auto">
-      Entrar como gestor ›
+      Entrar como gestor &rsaquo;
     </button>
   </div>
 
-  <!-- Card Admin (email + senha) -->
-  <div id="loginCardAdmin" style="display:none;width:100%;max-width:360px">
+  <div id="loginCardAdmin" style="display:none;width:100%;max-width:380px">
     <div class="login-card">
       <div class="login-label">Email</div>
       <input class="login-input" id="adminEmailInput" type="email" placeholder="gestor@email.com"
         autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('adminSenhaInput').focus()">
       <div class="login-label" style="margin-top:10px">Senha</div>
-      <input class="login-input" id="adminSenhaInput" type="password" placeholder="••••••••"
+      <input class="login-input" id="adminSenhaInput" type="password" placeholder="senha"
         autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLoginAdmin()">
       <div class="login-error" id="loginErrorAdmin"></div>
       <button class="login-btn" id="loginBtnAdmin" onclick="fazerLoginAdmin()">Entrar</button>
     </div>
-    <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:6px;max-width:360px">
-      <button onclick="mostrarLoginSiape()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Space Grotesk',sans-serif">‹ Login por SIAPE</button>
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:10px;max-width:380px;width:100%">
+      <button onclick="mostrarLoginSiape()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Space Grotesk',sans-serif">&lsaquo; Login por SIAPE</button>
       <button onclick="abrirRecuperarSenha()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Space Grotesk',sans-serif">Esqueci a senha</button>
     </div>
   </div>
-  <!-- Update banner no login -->
-  <div class="update-banner" id="updateBannerLogin" style="display:none;max-width:360px;width:100%">
-    <div style="font-size:18px">🔄</div>
+
+  <div class="update-banner" id="updateBannerLogin" style="display:none;max-width:380px;width:100%">
+    <div style="font-size:18px">&#10227;</div>
     <div class="update-info">
-      <div class="update-title" id="updateTitleLogin">Nova versão!</div>
+      <div class="update-title" id="updateTitleLogin">Nova versao!</div>
       <div class="update-sub" id="updateSubLogin"></div>
     </div>
     <button class="update-btn" onclick="doUpdate()">Atualizar</button>
@@ -1185,13 +1182,12 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionLogin"></div>
 </div>
 
-<!-- Modal: Nova senha (após link de reset) -->
-<div id="resetSenhaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
-  <div style="background:var(--bg);border-radius:16px;padding:24px;width:100%;max-width:340px">
-    <div style="font-size:18px;font-weight:700;margin-bottom:4px">🔑 Nova senha</div>
+<div id="resetSenhaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)">
+  <div style="background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);border-radius:24px;padding:24px;width:100%;max-width:360px;box-shadow:var(--sh)">
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px">&#128273; Nova senha</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:16px">Digite sua nova senha de acesso.</div>
     <div class="login-label">Nova senha</div>
-    <input class="login-input" id="novaSenhaInput" type="password" placeholder="Mínimo 6 caracteres"
+    <input class="login-input" id="novaSenhaInput" type="password" placeholder="Minimo 6 caracteres"
       autocomplete="new-password" onkeydown="if(event.key==='Enter')document.getElementById('confirmarSenhaInput').focus()">
     <div class="login-label" style="margin-top:10px">Confirmar senha</div>
     <input class="login-input" id="confirmarSenhaInput" type="password" placeholder="Repita a senha"
