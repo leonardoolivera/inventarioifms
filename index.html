@@ -263,11 +263,11 @@ body{position:relative}
 @media (min-width: 760px){.sbody{padding-left:22px;padding-right:22px;width:100%}}
 
 /* ── NAV BAR ── */
-.navbar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:rgba(11,16,32,.92);border-top:1px solid rgba(148,163,184,.12);padding:10px 14px calc(10px + env(safe-area-inset-bottom));flex-shrink:0;backdrop-filter:blur(18px)}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px 6px 8px;border:none;border-radius:14px;background:transparent;color:var(--text3);cursor:pointer;transition:color .15s,transform .15s;font-family:'Space Grotesk',sans-serif;min-height:52px}
-.nav-btn.active{color:#67e8b2}
-.nav-btn span:first-child{font-size:18px}
-.nav-btn span:last-child{font-size:10px;font-weight:700;letter-spacing:.04em}
+.navbar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:rgba(11,16,32,.92);border-top:1px solid rgba(148,163,184,.12);padding:4px 14px env(safe-area-inset-bottom);height:calc(56px + env(safe-area-inset-bottom));flex-shrink:0;backdrop-filter:blur(18px)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 6px;border:none;border-radius:14px;background:transparent;color:rgba(255,255,255,.4);cursor:pointer;transition:color .15s,transform .15s;font-family:'Space Grotesk',sans-serif;min-height:0}
+.nav-btn.active{color:#1D9E75}
+.nav-btn svg{width:24px;height:24px;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nav-btn span{font-size:11px;font-weight:700;letter-spacing:.04em;line-height:1.1}
 
 /* ── UNDO TOAST ── */
 .undo-bar{position:fixed;bottom:max(160px,calc(140px + env(safe-area-inset-bottom)));left:12px;right:12px;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.4,0,.2,1)}
@@ -673,9 +673,9 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter"></div>
   </div>
   <div class="navbar">
-    <button class="nav-btn" onclick="startScanner()"><span>&#128247;</span><span>Scanner</span></button>
-    <button class="nav-btn" onclick="showMinhasSalas()"><span>&#128203;</span><span>Salas</span></button>
-    <button class="nav-btn" onclick="showScreen('scSettings')"><span>&#9881;</span><span>Config</span></button>
+    <button class="nav-btn" onclick="startScanner()"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 12h8"/></svg><span>Scanner</span></button>
+    <button class="nav-btn" onclick="showMinhasSalas()"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z"/></svg><span>Salas</span></button>
+    <button class="nav-btn" onclick="showScreen('scSettings')"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span>Config</span></button>
   </div></div>
 
 <!-- ════════════════════════════════════════════
