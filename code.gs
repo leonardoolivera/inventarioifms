@@ -472,7 +472,7 @@ function testIA() {
 
   // Fallback manual se não conseguiu listar
   if (!modelosDisponiveis.length) {
-    modelosDisponiveis = ['gemini-2.5-flash', 'gemma-3-4b-it'];
+    modelosDisponiveis = ['gemini-2.5-flash', 'gemini-2.5-pro'];
   }
 
   var modelos = modelosDisponiveis;
