@@ -2600,7 +2600,7 @@ function renderMinhasSalas() {
       ? pct + '% Â· ' + (total - feitos) + ' pendentes' + (pct === 100 ? ' Â· âœ… ConcluÃ­do' : '')
       : (ab.bloco || '');
 
-    visitHtml += '<div class="ms-sala-card" onclick="showCampusDetalhe('' + escJ(sala) + '')">'
+    visitHtml += '<div class="ms-sala-card" onclick="showCampusDetalhe(\'' + escJ(sala) + '\')">'
       + '<div class="ms-sala-header">'
       + '<div class="ms-sala-name">' + (ab.emoji || 'ðŸ“') + ' ' + esc(ab.curto) + '</div>'
       + '<div class="ms-sala-count" style="color:' + cor + '">' + countTxt + '</div>'

@@ -29,6 +29,7 @@ self.addEventListener('activate', function(e) {
 self.addEventListener('fetch', function(e) {
   // Não intercepta APIs externas nem requisições POST/PUT (Cache API não suporta)
   if (e.request.method !== 'GET') return;
+  if (!/^https?:/i.test(e.request.url)) return;
   if (e.request.url.indexOf('script.google.com') > -1) return;
   if (e.request.url.indexOf('googleapis.com') > -1) return;
   if (e.request.url.indexOf('unpkg.com') > -1) return;
