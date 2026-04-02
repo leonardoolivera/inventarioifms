@@ -19,6 +19,8 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 );
 
+let bucketReady = false;
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: cors() });
@@ -162,6 +164,7 @@ async function registrarLog(item: SyncItem, fotoUrl: string | null) {
 }
 
 async function uploadFoto(itemId: string, base64data: string) {
+  await ensureBucket();
   const parsed = parseBase64Image(base64data);
   const ext = parsed.mime.split('/')[1] || 'jpg';
   const path = `fotos/${itemId}.${ext}`;
@@ -195,6 +198,26 @@ function parseBase64Image(base64data: string) {
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
   return { mime, bytes };
+}
+
+async function ensureBucket() {
+  if (bucketReady) return;
+
+  const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+  if (listError) throw listError;
+
+  const exists = (buckets || []).some((bucket) => bucket.name === 'sem-patrimonio');
+  if (!exists) {
+    const { error: createError } = await supabase.storage.createBucket('sem-patrimonio', {
+      public: true,
+      fileSizeLimit: '5MB',
+    });
+    if (createError && !String(createError.message || '').toLowerCase().includes('already exists')) {
+      throw createError;
+    }
+  }
+
+  bucketReady = true;
 }
 
 function normalizarNumero(value: string | undefined) {

@@ -67,12 +67,27 @@ function batchSync(items) {
     },
     body: JSON.stringify({ items: items || [] })
   })
-  .then(function(r) { return r.json(); })
-  .then(function(res) {
-    if (!res || res.ok === false) {
-      return { ok: false, erro: res && res.erro ? res.erro : 'Falha ao sincronizar' };
-    }
-    return { ok: true, sincronizados: res.sincronizados || items.length, detalhes: res };
+  .then(function(r) {
+    return r.text().then(function(body) {
+      var res = {};
+      try { res = body ? JSON.parse(body) : {}; } catch (_) {}
+      if (!r.ok) {
+        return {
+          ok: false,
+          erro: res.erro || res.error || ('HTTP ' + r.status),
+          detalhes: res
+        };
+      }
+      if (!res || res.ok === false) {
+        var detalhe = res && res.erros && res.erros.length ? res.erros.join(' | ') : '';
+        return {
+          ok: false,
+          erro: res && res.erro ? res.erro : (detalhe || 'Falha ao sincronizar'),
+          detalhes: res
+        };
+      }
+      return { ok: true, sincronizados: res.sincronizados || items.length, detalhes: res };
+    });
   })
   .catch(function(err) {
     return { ok: false, erro: err && err.message ? err.message : String(err) };

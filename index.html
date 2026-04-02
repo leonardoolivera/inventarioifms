@@ -1980,27 +1980,27 @@ function syncNow() {
     return Promise.resolve({ ok: false, skipped: true, reason: 'empty' });
   }
   setSyncState('syncing');
-  var items = toSync.map(function(s) {
-    var foto = (s.type === 'nopat' && photoCache[s.id]) ? photoCache[s.id] : (s.photo || '');
-    return {
-      id: s.id,
-      type: s.type,
-      code: s.code || '',
-      room: s.room || '',
-      desc: s.desc || '',
-      estado: s.estado || '',
-      photo: foto,
-      ts: s.ts,
-      funcionario: s.funcionario || '',
-      siape: s.siape || ''
-    };
-  });
   var nopats = toSync.filter(function(s){ return s.type === 'nopat' && !photoCache[s.id]; });
   return Promise.all(nopats.map(function(s) {
     return idbCarregarFoto(s.id).then(function(foto) {
       if (foto) photoCache[s.id] = foto;
     });
   })).then(function() {
+    var items = toSync.map(function(s) {
+      var foto = (s.type === 'nopat' && photoCache[s.id]) ? photoCache[s.id] : (s.photo || '');
+      return {
+        id: s.id,
+        type: s.type,
+        code: s.code || '',
+        room: s.room || '',
+        desc: s.desc || '',
+        estado: s.estado || '',
+        photo: foto,
+        ts: s.ts,
+        funcionario: s.funcionario || '',
+        siape: s.siape || ''
+      };
+    });
     var LOTE = 10;
     var lotes = [];
     for (var i = 0; i < items.length; i += LOTE) {
