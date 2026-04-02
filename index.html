@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f1117">
-<title>InventÃ¡rio Campus</title>
+<title>Inventário Campus</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -26,21 +26,21 @@
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow:hidden}
 
-/* â”€â”€ SCREENS â”€â”€ */
+/* ── SCREENS ── */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .3s cubic-bezier(.4,0,.2,1),opacity .3s;will-change:transform}
 .screen.hidden{transform:translateY(100%);opacity:0;pointer-events:none}
 .screen.slide-left{transform:translateX(-100%);opacity:0;pointer-events:none}
 
-/* â”€â”€ TOPBAR â”€â”€ */
+/* ── TOPBAR ── */
 .topbar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;padding-top:max(14px,env(safe-area-inset-top))}
 .topbar-title{font-size:15px;font-weight:700;flex:1}
 .topbar-sub{font-size:11px;color:var(--text2);margin-top:1px}
 .back-btn{min-width:44px;height:44px;border:none;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 12px;gap:4px;font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14px}
 
-/* â”€â”€ SCROLL BODY â”€â”€ */
+/* ── SCROLL BODY ── */
 .sbody{flex:1;overflow-y:auto;padding:14px 16px;padding-bottom:max(20px,env(safe-area-inset-bottom))}
 
-/* â”€â”€ HOME SCREEN â”€â”€ */
+/* ── HOME SCREEN ── */
 .home-header{background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:var(--r);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
 .home-header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
 .home-header h2{font-size:20px;font-weight:700;color:#fff;position:relative}
@@ -79,7 +79,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .sync-text{flex:1;font-size:12px;color:var(--text2)}
 .sync-count{font-size:12px;font-weight:700;color:var(--yellow)}
 
-/* â”€â”€ ROOM PICKER â”€â”€ */
+/* ── ROOM PICKER ── */
 .room-list{display:flex;flex-direction:column;gap:8px}
 .room-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s}
 .room-item:active,.room-item.selected{border-color:var(--accent);background:rgba(79,140,255,.1)}
@@ -92,7 +92,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .add-room-btn{background:transparent;border:2px dashed var(--border);border-radius:var(--r2);padding:14px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;width:100%;transition:border-color .2s}
 .add-room-btn:active{border-color:var(--accent);color:var(--accent)}
 
-/* â”€â”€ SCANNER â”€â”€ */
+/* ── SCANNER ── */
 .scanner-wrap{position:relative;background:#000;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center}
 
 #scannerVideo{width:100%;height:100%;object-fit:cover}
@@ -123,7 +123,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .nopat-btn{width:100%;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
 .nopat-btn:active{border-color:var(--orange);color:var(--orange)}
 
-/* â”€â”€ RESULT TOAST â”€â”€ */
+/* ── RESULT TOAST ── */
 .result-toast{position:fixed;top:max(60px,env(safe-area-inset-top));left:12px;right:12px;z-index:999;border-radius:var(--r2);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;transform:translateY(-20px);opacity:0;transition:all .2s;pointer-events:none;box-shadow:var(--sh)}
 .result-toast.show{transform:translateY(0);opacity:1}
 .result-toast.ok{background:#14532d;border:1px solid var(--green)}
@@ -133,7 +133,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .rt-title{font-size:13px;font-weight:700}
 .rt-sub{font-size:11px;color:var(--text2);margin-top:2px}
 
-/* â”€â”€ NO-PAT MODAL â”€â”€ */
+/* ── NO-PAT MODAL ── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-bg.show{opacity:1;pointer-events:all}
 .modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px;padding-bottom:max(24px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
@@ -163,7 +163,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .modal-save-btn:active{opacity:.85}
 .modal-cancel{width:100%;background:transparent;border:none;padding:12px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;margin-top:4px}
 
-/* â”€â”€ HISTORY â”€â”€ */
+/* ── HISTORY ── */
 .hist-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
 .hi-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
 .hi-dot.ok{background:var(--green)}.hi-dot.warn{background:var(--yellow)}.hi-dot.dup{background:var(--accent2)}
@@ -176,7 +176,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 
 .thumb{width:44px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0}
 
-/* â”€â”€ SETTINGS â”€â”€ */
+/* ── SETTINGS ── */
 .sett-section{margin-bottom:20px}
 .sett-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600;margin-bottom:10px}
 .sett-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;cursor:pointer}
@@ -186,20 +186,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .si-sub{font-size:11px;color:var(--text2);margin-top:2px}
 .si-arrow{color:var(--text3)}
 
-/* â”€â”€ URL CONFIG â”€â”€ */
+/* ── URL CONFIG ── */
 .url-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-bottom:10px;word-break:break-all}
 .url-input:focus{border-color:var(--accent)}
 .cfg-btn{width:100%;background:var(--accent);border:none;border-radius:8px;padding:12px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
 .cfg-btn.sec{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
 
-/* â”€â”€ NAV BAR â”€â”€ */
+/* ── NAV BAR ── */
 .navbar{display:flex;background:var(--surface);border-top:1px solid var(--border);padding-bottom:max(8px,env(safe-area-inset-bottom));flex-shrink:0}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 6px;border:none;background:transparent;color:var(--text3);cursor:pointer;transition:color .15s;font-family:'Space Grotesk',sans-serif}
 .nav-btn.active{color:var(--accent)}
 .nav-btn span:first-child{font-size:20px}
 .nav-btn span:last-child{font-size:10px;font-weight:600}
 
-/* â”€â”€ UNDO TOAST â”€â”€ */
+/* ── UNDO TOAST ── */
 .undo-bar{position:fixed;bottom:max(160px,calc(140px + env(safe-area-inset-bottom)));left:12px;right:12px;z-index:300;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.4,0,.2,1)}
 .undo-bar.show{transform:none;opacity:1;pointer-events:all}
 .undo-code{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:var(--green);flex:1}
@@ -208,7 +208,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .undo-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .undo-btn:active{background:var(--red);border-color:var(--red);color:#fff}
 
-/* â”€â”€ UPDATE BANNER â”€â”€ */
+/* ── UPDATE BANNER ── */
 .update-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(79,140,255,.1));border:1px solid rgba(34,197,94,.4);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px}
 .update-banner.show{display:flex}
 .update-info{flex:1}
@@ -217,7 +217,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .update-btn{background:var(--green);border:none;border-radius:8px;padding:8px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .update-btn:active{opacity:.85}
 
-/* â”€â”€ INSTALL BANNER â”€â”€ */
+/* ── INSTALL BANNER ── */
 .install-banner{display:none;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(79,140,255,.15),rgba(124,92,252,.1));border:1px solid rgba(79,140,255,.3);border-radius:var(--r2);padding:12px 14px;margin-bottom:12px;cursor:pointer}
 .install-banner.show{display:flex}
 .install-icon{font-size:24px;flex-shrink:0}
@@ -230,13 +230,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .mini-room-item{padding:8px 12px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;transition:background .15s}
 .mini-room-item:active,.mini-room-item.selected{background:rgba(79,140,255,.15);color:var(--accent)}
 
-/* â”€â”€ SUGGEST LOADING â”€â”€ */
+/* ── SUGGEST LOADING ── */
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; margin-right: 5px; vertical-align: middle; }
 .suggest-dots::after { content: ''; animation: dots 1.5s steps(3,end) infinite; }
 @keyframes dots { 0%,20% { content: '.'; } 40%,60% { content: '..'; } 80%,100% { content: '...'; } }
 
-/* â”€â”€ LOGIN â”€â”€ */
+/* ── LOGIN ── */
 .login-wrap{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;gap:20px}
 .login-logo{font-size:56px;margin-bottom:4px}
 .login-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--text);text-align:center}
@@ -251,7 +251,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .login-error{font-size:12px;color:var(--red);text-align:center;min-height:16px}
 .login-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle}
 
-/* â”€â”€ USER BADGE â”€â”€ */
+/* ── USER BADGE ── */
 .user-badge{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 14px;margin-bottom:12px}
 .ub-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
 .ub-info{flex:1;min-width:0}
@@ -259,7 +259,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .ub-siape{font-size:10px;color:var(--text2);font-family:'JetBrains Mono',monospace}
 .ub-logout{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px}
 
-/* â”€â”€ ROOM SEARCH & GROUPS â”€â”€ */
+/* ── ROOM SEARCH & GROUPS ── */
 .room-search-wrap{padding:0 0 12px;position:sticky;top:0;background:var(--bg);z-index:10}
 .room-search{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none}
 .room-search:focus{border-color:var(--accent)}
@@ -271,7 +271,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .room-group-items{display:none}
 .room-group-items.open{display:block}
 
-/* â”€â”€ PROGRESS SCREEN â”€â”€ */
+/* ── PROGRESS SCREEN ── */
 .prog-header{background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:var(--r);padding:16px;margin-bottom:14px}
 .prog-header h3{font-size:16px;font-weight:700;color:#fff}
 .prog-header p{font-size:12px;color:rgba(255,255,255,.7);margin-top:3px}
@@ -290,20 +290,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .prog-bar-label{font-size:10px;color:var(--text3);margin-top:3px}
 .prog-empty{text-align:center;padding:40px 20px;color:var(--text2)}
 
-/* â”€â”€ ROOM ITEM com info â”€â”€ */
+/* ── ROOM ITEM com info ── */
 .room-item-wrap{position:relative}
 .room-info-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:6px}
 .room-info-btn:active{background:var(--surface2);color:var(--accent)}
 .room-name-short{font-size:14px;font-weight:600}
 .room-name-block{font-size:11px;color:var(--text2);margin-top:1px}
 
-/* â”€â”€ HISTÃ“RICO POR SALA â”€â”€ */
+/* ── HISTÓRICO POR SALA ── */
 .room-hist-item{padding:8px 12px;border-radius:var(--r2);margin-bottom:4px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:10px}
 .room-hist-code{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--accent);min-width:60px}
 .room-hist-time{font-size:10px;color:var(--text2);margin-left:auto;white-space:nowrap}
 .room-hist-user{font-size:10px;color:var(--text2)}
 
-/* â”€â”€ COMPARAÃ‡ÃƒO POR SALA â”€â”€ */
+/* ── COMPARAÇÃO POR SALA ── */
 .comp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
 .comp-stat{border-radius:var(--r2);padding:8px;text-align:center}
 .comp-stat-n{font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace}
@@ -332,7 +332,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .comp-filter-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer}
 .comp-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* â”€â”€ PIN / HIDE ROOMS â”€â”€ */
+/* ── PIN / HIDE ROOMS ── */
 .room-pin-btn{background:none;border:none;font-size:16px;cursor:pointer;padding:4px 6px;color:var(--text3);flex-shrink:0}
 .room-pin-btn.pinned{color:#f59e0b}
 .room-group-pin{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r2);margin-bottom:8px}
@@ -343,7 +343,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .hidden-room-name{flex:1;font-size:13px;color:var(--text2)}
 .unhide-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif}
 
-/* â”€â”€ WRONG ROOM MODAL â”€â”€ */
+/* ── WRONG ROOM MODAL ── */
 .wrong-room-modal{display:none;position:fixed;inset:0;z-index:500;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6)}
 .wrong-room-modal.show{display:flex}
 .wrong-room-box{background:var(--surface);border-radius:16px 16px 0 0;padding:24px 20px 32px;width:100%;max-width:480px;text-align:center;border-top:3px solid var(--yellow)}
@@ -352,7 +352,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .wrong-room-btn.primary{background:var(--yellow);color:#000}
 .wrong-room-btn.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 
-/* â”€â”€ MINHAS SALAS â”€â”€ */
+/* ── MINHAS SALAS ── */
 .ms-section-label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px 2px}
 .ms-sala-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:11px 13px;margin-bottom:7px;cursor:pointer}
 .ms-sala-card:active{opacity:.85}
@@ -365,7 +365,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .ms-nao-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:9px 13px;margin-bottom:5px;display:flex;align-items:center;gap:8px}
 .ms-nao-name{font-size:12px;color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ms-nao-count{font-size:11px;color:var(--text3)}
-/* â”€â”€ CAMPUS â”€â”€ */
+/* ── CAMPUS ── */
 .campus-group-label{font-size:10px;font-weight:600;color:#7c5cfc;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px 2px}
 .campus-sala-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:11px 13px;margin-bottom:7px;cursor:pointer;transition:border-color .2s}
 .campus-sala-card.open{border-color:var(--accent);background:rgba(79,140,255,.05)}
@@ -385,7 +385,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .campus-detail-desc{flex:1;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .campus-detail-status{flex-shrink:0;font-size:13px}
 
-/* â”€â”€ MISC â”€â”€ */
+/* ── MISC ── */
 .pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
 .pill.ok{background:rgba(34,197,94,.15);color:var(--green)}
 .pill.warn{background:rgba(245,158,11,.15);color:var(--yellow)}
@@ -393,7 +393,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 .empty{text-align:center;padding:40px 20px;color:var(--text2)}
 .empty-ico{font-size:3rem;margin-bottom:10px}
 hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
-/* â”€â”€ ADMIN TABS â”€â”€ */
+/* ── ADMIN TABS ── */
 .admin-tab{flex:1;padding:10px 4px;border:none;background:transparent;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
 .admin-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .func-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin-bottom:6px}
@@ -406,7 +406,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 .fab{position:fixed;bottom:max(80px,calc(60px + env(safe-area-inset-bottom)));right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(79,140,255,.5);z-index:50;display:flex;align-items:center;justify-content:center;transition:transform .15s}
 .fab:active{transform:scale(.92)}
 
-/* â”€â”€ DASHBOARD GESTOR â”€â”€ */
+/* ── DASHBOARD GESTOR ── */
 .db-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
 .db-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px}
 .db-kpi-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
@@ -448,44 +448,44 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 </head>
 <body>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ════════════════════════════════════════════
      SCREEN: HOME
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+═══════════════════════════════════════════════ -->
 <div class="screen" id="scHome">
   <div class="sbody">
     <div class="home-header">
-      <h2>ðŸ“‹ InventÃ¡rio Campus</h2>
+      <h2>📋 Inventário Campus</h2>
       <p id="homeDate">Carregando...</p>
     </div>
 
     <!-- Install banner -->
 <div class="install-banner" id="installBanner">
-  <div class="install-icon">ðŸ“²</div>
+  <div class="install-icon">📲</div>
   <div class="install-info">
     <div class="install-title">Instalar como app</div>
-    <div class="install-sub">Acesso rÃ¡pido sem abrir o navegador</div>
+    <div class="install-sub">Acesso rápido sem abrir o navegador</div>
   </div>
   <button class="install-btn" onclick="doInstall()">Instalar</button>
-  <button class="install-close" onclick="dismissInstall()" title="Fechar">âœ•</button>
+  <button class="install-close" onclick="dismissInstall()" title="Fechar">✕</button>
 </div>
 
 <!-- Update banner -->
 <div class="update-banner" id="updateBanner">
-  <div style="font-size:22px">ðŸ”„</div>
+  <div style="font-size:22px">🔄</div>
   <div class="update-info">
-    <div class="update-title" id="updateTitle">Nova versÃ£o disponÃ­vel!</div>
+    <div class="update-title" id="updateTitle">Nova versão disponível!</div>
     <div class="update-sub" id="updateSub">Atualize para continuar usando</div>
   </div>
   <button class="update-btn" onclick="doUpdate()">Atualizar</button>
 </div>
 
-<!-- Admin button (sÃ³ aparece para admins) -->
+<!-- Admin button (só aparece para admins) -->
 <div id="adminBtn" style="display:none;margin-bottom:10px">
   <button onclick="showScreen('scAdmin');adminCarregarFunc()" style="width:100%;background:linear-gradient(135deg,rgba(124,92,252,.2),rgba(79,140,255,.15));border:1px solid rgba(124,92,252,.4);border-radius:var(--r2);padding:12px 16px;color:var(--accent2);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;margin-bottom:8px">
-    <span>âš™ï¸</span><span>Painel de AdministraÃ§Ã£o</span><span style="margin-left:auto;font-size:18px">â€º</span>
+    <span>⚙️</span><span>Painel de Administração</span><span style="margin-left:auto;font-size:18px">›</span>
   </button>
   <button onclick="showScreen('scDashboard');carregarDashboard()" style="width:100%;background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(79,140,255,.1));border:1px solid rgba(34,197,94,.3);border-radius:var(--r2);padding:12px 16px;color:var(--green);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px">
-    <span>ðŸ“Š</span><span>Dashboard do Gestor</span><span style="margin-left:auto;font-size:18px">â€º</span>
+    <span>📊</span><span>Dashboard do Gestor</span><span style="margin-left:auto;font-size:18px">›</span>
   </button>
 </div>
 
@@ -493,23 +493,23 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 <div class="user-badge" id="userBadge" style="display:none">
   <div class="ub-avatar" id="userAvatar">?</div>
   <div class="ub-info">
-    <div class="ub-name" id="userName">â€”</div>
-    <div class="ub-siape" id="userSiape">SIAPE: â€”</div>
+    <div class="ub-name" id="userName">—</div>
+    <div class="ub-siape" id="userSiape">SIAPE: —</div>
   </div>
-  <button class="ub-logout" onclick="fazerLogout()" title="Sair">â‡¥</button>
+  <button class="ub-logout" onclick="fazerLogout()" title="Sair">⇥</button>
 </div>
 
 <div class="sync-banner" id="syncBanner" onclick="syncNow()">
       <div class="sync-dot offline" id="syncDot"></div>
-      <div class="sync-text" id="syncText">Verificando conexÃ£o...</div>
+      <div class="sync-text" id="syncText">Verificando conexão...</div>
       <div class="sync-count" id="syncCount"></div>
     </div>
 
     <div class="room-selector" onclick="showScreen('scRooms')">
-      <div class="rs-label">ðŸ“ Local atual</div>
+      <div class="rs-label">📍 Local atual</div>
       <div class="rs-value">
         <span id="currentRoomLabel">Selecionar local</span>
-        <span class="rs-chevron">â€º</span>
+        <span class="rs-chevron">›</span>
       </div>
     </div>
 
@@ -521,72 +521,72 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
     <div class="action-grid">
       <div class="action-card primary" onclick="startScanner()">
-        <span class="ac-icon">ðŸ“·</span>
+        <span class="ac-icon">📷</span>
         <div class="ac-title">Escanear</div>
-        <div class="ac-sub">CÃ¢mera + cÃ³digo</div>
+        <div class="ac-sub">Câmera + código</div>
       </div>
       <div class="action-card" onclick="showMinhasSalas()">
-        <span class="ac-icon">ðŸ“‹</span>
+        <span class="ac-icon">📋</span>
         <div class="ac-title">Minhas salas</div>
         <div class="ac-sub">Seu progresso</div>
       </div>
       <div class="action-card" onclick="openNoPatModal(null)">
-        <span class="ac-icon">ðŸ“¸</span>
+        <span class="ac-icon">📸</span>
         <div class="ac-title">Sem patrim.</div>
-        <div class="ac-sub">Foto + descriÃ§Ã£o</div>
+        <div class="ac-sub">Foto + descrição</div>
       </div>
       <div class="action-card" onclick="showCampus()">
-        <span class="ac-icon">ðŸ«</span>
+        <span class="ac-icon">🏫</span>
         <div class="ac-title">Campus</div>
         <div class="ac-sub">Salas e progresso</div>
       </div>
       <div class="action-card" onclick="showScreen('scBusca');setTimeout(function(){document.getElementById('buscaInput').focus();},300)">
-        <span class="ac-icon">ðŸ”Ž</span>
+        <span class="ac-icon">🔎</span>
         <div class="ac-title">Buscar</div>
-        <div class="ac-sub">NÂº patrimÃ´nio</div>
+        <div class="ac-sub">Nº patrimônio</div>
       </div>
     </div>
 
     <div style="text-align:center;padding:16px 0 4px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionFooter"></div>
   </div>
   <div class="navbar">
-    <button class="nav-btn active" onclick="showScreen('scHome')"><span>ðŸ </span><span>InÃ­cio</span></button>
-    <button class="nav-btn" onclick="startScanner()"><span>ðŸ“·</span><span>Scanner</span></button>
-    <button class="nav-btn" onclick="showMinhasSalas()"><span>ðŸ“‹</span><span>Minhas salas</span></button>
-    <button class="nav-btn" onclick="showScreen('scSettings')"><span>âš™ï¸</span><span>Config</span></button>
+    <button class="nav-btn active" onclick="showScreen('scHome')"><span>🏠</span><span>Início</span></button>
+    <button class="nav-btn" onclick="startScanner()"><span>📷</span><span>Scanner</span></button>
+    <button class="nav-btn" onclick="showMinhasSalas()"><span>📋</span><span>Minhas salas</span></button>
+    <button class="nav-btn" onclick="showScreen('scSettings')"><span>⚙️</span><span>Config</span></button>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ════════════════════════════════════════════
      SCREEN: ROOM PICKER
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scRooms">
   <div class="topbar">
-    <button class="back-btn" onclick="goBack()">â€¹ Voltar</button>
-    <div><div class="topbar-title">Selecionar Local</div><div class="topbar-sub">Onde vocÃª estÃ¡ agora?</div></div>
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div><div class="topbar-title">Selecionar Local</div><div class="topbar-sub">Onde você está agora?</div></div>
   </div>
   <div class="sbody">
     <div class="room-search-wrap">
-      <input class="room-search" id="roomSearch" type="search" placeholder="ðŸ” Buscar sala..." oninput="renderRoomList(this.value)">
+      <input class="room-search" id="roomSearch" type="search" placeholder="🔍 Buscar sala..." oninput="renderRoomList(this.value)">
     </div>
     <div class="room-list" id="roomList"></div>
     <div id="roomListEmpty" style="display:none;text-align:center;padding:20px 0">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Todas as salas estÃ£o ocultas</div>
-      <button onclick="revelarTodasSalas()" style="background:var(--accent);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer">ðŸ‘ Revelar todas as salas</button>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Todas as salas estão ocultas</div>
+      <button onclick="revelarTodasSalas()" style="background:var(--accent);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer">👁 Revelar todas as salas</button>
     </div>
     <button class="add-room-btn" onclick="addRoom()">+ Adicionar novo local</button>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ════════════════════════════════════════════
      SCREEN: SCANNER
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scScanner">
   <div class="topbar">
-    <button class="back-btn" onclick="stopScanner()">â€¹ Voltar</button>
+    <button class="back-btn" onclick="stopScanner()">‹ Voltar</button>
     <div>
       <div class="topbar-title">Scanner</div>
-      <div class="topbar-sub" id="scannerRoomLabel">â€”</div>
+      <div class="topbar-sub" id="scannerRoomLabel">—</div>
     </div>
   </div>
   <div class="scanner-wrap">
@@ -597,8 +597,8 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       </div>
       
   <div class="scan-hint-bar">
-        <div class="room-badge" id="scanRoomBadge">ðŸ“ â€”</div>
-        <div class="scan-hint-text">Aponte para o cÃ³digo de barras</div>
+        <div class="room-badge" id="scanRoomBadge">📍 —</div>
+        <div class="scan-hint-text">Aponte para o código de barras</div>
       </div>
     </div>
     <div class="scan-flash" id="scanFlash"></div>
@@ -610,20 +610,20 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   </div>
   <div class="scanner-bottom">
     <div class="manual-row">
-      <input class="manual-input" id="manualInput" placeholder="Digitar cÃ³digo manualmente..." autocomplete="off">
+      <input class="manual-input" id="manualInput" placeholder="Digitar código manualmente..." autocomplete="off">
       <button class="manual-btn" onclick="processManual()">OK</button>
     </div>
-    <button class="nopat-btn" onclick="openNoPatModal(null)">ðŸ“¸ Item sem patrimÃ´nio</button>
+    <button class="nopat-btn" onclick="openNoPatModal(null)">📸 Item sem patrimônio</button>
   <div style="text-align:center;font-size:10px;color:rgba(255,255,255,.3);margin-top:4px">Enquadre apenas 1 item na foto para melhor resultado da IA</div>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ════════════════════════════════════════════
      SCREEN: MINHAS SALAS
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scMinhasSalas">
   <div class="topbar">
-    <button class="back-btn" onclick="goBack()">â€¹ Voltar</button>
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
     <div>
       <div class="topbar-title" id="msSalasTitulo">Minhas salas</div>
       <div class="topbar-sub" id="msSubtitulo">Carregando...</div>
@@ -631,7 +631,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   </div>
   <div class="sbody">
     <div class="prog-stats" style="margin-bottom:16px">
-      <div class="prog-stat"><div class="prog-stat-n g" id="msTotal">0</div><div class="prog-stat-l">patrimÃ´nios</div></div>
+      <div class="prog-stat"><div class="prog-stat-n g" id="msTotal">0</div><div class="prog-stat-l">patrimônios</div></div>
       <div class="prog-stat"><div class="prog-stat-n b" id="msSalas">0</div><div class="prog-stat-l">salas</div></div>
       <div class="prog-stat"><div class="prog-stat-n y" id="msNopat">0</div><div class="prog-stat-l">sem patrim.</div></div>
     </div>
@@ -640,12 +640,12 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     SCREEN: CAMPUS (substitui ComparaÃ§Ã£o)
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ════════════════════════════════════════════
+     SCREEN: CAMPUS (substitui Comparação)
+═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scCampus">
   <div class="topbar">
-    <button class="back-btn" onclick="goBack()">â€¹ Voltar</button>
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
     <div>
       <div class="topbar-title">Salas do campus</div>
       <div class="topbar-sub" id="campusSub">Carregando...</div>
@@ -653,48 +653,48 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   </div>
   <div class="sbody">
     <div style="margin-bottom:12px">
-      <input id="campusSearch" type="search" placeholder="ðŸ” Buscar sala..."
+      <input id="campusSearch" type="search" placeholder="🔍 Buscar sala..."
         style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none"
         oninput="filtrarCampus(this.value)">
     </div>
-    <div id="campusList"><div class="empty"><div class="empty-ico">â³</div>Carregando...</div></div>
+    <div id="campusList"><div class="empty"><div class="empty-ico">⏳</div>Carregando...</div></div>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     SCREEN: HISTORY<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ════════════════════════════════════════════
+     SCREEN: HISTORY<!-- ════════════════════════════════════════════
      SCREEN: HISTORY
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scHistory">
   <div class="topbar">
-    <button class="back-btn" onclick="goBack()">â€¹ Voltar</button>
-    <div><div class="topbar-title">HistÃ³rico</div><div class="topbar-sub" id="histSub">SessÃ£o atual</div></div>
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div><div class="topbar-title">Histórico</div><div class="topbar-sub" id="histSub">Sessão atual</div></div>
   </div>
   <div class="sbody">
-    <div id="histList"><div class="empty"><div class="empty-ico">ðŸ“­</div>Nenhum scan ainda.</div></div>
+    <div id="histList"><div class="empty"><div class="empty-ico">📭</div>Nenhum scan ainda.</div></div>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ════════════════════════════════════════════
      SCREEN: SETTINGS
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scSettings">
   <div class="topbar">
-    <button class="back-btn" onclick="goBack()">â€¹ Voltar</button>
-    <div><div class="topbar-title">ConfiguraÃ§Ãµes</div></div>
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div><div class="topbar-title">Configurações</div></div>
   </div>
   <div class="sbody">
     <div class="sett-section">
       <a href="https://docs.google.com/spreadsheets/d/1hUgSHuF7-yju3V5TEFcPj2PYuyJsGGJuFUKIwWu3GNg/edit?gid=729880183#gid=729880183" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--accent);border-radius:var(--r2);color:var(--accent);text-decoration:none;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin-bottom:12px">
-        <span style="font-size:20px">ðŸ“Š</span>
-        <div><div>Abrir Planilha</div><div style="font-size:11px;color:var(--text2);font-weight:400">InventÃ¡rio Campus IFMS</div></div>
-        <span style="margin-left:auto">â†—</span>
+        <span style="font-size:20px">📊</span>
+        <div><div>Abrir Planilha</div><div style="font-size:11px;color:var(--text2);font-weight:400">Inventário Campus IFMS</div></div>
+        <span style="margin-left:auto">↗</span>
       </a>
     </div>
     <div class="sett-section">
-      <div class="sett-title">ðŸ”— Banco de dados</div>
-      <button class="cfg-btn sec" onclick="testConnection()">Testar conexÃ£o com Supabase</button>
-      <button class="cfg-btn sec" id="testIABtn" onclick="testarIA()">ðŸ§ª Testar IA (Gemini)</button>
+      <div class="sett-title">🔗 Banco de dados</div>
+      <button class="cfg-btn sec" onclick="testConnection()">Testar conexão com Supabase</button>
+      <button class="cfg-btn sec" id="testIABtn" onclick="testarIA()">🧪 Testar IA (Gemini)</button>
     </div>
 
     <div class="sett-section">
@@ -724,53 +724,53 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
 
     <div class="sett-section">
-      <div class="sett-title">ðŸ—‚ Dados</div>
+      <div class="sett-title">🗂 Dados</div>
       <div class="sett-item" onclick="exportCSV()">
-        <span class="si-icon">ðŸ“¥</span>
-        <div class="si-info"><div class="si-title">Exportar CSV</div><div class="si-sub">Todos os scans desta sessÃ£o</div></div>
-        <span class="si-arrow">â€º</span>
+        <span class="si-icon">📥</span>
+        <div class="si-info"><div class="si-title">Exportar CSV</div><div class="si-sub">Todos os scans desta sessão</div></div>
+        <span class="si-arrow">›</span>
       </div>
       <div class="sett-item" onclick="confirmClear()">
-        <span class="si-icon">ðŸ—‘ï¸</span>
-        <div class="si-info"><div class="si-title">Limpar sessÃ£o</div><div class="si-sub">Apaga histÃ³rico local</div></div>
-        <span class="si-arrow">â€º</span>
+        <span class="si-icon">🗑️</span>
+        <div class="si-info"><div class="si-title">Limpar sessão</div><div class="si-sub">Apaga histórico local</div></div>
+        <span class="si-arrow">›</span>
       </div>
     </div>
 
     <div style="text-align:center;padding:20px;font-size:11px;color:var(--text3)">
-      InventÃ¡rio Campus <span id="versionSettings"></span><br>PWA Â· Offline First
+      Inventário Campus <span id="versionSettings"></span><br>PWA · Offline First
     </div>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ════════════════════════════════════════════
      SCREEN: ADMIN
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scAdmin">
   <div class="topbar">
-    <button class="back-btn" onclick="goBack()">â€¹ Voltar</button>
-    <div><div class="topbar-title">âš™ï¸ AdministraÃ§Ã£o</div><div class="topbar-sub" id="adminSub">â€”</div></div>
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
+    <div><div class="topbar-title">⚙️ Administração</div><div class="topbar-sub" id="adminSub">—</div></div>
   </div>
 
   <!-- Tabs -->
   <div style="display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0">
-    <button class="admin-tab active" id="tabFunc" onclick="adminTab('func')">ðŸ‘¥ FuncionÃ¡rios</button>
-    <button class="admin-tab" id="tabImport" onclick="adminTab('import')">ðŸ“¦ Importar PatrimÃ´nios</button>
-    <button class="admin-tab" id="tabReset" onclick="adminTab('reset')">ðŸ”„ Resetar</button>
+    <button class="admin-tab active" id="tabFunc" onclick="adminTab('func')">👥 Funcionários</button>
+    <button class="admin-tab" id="tabImport" onclick="adminTab('import')">📦 Importar Patrimônios</button>
+    <button class="admin-tab" id="tabReset" onclick="adminTab('reset')">🔄 Resetar</button>
   </div>
 
   <div class="sbody">
-    <!-- â”€â”€ ABA: FuncionÃ¡rios â”€â”€ -->
+    <!-- ── ABA: Funcionários ── -->
     <div id="adminPanelFunc">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <div style="font-size:13px;font-weight:700">Servidores cadastrados</div>
         <button onclick="adminAbrirAddFunc()" style="background:var(--accent);border:none;border-radius:8px;padding:7px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
       </div>
 
-      <!-- Form add funcionÃ¡rio (oculto por padrÃ£o) -->
+      <!-- Form add funcionário (oculto por padrão) -->
       <div id="addFuncForm" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:12px">
         <div class="field-label">Nome completo</div>
-        <input class="field-input" id="addFuncNome" placeholder="Ex: JoÃ£o da Silva" style="margin-bottom:8px">
+        <input class="field-input" id="addFuncNome" placeholder="Ex: João da Silva" style="margin-bottom:8px">
         <div class="field-label">SIAPE</div>
         <input class="field-input" id="addFuncSiape" type="tel" placeholder="Ex: 1234567" inputmode="numeric" style="margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
@@ -784,26 +784,26 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <div id="addFuncErro" style="color:var(--red);font-size:12px;margin-top:6px"></div>
       </div>
 
-      <div id="funcList"><div class="empty"><div class="empty-ico">â³</div>Carregando...</div></div>
+      <div id="funcList"><div class="empty"><div class="empty-ico">⏳</div>Carregando...</div></div>
     </div>
 
-    <!-- â”€â”€ ABA: Importar PatrimÃ´nios â”€â”€ -->
+    <!-- ── ABA: Importar Patrimônios ── -->
     <div id="adminPanelImport" style="display:none">
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px">ðŸ“‹ Como importar</div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px">📋 Como importar</div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6">
           Selecione o arquivo <strong style="color:var(--text)">.xlsx</strong> exportado do SUAP.<br>
           O app detecta automaticamente as colunas.<br>
-          PatrimÃ´nios jÃ¡ existentes serÃ£o atualizados sem apagar o status.
+          Patrimônios já existentes serão atualizados sem apagar o status.
         </div>
       </div>
 
       <!-- Upload area -->
       <div id="importDropArea" onclick="document.getElementById('importFileInput').click()"
         style="border:2px dashed var(--border);border-radius:var(--r2);padding:32px 16px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:12px">
-        <div style="font-size:36px;margin-bottom:8px">ðŸ“‚</div>
+        <div style="font-size:36px;margin-bottom:8px">📂</div>
         <div style="font-size:14px;font-weight:600">Toque para selecionar o arquivo</div>
-        <div style="font-size:12px;color:var(--text2);margin-top:4px">.xlsx Â· .xls Â· .csv</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:4px">.xlsx · .xls · .csv</div>
       </div>
       <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="adminLerPlanilha(this)">
       <div id="importStatus" style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:8px"></div>
@@ -820,11 +820,11 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
           <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--text2)">MAPEAMENTO DE COLUNAS</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <div>
-              <div style="font-size:10px;color:var(--text2);margin-bottom:4px">NÂº PatrimÃ´nio *</div>
+              <div style="font-size:10px;color:var(--text2);margin-bottom:4px">Nº Patrimônio *</div>
               <select id="mapNumero" class="field-input" style="margin:0;padding:8px"></select>
             </div>
             <div>
-              <div style="font-size:10px;color:var(--text2);margin-bottom:4px">DescriÃ§Ã£o</div>
+              <div style="font-size:10px;color:var(--text2);margin-bottom:4px">Descrição</div>
               <select id="mapDescricao" class="field-input" style="margin:0;padding:8px"></select>
             </div>
             <div>
@@ -840,38 +840,38 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
         <button onclick="adminImportar()" id="importBtn"
           style="width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
-          ðŸ“¥ Importar
+          📥 Importar
         </button>
       </div>
     </div>
 
-    <!-- â”€â”€ ABA: Resetar â”€â”€ -->
+    <!-- ── ABA: Resetar ── -->
     <div id="adminPanelReset" style="display:none">
       <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:var(--r2);padding:16px;margin-bottom:16px">
-        <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:6px">âš ï¸ Zona de perigo</div>
+        <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:6px">⚠️ Zona de perigo</div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6">
-          Apaga <strong style="color:var(--text)">todos os scans</strong>, itens sem patrimÃ´nio e logs.<br>
-          Desmarca todos os patrimÃ´nios encontrados.<br>
-          Esta aÃ§Ã£o <strong style="color:var(--red)">nÃ£o pode ser desfeita</strong>.
+          Apaga <strong style="color:var(--text)">todos os scans</strong>, itens sem patrimônio e logs.<br>
+          Desmarca todos os patrimônios encontrados.<br>
+          Esta ação <strong style="color:var(--red)">não pode ser desfeita</strong>.
         </div>
       </div>
       <button id="btnResetar" onclick="adminResetar()"
         style="width:100%;background:var(--red);border:none;border-radius:10px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
-        ðŸ—‘ï¸ Resetar inventÃ¡rio completo
+        🗑️ Resetar inventário completo
       </button>
       <div id="resetStatus" style="text-align:center;font-size:12px;color:var(--text2);margin-top:10px"></div>
     </div>
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ════════════════════════════════════════════
      SCREEN: DASHBOARD GESTOR
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+═══════════════════════════════════════════════ -->
 <div class="screen hidden" id="scDashboard">
   <div class="topbar">
-    <button class="back-btn" onclick="goBack()">â€¹ Voltar</button>
+    <button class="back-btn" onclick="goBack()">‹ Voltar</button>
     <div style="flex:1">
-      <div class="topbar-title">ðŸ“Š Dashboard</div>
+      <div class="topbar-title">📊 Dashboard</div>
       <div class="topbar-sub" id="dbLastUpdate">Carregando...</div>
     </div>
     <span class="db-live-badge connecting" id="dbLiveBadge">atualizando...</span>
@@ -882,23 +882,23 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="db-kpi-grid">
       <div class="db-kpi">
         <div class="db-kpi-label">Encontrados</div>
-        <div class="db-kpi-val" style="color:var(--accent)" id="dbKpiEnc">â€”</div>
-        <div class="db-kpi-sub" id="dbKpiEncSub">de â€” patrimÃ´nios</div>
+        <div class="db-kpi-val" style="color:var(--accent)" id="dbKpiEnc">—</div>
+        <div class="db-kpi-sub" id="dbKpiEncSub">de — patrimônios</div>
       </div>
       <div class="db-kpi">
         <div class="db-kpi-label">Progresso</div>
-        <div class="db-kpi-val" style="color:var(--green)" id="dbKpiPct">â€”</div>
-        <div class="db-kpi-sub">do inventÃ¡rio</div>
+        <div class="db-kpi-val" style="color:var(--green)" id="dbKpiPct">—</div>
+        <div class="db-kpi-sub">do inventário</div>
       </div>
       <div class="db-kpi">
         <div class="db-kpi-label">Servidores</div>
-        <div class="db-kpi-val" id="dbKpiSrv">â€”</div>
+        <div class="db-kpi-val" id="dbKpiSrv">—</div>
         <div class="db-kpi-sub">ativos</div>
       </div>
       <div class="db-kpi">
         <div class="db-kpi-label">Duplicados</div>
-        <div class="db-kpi-val" style="color:var(--red)" id="dbKpiDup">â€”</div>
-        <div class="db-kpi-sub">precisam atenÃ§Ã£o</div>
+        <div class="db-kpi-val" style="color:var(--red)" id="dbKpiDup">—</div>
+        <div class="db-kpi-sub">precisam atenção</div>
       </div>
     </div>
 
@@ -921,22 +921,22 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
     <!-- Estimativa -->
     <div class="db-card">
-      <div class="db-section-title">Estimativa de conclusÃ£o</div>
+      <div class="db-section-title">Estimativa de conclusão</div>
       <div class="db-est-row">
         <div>
-          <div class="db-est-lbl">Mediana diÃ¡ria</div>
-          <div class="db-est-val" style="color:var(--accent)" id="dbRitmo">â€”</div>
+          <div class="db-est-lbl">Mediana diária</div>
+          <div class="db-est-val" style="color:var(--accent)" id="dbRitmo">—</div>
           <div class="db-est-unit">scans/dia</div>
         </div>
         <div>
           <div class="db-est-lbl">Faltam</div>
-          <div class="db-est-val" style="color:var(--yellow)" id="dbFaltam">â€”</div>
-          <div class="db-est-unit">patrimÃ´nios</div>
+          <div class="db-est-val" style="color:var(--yellow)" id="dbFaltam">—</div>
+          <div class="db-est-unit">patrimônios</div>
         </div>
         <div>
-          <div class="db-est-lbl">ConclusÃ£o</div>
-          <div class="db-est-val" style="color:var(--green)" id="dbEstVal">â€”</div>
-          <div class="db-est-unit" id="dbEstUnit">dias Ãºteis</div>
+          <div class="db-est-lbl">Conclusão</div>
+          <div class="db-est-val" style="color:var(--green)" id="dbEstVal">—</div>
+          <div class="db-est-unit" id="dbEstUnit">dias úteis</div>
         </div>
       </div>
     </div>
@@ -949,35 +949,35 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
     <!-- Feed -->
     <div class="db-card">
-      <div class="db-section-title">Ãšltimos scans</div>
+      <div class="db-section-title">Últimos scans</div>
       <div id="dbFeed"><div style="font-size:12px;color:var(--text2);text-align:center;padding:20px">Carregando...</div></div>
     </div>
 
   </div>
 </div>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     MODAL: SEM PATRIMÃ”NIO
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ════════════════════════════════════════════
+     MODAL: SEM PATRIMÔNIO
+═══════════════════════════════════════════════ -->
 <div class="modal-bg" id="noPatModal" onclick="if(event.target===this)closeNoPatModal()">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">ðŸ“¸ Item Sem PatrimÃ´nio</div>
+    <div class="modal-title">📸 Item Sem Patrimônio</div>
 
     <div class="photo-area" id="photoArea" onclick="abrirCamera()">
       <div class="photo-placeholder">
-        <span>ðŸ“·</span>
+        <span>📷</span>
         <p>Toque para fotografar o item</p>
       </div>
     </div>
 
     <div class="field-label" style="display:flex;align-items:center;justify-content:space-between">
-      <span>DescriÃ§Ã£o do item</span>
-      <button id="suggestBtn" onclick="sugerirDescricao()" style="display:none;background:linear-gradient(135deg,#4f8cff,#7c5cfc);border:none;border-radius:6px;padding:5px 10px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer;gap:4px;align-items:center">âœ¨ Sugerir</button>
+      <span>Descrição do item</span>
+      <button id="suggestBtn" onclick="sugerirDescricao()" style="display:none;background:linear-gradient(135deg,#4f8cff,#7c5cfc);border:none;border-radius:6px;padding:5px 10px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;cursor:pointer;gap:4px;align-items:center">✨ Sugerir</button>
     </div>
-    <textarea class="field-input" id="noPatDesc" rows="2" placeholder="Ex: Cadeira giratÃ³ria preta, impressora, monitor 19'..."></textarea>
+    <textarea class="field-input" id="noPatDesc" rows="2" placeholder="Ex: Cadeira giratória preta, impressora, monitor 19'..."></textarea>
 
-    <div class="field-label">Estado de conservaÃ§Ã£o</div>
+    <div class="field-label">Estado de conservação</div>
     <div class="estado-row" id="estadoRow">
       <button class="estado-chip excelente selected" onclick="selectEstado('Excelente',this)">Excelente</button>
       <button class="estado-chip bom" onclick="selectEstado('Bom',this)">Bom</button>
@@ -987,33 +987,33 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
     <div class="field-label">Local</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap" id="noPatRoomRow">
-      <div onclick="toggleRoomPicker()" style="font-size:14px;color:var(--accent);font-weight:700;cursor:pointer;padding:6px 12px;background:rgba(79,140,255,.1);border:1px solid rgba(79,140,255,.3);border-radius:20px;display:inline-flex;align-items:center;gap:6px" id="noPatRoom">â€” <span style="font-size:10px;opacity:.6">â–¼</span></div>
+      <div onclick="toggleRoomPicker()" style="font-size:14px;color:var(--accent);font-weight:700;cursor:pointer;padding:6px 12px;background:rgba(79,140,255,.1);border:1px solid rgba(79,140,255,.3);border-radius:20px;display:inline-flex;align-items:center;gap:6px" id="noPatRoom">— <span style="font-size:10px;opacity:.6">▼</span></div>
     </div>
     <!-- Mini room picker -->
     <div id="miniRoomPicker" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px;margin-bottom:12px;max-height:160px;overflow-y:auto"></div>
 
-    <button class="modal-save-btn" onclick="saveNoPat()">ðŸ’¾ Registrar Item</button>
+    <button class="modal-save-btn" onclick="saveNoPat()">💾 Registrar Item</button>
     <button class="modal-cancel" onclick="closeNoPatModal()">Cancelar</button>
   </div>
 </div>
 
-<!-- â•â•â•â• UNDO BAR â•â•â•â• -->
+<!-- ════ UNDO BAR ════ -->
 <div class="undo-bar" id="undoBar">
   <div style="flex:1;min-width:0">
-    <div class="undo-code" id="undoCode">â€”</div>
-    <div class="undo-sub" id="undoSub">â€”</div>
+    <div class="undo-code" id="undoCode">—</div>
+    <div class="undo-sub" id="undoSub">—</div>
   </div>
-  <button class="undo-btn" onclick="undoLast()">â†© Desfazer</button>
+  <button class="undo-btn" onclick="undoLast()">↩ Desfazer</button>
   <div class="undo-prog" id="undoProg" style="width:100%"></div>
 </div>
 
-<!-- â•â•â•â• LOGIN SCREEN â•â•â•â• -->
+<!-- ════ LOGIN SCREEN ════ -->
 <div class="login-wrap" id="loginWrap" style="display:none">
-  <div class="login-logo">ðŸ“‹</div>
-  <div class="login-title">InventÃ¡rio Campus</div>
-  <div class="login-sub">IFMS â€” Sistema de InventÃ¡rio Patrimonial</div>
+  <div class="login-logo">📋</div>
+  <div class="login-title">Inventário Campus</div>
+  <div class="login-sub">IFMS — Sistema de Inventário Patrimonial</div>
 
-  <!-- Card SIAPE (padrÃ£o) -->
+  <!-- Card SIAPE (padrão) -->
   <div id="loginCardSiape">
     <div class="login-card">
       <div class="login-label">Digite seu SIAPE</div>
@@ -1024,10 +1024,10 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <button class="login-btn" id="loginBtn" onclick="fazerLogin()">Entrar</button>
     </div>
     <div style="font-size:11px;color:var(--text3);text-align:center">
-      Use seu nÃºmero SIAPE para acessar
+      Use seu número SIAPE para acessar
     </div>
     <button onclick="mostrarLoginAdmin()" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;margin-top:10px;font-family:'Space Grotesk',sans-serif;display:block;margin-left:auto;margin-right:auto">
-      Entrar como gestor â€º
+      Entrar como gestor ›
     </button>
   </div>
 
@@ -1038,21 +1038,21 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <input class="login-input" id="adminEmailInput" type="email" placeholder="gestor@email.com"
         autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('adminSenhaInput').focus()">
       <div class="login-label" style="margin-top:10px">Senha</div>
-      <input class="login-input" id="adminSenhaInput" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+      <input class="login-input" id="adminSenhaInput" type="password" placeholder="••••••••"
         autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLoginAdmin()">
       <div class="login-error" id="loginErrorAdmin"></div>
       <button class="login-btn" id="loginBtnAdmin" onclick="fazerLoginAdmin()">Entrar</button>
     </div>
     <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:6px;max-width:360px">
-      <button onclick="mostrarLoginSiape()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Space Grotesk',sans-serif">â€¹ Login por SIAPE</button>
+      <button onclick="mostrarLoginSiape()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Space Grotesk',sans-serif">‹ Login por SIAPE</button>
       <button onclick="abrirRecuperarSenha()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Space Grotesk',sans-serif">Esqueci a senha</button>
     </div>
   </div>
   <!-- Update banner no login -->
   <div class="update-banner" id="updateBannerLogin" style="display:none;max-width:360px;width:100%">
-    <div style="font-size:18px">ðŸ”„</div>
+    <div style="font-size:18px">🔄</div>
     <div class="update-info">
-      <div class="update-title" id="updateTitleLogin">Nova versÃ£o!</div>
+      <div class="update-title" id="updateTitleLogin">Nova versão!</div>
       <div class="update-sub" id="updateSubLogin"></div>
     </div>
     <button class="update-btn" onclick="doUpdate()">Atualizar</button>
@@ -1060,13 +1060,13 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   <div style="font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace" id="versionLogin"></div>
 </div>
 
-<!-- Modal: Nova senha (apÃ³s link de reset) -->
+<!-- Modal: Nova senha (após link de reset) -->
 <div id="resetSenhaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg);border-radius:16px;padding:24px;width:100%;max-width:340px">
-    <div style="font-size:18px;font-weight:700;margin-bottom:4px">ðŸ”‘ Nova senha</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px">🔑 Nova senha</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:16px">Digite sua nova senha de acesso.</div>
     <div class="login-label">Nova senha</div>
-    <input class="login-input" id="novaSenhaInput" type="password" placeholder="MÃ­nimo 6 caracteres"
+    <input class="login-input" id="novaSenhaInput" type="password" placeholder="Mínimo 6 caracteres"
       autocomplete="new-password" onkeydown="if(event.key==='Enter')document.getElementById('confirmarSenhaInput').focus()">
     <div class="login-label" style="margin-top:10px">Confirmar senha</div>
     <input class="login-input" id="confirmarSenhaInput" type="password" placeholder="Repita a senha"
@@ -1083,26 +1083,26 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 </div>
 
 <script>
-// â”€â”€ VERSÃƒO â€” altere aqui a cada deploy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── VERSÃO — altere aqui a cada deploy ──────────────────────
 var APP_VERSION = 'v9.3';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
-// Aplica versÃ£o imediatamente (nÃ£o espera window.load)
+// Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
   var el = document.getElementById('versionFooter');
-  if (el) el.textContent = APP_VERSION + ' Â· InventÃ¡rio Campus';
+  if (el) el.textContent = APP_VERSION + ' · Inventário Campus';
   var vs = document.getElementById('versionSettings');
   if (vs) vs.textContent = APP_VERSION;
   var vl = document.getElementById('versionLogin');
-  if (vl) vl.textContent = APP_VERSION + ' Â· InventÃ¡rio Campus';
+  if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
   // Detecta link de reset de senha no hash da URL
   verificarResetSenha();
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  STATE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function getSalasSUAP() {
-  return ["ALMOXARIFADO (Bloco A)", "APOIO ALMOXARIFADO (Bloco A)", "BIBLIOTECA (Bloco A)", "COPA (Bloco A)", "COORDENAÃ‡Ã•ES (Bloco A)", "CORREDOR INFERIOR (Bloco A)", "CORREDOR SUPERIOR (Bloco A)", "COZINHA (Bloco A)", "CEREL (Bloco A)", "DIRAD I (Bloco A)", "DIRAD II (Bloco A)", "DIREN (Bloco A)", "DIRGE (Bloco A)", "GABINETE (Bloco A)", "NAPNE (Bloco A)", "NUGED (Bloco A)", "InventÃ¡rio (Bloco A)", "REFEITORIO SERVIDORES (Bloco A)", "SALA DE REUNIÃ•ES - Bloco A - Piso Superior (Bloco A)", "SALA DOS PROFESSORES 1 (Bloco A)", "SALA DOS PROFESSORES 2 (Bloco A)", "SALA DOS PROFESSORES 3 (Bloco A)", "SALA APOIO COALP / COADS (Bloco A)", "SALA DE APOIO TERCEIRIZADOS (Bloco A)", "SALA DE ATENDIMENTO NUGED (Bloco A)", "SHAFT SALA APOIO COALP / COADS (Bloco A)", "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)", "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)", "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)", "SHAFT DIRAD 1 (Bloco A)", "CANTINA (Bloco A)", "APOIO LABORATÃ“RIO INFORMÃTICA (Bloco B)", "DATACENTER (Bloco B)", "CORREDOR INFERIOR (Bloco B)", "CORREDOR SUPERIOR (Bloco B)", "GAMELAB (Bloco B)", "IFSTUDIO (Bloco B)", "IFMaker (Bloco B)", "LABORATÃ“RIO INFORMÃTICA 1 (Bloco B)", "LABORATÃ“RIO INFORMÃTICA 2 (Bloco B)", "LABORATÃ“RIO INFORMÃTICA 3 (Bloco B)", "LABORATÃ“RIO INFORMÃTICA 4 (Bloco B)", "LABORATÃ“RIO INFORMÃTICA 5 (Bloco B)", "LABORATÃ“RIO BIOLOGIA/FÃSICA (Bloco B)", "LABORATÃ“RIO QUÃMICA/MATEMÃTICA (Bloco B)", "PÃTIO BLOCO B (Bloco B)", "SERTI (Bloco B)", "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)", "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)", "SHAFT LABORATÃ“RIO INFORMÃTICA 4 (Bloco B)", "ESTUDIO 1 (Bloco B)", "ESTUDIO 2 (Bloco B)", "SALA VAGA (Bloco B)", "SL 01 (BLOCO C)", "SL 02 (BLOCO C)", "SL 03 (BLOCO C)", "SL 04 (BLOCO C)", "SL 05 (BLOCO C)", "SL 06 (BLOCO C)", "SL 07 (BLOCO C)", "SL 08 (BLOCO C)", "SL 09 (BLOCO C)", "SL 10 (BLOCO C)", "ENFERMARIA (BLOCO C)", "ASSISTENTE DE ALUNOS (BLOCO C)", "LÃ“GICA (BLOCO C)", "CORREDOR E HALL BLOCO C (BLOCO C)", "HALL E CORREDOR (BLOCO C)", "PERMANÃŠNCIA ESTUDANTIL (BLOCO C)", "Sala de Artes (SALAS MODULARES)", "LAFIF - LaboratÃ³rio de Atividades FÃ­sicas (SALAS MODULARES)", "LaboratÃ³rio de Humanas (SALAS MODULARES)", "CENID (SALAS MODULARES)", "M-01 (SALAS MODULARES)", "ROBÃ“TICA (SALAS MODULARES)", "TECNOIF DR (SALAS MODULARES)", "ÃREA DAS SALAS MODULARES (SALAS MODULARES)", "ALMOXARIFADO CONTAINER (ÃREA EXTERNA)", "PATRIMÃ”NIO CONTAINER (ÃREA EXTERNA)", "CONTAINER QUADRA (QUADRA POLIESPORTIVA)", "QUADRA POLIESPORTIVA (DR) (ÃREA EXTERNA)", "BOSQUE (BOSQUE)", "ESTACIONAMENTO VEÃCULOS OFICIAIS (ESTACIONAMENTO)", "ESTACIONAMENTO GERAL (ESTACIONAMENTO)", "GUARITA (GUARITA)", "ENTRADA DOS ESTUDANTES (ÃREA EXTERNA)", "BARRACÃƒO (PÃTIO EXTERNO FUNDOS.)", "CRC (BARRACÃƒO CRC)", "ÃREA DE CONVIVÃŠNCIA (ÃREA DE CONVIVÃŠNCIA ENTRE BLOCOS A-B)"];
+  return ["ALMOXARIFADO (Bloco A)", "APOIO ALMOXARIFADO (Bloco A)", "BIBLIOTECA (Bloco A)", "COPA (Bloco A)", "COORDENAÇÕES (Bloco A)", "CORREDOR INFERIOR (Bloco A)", "CORREDOR SUPERIOR (Bloco A)", "COZINHA (Bloco A)", "CEREL (Bloco A)", "DIRAD I (Bloco A)", "DIRAD II (Bloco A)", "DIREN (Bloco A)", "DIRGE (Bloco A)", "GABINETE (Bloco A)", "NAPNE (Bloco A)", "NUGED (Bloco A)", "Inventário (Bloco A)", "REFEITORIO SERVIDORES (Bloco A)", "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)", "SALA DOS PROFESSORES 1 (Bloco A)", "SALA DOS PROFESSORES 2 (Bloco A)", "SALA DOS PROFESSORES 3 (Bloco A)", "SALA APOIO COALP / COADS (Bloco A)", "SALA DE APOIO TERCEIRIZADOS (Bloco A)", "SALA DE ATENDIMENTO NUGED (Bloco A)", "SHAFT SALA APOIO COALP / COADS (Bloco A)", "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)", "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)", "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)", "SHAFT DIRAD 1 (Bloco A)", "CANTINA (Bloco A)", "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)", "DATACENTER (Bloco B)", "CORREDOR INFERIOR (Bloco B)", "CORREDOR SUPERIOR (Bloco B)", "GAMELAB (Bloco B)", "IFSTUDIO (Bloco B)", "IFMaker (Bloco B)", "LABORATÓRIO INFORMÁTICA 1 (Bloco B)", "LABORATÓRIO INFORMÁTICA 2 (Bloco B)", "LABORATÓRIO INFORMÁTICA 3 (Bloco B)", "LABORATÓRIO INFORMÁTICA 4 (Bloco B)", "LABORATÓRIO INFORMÁTICA 5 (Bloco B)", "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)", "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)", "PÁTIO BLOCO B (Bloco B)", "SERTI (Bloco B)", "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)", "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)", "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)", "ESTUDIO 1 (Bloco B)", "ESTUDIO 2 (Bloco B)", "SALA VAGA (Bloco B)", "SL 01 (BLOCO C)", "SL 02 (BLOCO C)", "SL 03 (BLOCO C)", "SL 04 (BLOCO C)", "SL 05 (BLOCO C)", "SL 06 (BLOCO C)", "SL 07 (BLOCO C)", "SL 08 (BLOCO C)", "SL 09 (BLOCO C)", "SL 10 (BLOCO C)", "ENFERMARIA (BLOCO C)", "ASSISTENTE DE ALUNOS (BLOCO C)", "LÓGICA (BLOCO C)", "CORREDOR E HALL BLOCO C (BLOCO C)", "HALL E CORREDOR (BLOCO C)", "PERMANÊNCIA ESTUDANTIL (BLOCO C)", "Sala de Artes (SALAS MODULARES)", "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)", "Laboratório de Humanas (SALAS MODULARES)", "CENID (SALAS MODULARES)", "M-01 (SALAS MODULARES)", "ROBÓTICA (SALAS MODULARES)", "TECNOIF DR (SALAS MODULARES)", "ÁREA DAS SALAS MODULARES (SALAS MODULARES)", "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)", "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)", "CONTAINER QUADRA (QUADRA POLIESPORTIVA)", "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)", "BOSQUE (BOSQUE)", "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)", "ESTACIONAMENTO GERAL (ESTACIONAMENTO)", "GUARITA (GUARITA)", "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)", "BARRACÃO (PÁTIO EXTERNO FUNDOS.)", "CRC (BARRACÃO CRC)", "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)"];
 }
 
 var state = {
@@ -1125,30 +1125,30 @@ var quaggaRunning = false;
 var lastScanned = '';
 var lastScannedTime = 0;
 var noPatPhoto  = null;
-var photoCache  = {}; // espelho em memÃ³ria do IndexedDB (rÃ¡pido)
+var photoCache  = {}; // espelho em memória do IndexedDB (rápido)
 var noPatEstado = 'Excelente';
 var toastTimer = null;
 var syncTimer = null;
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  INIT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// Intercepta botÃ£o fÃ­sico voltar do celular
+// ═══════════════════════════════════════════════
+// Intercepta botão físico voltar do celular
 window.addEventListener('popstate', function(e) {
-  // Se tiver uma tela aberta que nÃ£o seja home, volta para ela
+  // Se tiver uma tela aberta que não seja home, volta para ela
   var cur = document.querySelector('.screen:not(.hidden):not(.slide-left)');
   if (cur && cur.id !== 'scHome') {
     e.preventDefault();
     if (cur.id === 'scScanner') { stopScanner(); }
     else { goBack(); }
-    // Empurra estado de volta para manter histÃ³rico
+    // Empurra estado de volta para manter histórico
     history.pushState(null, '', window.location.href);
   }
 });
 // Empurra estado inicial
 history.pushState(null, '', window.location.href);
 
-// â”€â”€ Service Worker â€” atualizaÃ§Ã£o automÃ¡tica â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Service Worker — atualização automática ──────────────────
 if ('serviceWorker' in navigator) {
   var swReloading = false;
 
@@ -1160,7 +1160,7 @@ if ('serviceWorker' in navigator) {
 
   navigator.serviceWorker.register('/inventarioifms/sw.js').then(function(reg) {
 
-    // SW novo instalando â€” quando ativar, recarrega
+    // SW novo instalando — quando ativar, recarrega
     reg.addEventListener('updatefound', function() {
       var novaSW = reg.installing;
       if (!novaSW) return;
@@ -1171,18 +1171,18 @@ if ('serviceWorker' in navigator) {
       });
     });
 
-    // Verifica atualizaÃ§Ã£o ao abrir e a cada 2min
+    // Verifica atualização ao abrir e a cada 2min
     reg.update();
     setInterval(function() { reg.update(); }, 2 * 60 * 1000);
 
-    // Se jÃ¡ tem SW ativo, verifica versÃ£o
+    // Se já tem SW ativo, verifica versão
     if (reg.active) {
       reg.active.postMessage({ type: 'GET_VERSION' });
     }
 
   }).catch(function(e) { console.warn('SW register error:', e); });
 
-  // Mensagem do SW (nova versÃ£o ativada)
+  // Mensagem do SW (nova versão ativada)
   navigator.serviceWorker.addEventListener('message', function(e) {
     if (!e.data) return;
     if (e.data.type === 'SW_ACTIVATED') {
@@ -1191,14 +1191,14 @@ if ('serviceWorker' in navigator) {
     }
   });
 
-  // Quando o SW toma controle (apÃ³s skipWaiting), recarrega
+  // Quando o SW toma controle (após skipWaiting), recarrega
   navigator.serviceWorker.addEventListener('controllerchange', function() {
     recarregarSeNecessario();
   });
 }
 
 window.addEventListener('load', function() {
-  // Restaura fotos do IndexedDB para o cache em memÃ³ria
+  // Restaura fotos do IndexedDB para o cache em memória
   idbCarregarTodas().then(function(todas) {
     todas.forEach(function(r) { photoCache[r.id] = r.foto; });
     if (todas.length) console.log('IDB: ' + todas.length + ' fotos restauradas');
@@ -1215,15 +1215,15 @@ window.addEventListener('load', function() {
   loadScriptUrl();
   loadGeminiKey();
 
-  // Aplica versÃ£o em todos os elementos
+  // Aplica versão em todos os elementos
   ['versionFooter','versionBadge','versionSettings'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.textContent = el.id === 'versionFooter'
-      ? APP_VERSION + ' Â· InventÃ¡rio Campus'
+      ? APP_VERSION + ' · Inventário Campus'
       : APP_VERSION;
   });
   var vl = document.getElementById('versionLogin');
-  if (vl) vl.textContent = APP_VERSION + ' Â· InventÃ¡rio Campus';
+  if (vl) vl.textContent = APP_VERSION + ' · Inventário Campus';
 
   window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); syncNow(); });
   window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); });
@@ -1239,11 +1239,11 @@ window.addEventListener('load', function() {
   // Boas-vindas na primeira abertura como app instalado
   if (window._mostrarBoasVindas) {
     setTimeout(function() {
-      showToast('ok', 'ðŸŽ‰ App instalado com sucesso!', 'Bem-vindo ao InventÃ¡rio Campus');
+      showToast('ok', '🎉 App instalado com sucesso!', 'Bem-vindo ao Inventário Campus');
     }, 1500);
   }
 
-  // Verifica atualizaÃ§Ã£o apÃ³s 3s (deixa o app carregar primeiro) e a cada 5min
+  // Verifica atualização após 3s (deixa o app carregar primeiro) e a cada 5min
   setTimeout(function() {
     if (state.isOnline) checkForUpdate();
   }, 3000);
@@ -1258,9 +1258,9 @@ function updateHomeDate() {
     d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  NAVIGATION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function showScreen(id) {
   var cur = document.querySelector('.screen:not(.hidden):not(.slide-left)');
   if (cur && cur.id !== id) {
@@ -1287,17 +1287,17 @@ function goBack() {
   document.getElementById(prev).classList.remove('hidden','slide-left');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  ROOMS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-var ROOM_ICONS = ['ðŸ›ï¸','ðŸ“š','ðŸ”¬','ðŸ½ï¸','ðŸ¥','ðŸ ','ðŸ“¦','ðŸšª','ðŸ–¥ï¸','âš™ï¸'];
+// ═══════════════════════════════════════════════
+var ROOM_ICONS = ['🏛️','📚','🔬','🍽️','🏥','🏠','📦','🚪','🖥️','⚙️'];
 function roomIcon(i){ return ROOM_ICONS[i % ROOM_ICONS.length]; }
 
 
 
-var SALA_MAP = {"ALMOXARIFADO (Bloco A)": {"curto": "Almoxarifado", "bloco": "Bloco A", "emoji": "ðŸ›ï¸"}, "APOIO ALMOXARIFADO (Bloco A)": {"curto": "Apoio Almoxarifado", "bloco": "Bloco A", "emoji": "ðŸ½ï¸"}, "BIBLIOTECA (Bloco A)": {"curto": "Biblioteca", "bloco": "Bloco A", "emoji": "ðŸ“š"}, "COPA (Bloco A)": {"curto": "Copa", "bloco": "Bloco A", "emoji": "â˜•"}, "COORDENAÃ‡Ã•ES (Bloco A)": {"curto": "CoordenaÃ§Ãµes", "bloco": "Bloco A", "emoji": "ðŸ›ï¸"}, "CORREDOR INFERIOR (Bloco A)": {"curto": "Corredor Inferior", "bloco": "Bloco A", "emoji": "ðŸš¶"}, "CORREDOR SUPERIOR (Bloco A)": {"curto": "Corredor Superior", "bloco": "Bloco A", "emoji": "ðŸš¶"}, "COZINHA (Bloco A)": {"curto": "Cozinha", "bloco": "Bloco A", "emoji": "ðŸ³"}, "CEREL (Bloco A)": {"curto": "CEREL", "bloco": "Bloco A", "emoji": "ðŸ¥"}, "DIRAD I (Bloco A)": {"curto": "DIRAD I", "bloco": "Bloco A", "emoji": "ðŸ¢"}, "DIRAD II (Bloco A)": {"curto": "DIRAD II", "bloco": "Bloco A", "emoji": "ðŸ¢"}, "DIREN (Bloco A)": {"curto": "DIREN", "bloco": "Bloco A", "emoji": "ðŸ¢"}, "DIRGE (Bloco A)": {"curto": "DIRGE", "bloco": "Bloco A", "emoji": "ðŸ¢"}, "GABINETE (Bloco A)": {"curto": "Gabinete", "bloco": "Bloco A", "emoji": "ðŸ›ï¸"}, "NAPNE (Bloco A)": {"curto": "NAPNE", "bloco": "Bloco A", "emoji": "â™¿"}, "NUGED (Bloco A)": {"curto": "NUGED", "bloco": "Bloco A", "emoji": "ðŸ¢"}, "InventÃ¡rio (Bloco A)": {"curto": "InventÃ¡rio", "bloco": "Bloco A", "emoji": "ðŸ“‹"}, "REFEITORIO SERVIDORES (Bloco A)": {"curto": "RefeitÃ³rio Servidores", "bloco": "Bloco A", "emoji": "ðŸ½ï¸"}, "SALA DE REUNIÃ•ES - Bloco A - Piso Superior (Bloco A)": {"curto": "Sala de ReuniÃµes", "bloco": "Bloco A", "emoji": "ðŸ¤"}, "SALA DOS PROFESSORES 1 (Bloco A)": {"curto": "Sala dos Professores 1", "bloco": "Bloco A", "emoji": "ðŸ‘¨â€ðŸ«"}, "SALA DOS PROFESSORES 2 (Bloco A)": {"curto": "Sala dos Professores 2", "bloco": "Bloco A", "emoji": "ðŸ‘¨â€ðŸ«"}, "SALA DOS PROFESSORES 3 (Bloco A)": {"curto": "Sala dos Professores 3", "bloco": "Bloco A", "emoji": "ðŸ‘¨â€ðŸ«"}, "SALA APOIO COALP / COADS (Bloco A)": {"curto": "Apoio COALP/COADS", "bloco": "Bloco A", "emoji": "ðŸ”§"}, "SALA DE APOIO TERCEIRIZADOS (Bloco A)": {"curto": "Apoio Terceirizados", "bloco": "Bloco A", "emoji": "ðŸ”§"}, "SALA DE ATENDIMENTO NUGED (Bloco A)": {"curto": "Atendimento NUGED", "bloco": "Bloco A", "emoji": "ðŸ“‹"}, "SHAFT SALA APOIO COALP / COADS (Bloco A)": {"curto": "Shaft Apoio COALP/COADS", "bloco": "Bloco A", "emoji": "âš™ï¸"}, "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)": {"curto": "Shaft Central Inf. Bloco A", "bloco": "Bloco A", "emoji": "âš™ï¸"}, "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)": {"curto": "Shaft Central Sup. Bloco A", "bloco": "Bloco A", "emoji": "âš™ï¸"}, "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)": {"curto": "Shaft Escada Bloco A", "bloco": "Bloco A", "emoji": "âš™ï¸"}, "SHAFT DIRAD 1 (Bloco A)": {"curto": "Shaft DIRAD 1", "bloco": "Bloco A", "emoji": "âš™ï¸"}, "CANTINA (Bloco A)": {"curto": "Cantina", "bloco": "Bloco A", "emoji": "ðŸŒ¿"}, "APOIO LABORATÃ“RIO INFORMÃTICA (Bloco B)": {"curto": "Apoio Lab. InformÃ¡tica", "bloco": "Bloco B", "emoji": "ðŸ”§"}, "DATACENTER (Bloco B)": {"curto": "DataCenter", "bloco": "Bloco B", "emoji": "ðŸ–¥ï¸"}, "CORREDOR INFERIOR (Bloco B)": {"curto": "Corredor Inferior", "bloco": "Bloco B", "emoji": "ðŸš¶"}, "CORREDOR SUPERIOR (Bloco B)": {"curto": "Corredor Superior", "bloco": "Bloco B", "emoji": "ðŸš¶"}, "GAMELAB (Bloco B)": {"curto": "GameLab", "bloco": "Bloco B", "emoji": "ðŸŽ®"}, "IFSTUDIO (Bloco B)": {"curto": "IFStudio", "bloco": "Bloco B", "emoji": "ðŸŽµ"}, "IFMaker (Bloco B)": {"curto": "IFMaker", "bloco": "Bloco B", "emoji": "ðŸ”¬"}, "LABORATÃ“RIO INFORMÃTICA 1 (Bloco B)": {"curto": "Lab. InformÃ¡tica 1", "bloco": "Bloco B", "emoji": "ðŸ’»"}, "LABORATÃ“RIO INFORMÃTICA 2 (Bloco B)": {"curto": "Lab. InformÃ¡tica 2", "bloco": "Bloco B", "emoji": "ðŸ’»"}, "LABORATÃ“RIO INFORMÃTICA 3 (Bloco B)": {"curto": "Lab. InformÃ¡tica 3", "bloco": "Bloco B", "emoji": "ðŸ’»"}, "LABORATÃ“RIO INFORMÃTICA 4 (Bloco B)": {"curto": "Lab. InformÃ¡tica 4", "bloco": "Bloco B", "emoji": "ðŸ’»"}, "LABORATÃ“RIO INFORMÃTICA 5 (Bloco B)": {"curto": "Lab. InformÃ¡tica 5", "bloco": "Bloco B", "emoji": "ðŸ’»"}, "LABORATÃ“RIO BIOLOGIA/FÃSICA (Bloco B)": {"curto": "Lab. Biologia/FÃ­sica", "bloco": "Bloco B", "emoji": "ðŸ”¬"}, "LABORATÃ“RIO QUÃMICA/MATEMÃTICA (Bloco B)": {"curto": "Lab. QuÃ­mica/Mat.", "bloco": "Bloco B", "emoji": "âš—ï¸"}, "PÃTIO BLOCO B (Bloco B)": {"curto": "PÃ¡tio Bloco B", "bloco": "Bloco B", "emoji": "ðŸžï¸"}, "SERTI (Bloco B)": {"curto": "SERTI", "bloco": "Bloco B", "emoji": "ðŸ”¬"}, "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)": {"curto": "Shaft Central Inf. Bloco B", "bloco": "Bloco B", "emoji": "âš™ï¸"}, "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)": {"curto": "Shaft Escada Bloco B", "bloco": "Bloco B", "emoji": "âš™ï¸"}, "SHAFT LABORATÃ“RIO INFORMÃTICA 4 (Bloco B)": {"curto": "Shaft Lab. InformÃ¡tica 4", "bloco": "Bloco B", "emoji": "âš™ï¸"}, "ESTUDIO 1 (Bloco B)": {"curto": "EstÃºdio 1", "bloco": "Bloco B", "emoji": "ðŸŽ¬"}, "ESTUDIO 2 (Bloco B)": {"curto": "EstÃºdio 2", "bloco": "Bloco B", "emoji": "ðŸŽ¬"}, "SALA VAGA (Bloco B)": {"curto": "Sala Vaga", "bloco": "Bloco B", "emoji": "ðŸ“¦"}, "SL 01 (BLOCO C)": {"curto": "Sala de Aula 1", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 02 (BLOCO C)": {"curto": "Sala de Aula 2", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 03 (BLOCO C)": {"curto": "Sala de Aula 3", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 04 (BLOCO C)": {"curto": "Sala de Aula 4", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 05 (BLOCO C)": {"curto": "Sala de Aula 5", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 06 (BLOCO C)": {"curto": "Sala de Aula 6", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 07 (BLOCO C)": {"curto": "Sala de Aula 7", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 08 (BLOCO C)": {"curto": "Sala de Aula 8", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 09 (BLOCO C)": {"curto": "Sala de Aula 9", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "SL 10 (BLOCO C)": {"curto": "Sala de Aula 10", "bloco": "Bloco C", "emoji": "ðŸŽ“"}, "ENFERMARIA (BLOCO C)": {"curto": "Enfermaria", "bloco": "Bloco C", "emoji": "ðŸ‘©â€âš•ï¸"}, "ASSISTENTE DE ALUNOS (BLOCO C)": {"curto": "Assistente de Alunos", "bloco": "Bloco C", "emoji": "ðŸ‘¥"}, "LÃ“GICA (BLOCO C)": {"curto": "LÃ³gica", "bloco": "Bloco C", "emoji": "ðŸ“–"}, "CORREDOR E HALL BLOCO C (BLOCO C)": {"curto": "Corredor/Hall Bloco C", "bloco": "Bloco C", "emoji": "ðŸš¶"}, "HALL E CORREDOR (BLOCO C)": {"curto": "Hall/Corredor", "bloco": "Bloco C", "emoji": "ðŸš¶"}, "PERMANÃŠNCIA ESTUDANTIL (BLOCO C)": {"curto": "PermanÃªncia Estudantil", "bloco": "Bloco C", "emoji": "ðŸ "}, "Sala de Artes (SALAS MODULARES)": {"curto": "Sala de Artes", "bloco": "Salas Modulares", "emoji": "ðŸŽ¨"}, "LAFIF - LaboratÃ³rio de Atividades FÃ­sicas (SALAS MODULARES)": {"curto": "LAFIF", "bloco": "Salas Modulares", "emoji": "ðŸ‹ï¸"}, "LaboratÃ³rio de Humanas (SALAS MODULARES)": {"curto": "Lab. de Humanas", "bloco": "Salas Modulares", "emoji": "ðŸ”¬"}, "CENID (SALAS MODULARES)": {"curto": "CENID", "bloco": "Salas Modulares", "emoji": "ðŸ¢"}, "M-01 (SALAS MODULARES)": {"curto": "M-01", "bloco": "Salas Modulares", "emoji": "ðŸ¢"}, "ROBÃ“TICA (SALAS MODULARES)": {"curto": "RobÃ³tica", "bloco": "Salas Modulares", "emoji": "ðŸ¤–"}, "TECNOIF DR (SALAS MODULARES)": {"curto": "TECNOIF DR", "bloco": "Salas Modulares", "emoji": "ðŸ’¡"}, "ÃREA DAS SALAS MODULARES (SALAS MODULARES)": {"curto": "Ãrea Salas Modulares", "bloco": "Salas Modulares", "emoji": "ðŸžï¸"}, "ALMOXARIFADO CONTAINER (ÃREA EXTERNA)": {"curto": "Almoxarifado Container", "bloco": "Ãrea Externa", "emoji": "ðŸ“¦"}, "PATRIMÃ”NIO CONTAINER (ÃREA EXTERNA)": {"curto": "Container PatrimÃ´nio", "bloco": "Ãrea Externa", "emoji": "ðŸ“¦"}, "CONTAINER QUADRA (QUADRA POLIESPORTIVA)": {"curto": "Container Quadra", "bloco": "Ãrea Externa", "emoji": "ðŸ€"}, "QUADRA POLIESPORTIVA (DR) (ÃREA EXTERNA)": {"curto": "Quadra Poliesportiva", "bloco": "Ãrea Externa", "emoji": "ðŸ€"}, "BOSQUE (BOSQUE)": {"curto": "Bosque", "bloco": "Ãrea Externa", "emoji": "ðŸŒ¿"}, "ESTACIONAMENTO VEÃCULOS OFICIAIS (ESTACIONAMENTO)": {"curto": "Estac. VeÃ­culos Oficiais", "bloco": "Ãrea Externa", "emoji": "ðŸš—"}, "ESTACIONAMENTO GERAL (ESTACIONAMENTO)": {"curto": "Estacionamento Geral", "bloco": "Ãrea Externa", "emoji": "ðŸš—"}, "GUARITA (GUARITA)": {"curto": "Guarita", "bloco": "Ãrea Externa", "emoji": "ðŸšª"}, "ENTRADA DOS ESTUDANTES (ÃREA EXTERNA)": {"curto": "Entrada Estudantes", "bloco": "Ãrea Externa", "emoji": "ðŸ«"}, "BARRACÃƒO (PÃTIO EXTERNO FUNDOS.)": {"curto": "BarracÃ£o", "bloco": "Ãrea Externa", "emoji": "ðŸ—ï¸"}, "CRC (BARRACÃƒO CRC)": {"curto": "CRC", "bloco": "Ãrea Externa", "emoji": "ðŸ—ï¸"}, "ÃREA DE CONVIVÃŠNCIA (ÃREA DE CONVIVÃŠNCIA ENTRE BLOCOS A-B)": {"curto": "Ãrea de ConvivÃªncia", "bloco": "Ãrea Externa", "emoji": "ðŸžï¸"}};
+var SALA_MAP = {"ALMOXARIFADO (Bloco A)": {"curto": "Almoxarifado", "bloco": "Bloco A", "emoji": "🏛️"}, "APOIO ALMOXARIFADO (Bloco A)": {"curto": "Apoio Almoxarifado", "bloco": "Bloco A", "emoji": "🍽️"}, "BIBLIOTECA (Bloco A)": {"curto": "Biblioteca", "bloco": "Bloco A", "emoji": "📚"}, "COPA (Bloco A)": {"curto": "Copa", "bloco": "Bloco A", "emoji": "☕"}, "COORDENAÇÕES (Bloco A)": {"curto": "Coordenações", "bloco": "Bloco A", "emoji": "🏛️"}, "CORREDOR INFERIOR (Bloco A)": {"curto": "Corredor Inferior", "bloco": "Bloco A", "emoji": "🚶"}, "CORREDOR SUPERIOR (Bloco A)": {"curto": "Corredor Superior", "bloco": "Bloco A", "emoji": "🚶"}, "COZINHA (Bloco A)": {"curto": "Cozinha", "bloco": "Bloco A", "emoji": "🍳"}, "CEREL (Bloco A)": {"curto": "CEREL", "bloco": "Bloco A", "emoji": "🏥"}, "DIRAD I (Bloco A)": {"curto": "DIRAD I", "bloco": "Bloco A", "emoji": "🏢"}, "DIRAD II (Bloco A)": {"curto": "DIRAD II", "bloco": "Bloco A", "emoji": "🏢"}, "DIREN (Bloco A)": {"curto": "DIREN", "bloco": "Bloco A", "emoji": "🏢"}, "DIRGE (Bloco A)": {"curto": "DIRGE", "bloco": "Bloco A", "emoji": "🏢"}, "GABINETE (Bloco A)": {"curto": "Gabinete", "bloco": "Bloco A", "emoji": "🏛️"}, "NAPNE (Bloco A)": {"curto": "NAPNE", "bloco": "Bloco A", "emoji": "♿"}, "NUGED (Bloco A)": {"curto": "NUGED", "bloco": "Bloco A", "emoji": "🏢"}, "Inventário (Bloco A)": {"curto": "Inventário", "bloco": "Bloco A", "emoji": "📋"}, "REFEITORIO SERVIDORES (Bloco A)": {"curto": "Refeitório Servidores", "bloco": "Bloco A", "emoji": "🍽️"}, "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)": {"curto": "Sala de Reuniões", "bloco": "Bloco A", "emoji": "🤝"}, "SALA DOS PROFESSORES 1 (Bloco A)": {"curto": "Sala dos Professores 1", "bloco": "Bloco A", "emoji": "👨‍🏫"}, "SALA DOS PROFESSORES 2 (Bloco A)": {"curto": "Sala dos Professores 2", "bloco": "Bloco A", "emoji": "👨‍🏫"}, "SALA DOS PROFESSORES 3 (Bloco A)": {"curto": "Sala dos Professores 3", "bloco": "Bloco A", "emoji": "👨‍🏫"}, "SALA APOIO COALP / COADS (Bloco A)": {"curto": "Apoio COALP/COADS", "bloco": "Bloco A", "emoji": "🔧"}, "SALA DE APOIO TERCEIRIZADOS (Bloco A)": {"curto": "Apoio Terceirizados", "bloco": "Bloco A", "emoji": "🔧"}, "SALA DE ATENDIMENTO NUGED (Bloco A)": {"curto": "Atendimento NUGED", "bloco": "Bloco A", "emoji": "📋"}, "SHAFT SALA APOIO COALP / COADS (Bloco A)": {"curto": "Shaft Apoio COALP/COADS", "bloco": "Bloco A", "emoji": "⚙️"}, "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)": {"curto": "Shaft Central Inf. Bloco A", "bloco": "Bloco A", "emoji": "⚙️"}, "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)": {"curto": "Shaft Central Sup. Bloco A", "bloco": "Bloco A", "emoji": "⚙️"}, "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)": {"curto": "Shaft Escada Bloco A", "bloco": "Bloco A", "emoji": "⚙️"}, "SHAFT DIRAD 1 (Bloco A)": {"curto": "Shaft DIRAD 1", "bloco": "Bloco A", "emoji": "⚙️"}, "CANTINA (Bloco A)": {"curto": "Cantina", "bloco": "Bloco A", "emoji": "🌿"}, "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)": {"curto": "Apoio Lab. Informática", "bloco": "Bloco B", "emoji": "🔧"}, "DATACENTER (Bloco B)": {"curto": "DataCenter", "bloco": "Bloco B", "emoji": "🖥️"}, "CORREDOR INFERIOR (Bloco B)": {"curto": "Corredor Inferior", "bloco": "Bloco B", "emoji": "🚶"}, "CORREDOR SUPERIOR (Bloco B)": {"curto": "Corredor Superior", "bloco": "Bloco B", "emoji": "🚶"}, "GAMELAB (Bloco B)": {"curto": "GameLab", "bloco": "Bloco B", "emoji": "🎮"}, "IFSTUDIO (Bloco B)": {"curto": "IFStudio", "bloco": "Bloco B", "emoji": "🎵"}, "IFMaker (Bloco B)": {"curto": "IFMaker", "bloco": "Bloco B", "emoji": "🔬"}, "LABORATÓRIO INFORMÁTICA 1 (Bloco B)": {"curto": "Lab. Informática 1", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO INFORMÁTICA 2 (Bloco B)": {"curto": "Lab. Informática 2", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO INFORMÁTICA 3 (Bloco B)": {"curto": "Lab. Informática 3", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO INFORMÁTICA 4 (Bloco B)": {"curto": "Lab. Informática 4", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO INFORMÁTICA 5 (Bloco B)": {"curto": "Lab. Informática 5", "bloco": "Bloco B", "emoji": "💻"}, "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)": {"curto": "Lab. Biologia/Física", "bloco": "Bloco B", "emoji": "🔬"}, "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)": {"curto": "Lab. Química/Mat.", "bloco": "Bloco B", "emoji": "⚗️"}, "PÁTIO BLOCO B (Bloco B)": {"curto": "Pátio Bloco B", "bloco": "Bloco B", "emoji": "🏞️"}, "SERTI (Bloco B)": {"curto": "SERTI", "bloco": "Bloco B", "emoji": "🔬"}, "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)": {"curto": "Shaft Central Inf. Bloco B", "bloco": "Bloco B", "emoji": "⚙️"}, "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)": {"curto": "Shaft Escada Bloco B", "bloco": "Bloco B", "emoji": "⚙️"}, "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)": {"curto": "Shaft Lab. Informática 4", "bloco": "Bloco B", "emoji": "⚙️"}, "ESTUDIO 1 (Bloco B)": {"curto": "Estúdio 1", "bloco": "Bloco B", "emoji": "🎬"}, "ESTUDIO 2 (Bloco B)": {"curto": "Estúdio 2", "bloco": "Bloco B", "emoji": "🎬"}, "SALA VAGA (Bloco B)": {"curto": "Sala Vaga", "bloco": "Bloco B", "emoji": "📦"}, "SL 01 (BLOCO C)": {"curto": "Sala de Aula 1", "bloco": "Bloco C", "emoji": "🎓"}, "SL 02 (BLOCO C)": {"curto": "Sala de Aula 2", "bloco": "Bloco C", "emoji": "🎓"}, "SL 03 (BLOCO C)": {"curto": "Sala de Aula 3", "bloco": "Bloco C", "emoji": "🎓"}, "SL 04 (BLOCO C)": {"curto": "Sala de Aula 4", "bloco": "Bloco C", "emoji": "🎓"}, "SL 05 (BLOCO C)": {"curto": "Sala de Aula 5", "bloco": "Bloco C", "emoji": "🎓"}, "SL 06 (BLOCO C)": {"curto": "Sala de Aula 6", "bloco": "Bloco C", "emoji": "🎓"}, "SL 07 (BLOCO C)": {"curto": "Sala de Aula 7", "bloco": "Bloco C", "emoji": "🎓"}, "SL 08 (BLOCO C)": {"curto": "Sala de Aula 8", "bloco": "Bloco C", "emoji": "🎓"}, "SL 09 (BLOCO C)": {"curto": "Sala de Aula 9", "bloco": "Bloco C", "emoji": "🎓"}, "SL 10 (BLOCO C)": {"curto": "Sala de Aula 10", "bloco": "Bloco C", "emoji": "🎓"}, "ENFERMARIA (BLOCO C)": {"curto": "Enfermaria", "bloco": "Bloco C", "emoji": "👩‍⚕️"}, "ASSISTENTE DE ALUNOS (BLOCO C)": {"curto": "Assistente de Alunos", "bloco": "Bloco C", "emoji": "👥"}, "LÓGICA (BLOCO C)": {"curto": "Lógica", "bloco": "Bloco C", "emoji": "📖"}, "CORREDOR E HALL BLOCO C (BLOCO C)": {"curto": "Corredor/Hall Bloco C", "bloco": "Bloco C", "emoji": "🚶"}, "HALL E CORREDOR (BLOCO C)": {"curto": "Hall/Corredor", "bloco": "Bloco C", "emoji": "🚶"}, "PERMANÊNCIA ESTUDANTIL (BLOCO C)": {"curto": "Permanência Estudantil", "bloco": "Bloco C", "emoji": "🏠"}, "Sala de Artes (SALAS MODULARES)": {"curto": "Sala de Artes", "bloco": "Salas Modulares", "emoji": "🎨"}, "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)": {"curto": "LAFIF", "bloco": "Salas Modulares", "emoji": "🏋️"}, "Laboratório de Humanas (SALAS MODULARES)": {"curto": "Lab. de Humanas", "bloco": "Salas Modulares", "emoji": "🔬"}, "CENID (SALAS MODULARES)": {"curto": "CENID", "bloco": "Salas Modulares", "emoji": "🏢"}, "M-01 (SALAS MODULARES)": {"curto": "M-01", "bloco": "Salas Modulares", "emoji": "🏢"}, "ROBÓTICA (SALAS MODULARES)": {"curto": "Robótica", "bloco": "Salas Modulares", "emoji": "🤖"}, "TECNOIF DR (SALAS MODULARES)": {"curto": "TECNOIF DR", "bloco": "Salas Modulares", "emoji": "💡"}, "ÁREA DAS SALAS MODULARES (SALAS MODULARES)": {"curto": "Área Salas Modulares", "bloco": "Salas Modulares", "emoji": "🏞️"}, "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)": {"curto": "Almoxarifado Container", "bloco": "Área Externa", "emoji": "📦"}, "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)": {"curto": "Container Patrimônio", "bloco": "Área Externa", "emoji": "📦"}, "CONTAINER QUADRA (QUADRA POLIESPORTIVA)": {"curto": "Container Quadra", "bloco": "Área Externa", "emoji": "🏀"}, "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)": {"curto": "Quadra Poliesportiva", "bloco": "Área Externa", "emoji": "🏀"}, "BOSQUE (BOSQUE)": {"curto": "Bosque", "bloco": "Área Externa", "emoji": "🌿"}, "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)": {"curto": "Estac. Veículos Oficiais", "bloco": "Área Externa", "emoji": "🚗"}, "ESTACIONAMENTO GERAL (ESTACIONAMENTO)": {"curto": "Estacionamento Geral", "bloco": "Área Externa", "emoji": "🚗"}, "GUARITA (GUARITA)": {"curto": "Guarita", "bloco": "Área Externa", "emoji": "🚪"}, "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)": {"curto": "Entrada Estudantes", "bloco": "Área Externa", "emoji": "🏫"}, "BARRACÃO (PÁTIO EXTERNO FUNDOS.)": {"curto": "Barracão", "bloco": "Área Externa", "emoji": "🏗️"}, "CRC (BARRACÃO CRC)": {"curto": "CRC", "bloco": "Área Externa", "emoji": "🏗️"}, "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)": {"curto": "Área de Convivência", "bloco": "Área Externa", "emoji": "🏞️"}};
 
-var SALA_GRUPOS = {"Bloco A": [{"nome": "Almoxarifado", "emoji": "ðŸ›ï¸", "original": "ALMOXARIFADO (Bloco A)"}, {"nome": "Apoio Almoxarifado", "emoji": "ðŸ½ï¸", "original": "APOIO ALMOXARIFADO (Bloco A)"}, {"nome": "Biblioteca", "emoji": "ðŸ“š", "original": "BIBLIOTECA (Bloco A)"}, {"nome": "Copa", "emoji": "â˜•", "original": "COPA (Bloco A)"}, {"nome": "CoordenaÃ§Ãµes", "emoji": "ðŸ›ï¸", "original": "COORDENAÃ‡Ã•ES (Bloco A)"}, {"nome": "Corredor Inferior", "emoji": "ðŸš¶", "original": "CORREDOR INFERIOR (Bloco A)"}, {"nome": "Corredor Superior", "emoji": "ðŸš¶", "original": "CORREDOR SUPERIOR (Bloco A)"}, {"nome": "Cozinha", "emoji": "ðŸ³", "original": "COZINHA (Bloco A)"}, {"nome": "CEREL", "emoji": "ðŸ¥", "original": "CEREL (Bloco A)"}, {"nome": "DIRAD I", "emoji": "ðŸ¢", "original": "DIRAD I (Bloco A)"}, {"nome": "DIRAD II", "emoji": "ðŸ¢", "original": "DIRAD II (Bloco A)"}, {"nome": "DIREN", "emoji": "ðŸ¢", "original": "DIREN (Bloco A)"}, {"nome": "DIRGE", "emoji": "ðŸ¢", "original": "DIRGE (Bloco A)"}, {"nome": "Gabinete", "emoji": "ðŸ›ï¸", "original": "GABINETE (Bloco A)"}, {"nome": "NAPNE", "emoji": "â™¿", "original": "NAPNE (Bloco A)"}, {"nome": "NUGED", "emoji": "ðŸ¢", "original": "NUGED (Bloco A)"}, {"nome": "InventÃ¡rio", "emoji": "ðŸ“‹", "original": "InventÃ¡rio (Bloco A)"}, {"nome": "RefeitÃ³rio Servidores", "emoji": "ðŸ½ï¸", "original": "REFEITORIO SERVIDORES (Bloco A)"}, {"nome": "Sala de ReuniÃµes", "emoji": "ðŸ¤", "original": "SALA DE REUNIÃ•ES - Bloco A - Piso Superior (Bloco A)"}, {"nome": "Sala dos Professores 1", "emoji": "ðŸ‘¨â€ðŸ«", "original": "SALA DOS PROFESSORES 1 (Bloco A)"}, {"nome": "Sala dos Professores 2", "emoji": "ðŸ‘¨â€ðŸ«", "original": "SALA DOS PROFESSORES 2 (Bloco A)"}, {"nome": "Sala dos Professores 3", "emoji": "ðŸ‘¨â€ðŸ«", "original": "SALA DOS PROFESSORES 3 (Bloco A)"}, {"nome": "Apoio COALP/COADS", "emoji": "ðŸ”§", "original": "SALA APOIO COALP / COADS (Bloco A)"}, {"nome": "Apoio Terceirizados", "emoji": "ðŸ”§", "original": "SALA DE APOIO TERCEIRIZADOS (Bloco A)"}, {"nome": "Atendimento NUGED", "emoji": "ðŸ“‹", "original": "SALA DE ATENDIMENTO NUGED (Bloco A)"}, {"nome": "Shaft Apoio COALP/COADS", "emoji": "âš™ï¸", "original": "SHAFT SALA APOIO COALP / COADS (Bloco A)"}, {"nome": "Shaft Central Inf. Bloco A", "emoji": "âš™ï¸", "original": "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)"}, {"nome": "Shaft Central Sup. Bloco A", "emoji": "âš™ï¸", "original": "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)"}, {"nome": "Shaft Escada Bloco A", "emoji": "âš™ï¸", "original": "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)"}, {"nome": "Shaft DIRAD 1", "emoji": "âš™ï¸", "original": "SHAFT DIRAD 1 (Bloco A)"}, {"nome": "Cantina", "emoji": "ðŸŒ¿", "original": "CANTINA (Bloco A)"}], "Bloco B": [{"nome": "Apoio Lab. InformÃ¡tica", "emoji": "ðŸ”§", "original": "APOIO LABORATÃ“RIO INFORMÃTICA (Bloco B)"}, {"nome": "DataCenter", "emoji": "ðŸ–¥ï¸", "original": "DATACENTER (Bloco B)"}, {"nome": "Corredor Inferior", "emoji": "ðŸš¶", "original": "CORREDOR INFERIOR (Bloco B)"}, {"nome": "Corredor Superior", "emoji": "ðŸš¶", "original": "CORREDOR SUPERIOR (Bloco B)"}, {"nome": "GameLab", "emoji": "ðŸŽ®", "original": "GAMELAB (Bloco B)"}, {"nome": "IFStudio", "emoji": "ðŸŽµ", "original": "IFSTUDIO (Bloco B)"}, {"nome": "IFMaker", "emoji": "ðŸ”¬", "original": "IFMaker (Bloco B)"}, {"nome": "Lab. InformÃ¡tica 1", "emoji": "ðŸ’»", "original": "LABORATÃ“RIO INFORMÃTICA 1 (Bloco B)"}, {"nome": "Lab. InformÃ¡tica 2", "emoji": "ðŸ’»", "original": "LABORATÃ“RIO INFORMÃTICA 2 (Bloco B)"}, {"nome": "Lab. InformÃ¡tica 3", "emoji": "ðŸ’»", "original": "LABORATÃ“RIO INFORMÃTICA 3 (Bloco B)"}, {"nome": "Lab. InformÃ¡tica 4", "emoji": "ðŸ’»", "original": "LABORATÃ“RIO INFORMÃTICA 4 (Bloco B)"}, {"nome": "Lab. InformÃ¡tica 5", "emoji": "ðŸ’»", "original": "LABORATÃ“RIO INFORMÃTICA 5 (Bloco B)"}, {"nome": "Lab. Biologia/FÃ­sica", "emoji": "ðŸ”¬", "original": "LABORATÃ“RIO BIOLOGIA/FÃSICA (Bloco B)"}, {"nome": "Lab. QuÃ­mica/Mat.", "emoji": "âš—ï¸", "original": "LABORATÃ“RIO QUÃMICA/MATEMÃTICA (Bloco B)"}, {"nome": "PÃ¡tio Bloco B", "emoji": "ðŸžï¸", "original": "PÃTIO BLOCO B (Bloco B)"}, {"nome": "SERTI", "emoji": "ðŸ”¬", "original": "SERTI (Bloco B)"}, {"nome": "Shaft Central Inf. Bloco B", "emoji": "âš™ï¸", "original": "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)"}, {"nome": "Shaft Escada Bloco B", "emoji": "âš™ï¸", "original": "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)"}, {"nome": "Shaft Lab. InformÃ¡tica 4", "emoji": "âš™ï¸", "original": "SHAFT LABORATÃ“RIO INFORMÃTICA 4 (Bloco B)"}, {"nome": "EstÃºdio 1", "emoji": "ðŸŽ¬", "original": "ESTUDIO 1 (Bloco B)"}, {"nome": "EstÃºdio 2", "emoji": "ðŸŽ¬", "original": "ESTUDIO 2 (Bloco B)"}, {"nome": "Sala Vaga", "emoji": "ðŸ“¦", "original": "SALA VAGA (Bloco B)"}], "Bloco C": [{"nome": "Sala de Aula 1", "emoji": "ðŸŽ“", "original": "SL 01 (BLOCO C)"}, {"nome": "Sala de Aula 2", "emoji": "ðŸŽ“", "original": "SL 02 (BLOCO C)"}, {"nome": "Sala de Aula 3", "emoji": "ðŸŽ“", "original": "SL 03 (BLOCO C)"}, {"nome": "Sala de Aula 4", "emoji": "ðŸŽ“", "original": "SL 04 (BLOCO C)"}, {"nome": "Sala de Aula 5", "emoji": "ðŸŽ“", "original": "SL 05 (BLOCO C)"}, {"nome": "Sala de Aula 6", "emoji": "ðŸŽ“", "original": "SL 06 (BLOCO C)"}, {"nome": "Sala de Aula 7", "emoji": "ðŸŽ“", "original": "SL 07 (BLOCO C)"}, {"nome": "Sala de Aula 8", "emoji": "ðŸŽ“", "original": "SL 08 (BLOCO C)"}, {"nome": "Sala de Aula 9", "emoji": "ðŸŽ“", "original": "SL 09 (BLOCO C)"}, {"nome": "Sala de Aula 10", "emoji": "ðŸŽ“", "original": "SL 10 (BLOCO C)"}, {"nome": "Enfermaria", "emoji": "ðŸ‘©â€âš•ï¸", "original": "ENFERMARIA (BLOCO C)"}, {"nome": "Assistente de Alunos", "emoji": "ðŸ‘¥", "original": "ASSISTENTE DE ALUNOS (BLOCO C)"}, {"nome": "LÃ³gica", "emoji": "ðŸ“–", "original": "LÃ“GICA (BLOCO C)"}, {"nome": "Corredor/Hall Bloco C", "emoji": "ðŸš¶", "original": "CORREDOR E HALL BLOCO C (BLOCO C)"}, {"nome": "Hall/Corredor", "emoji": "ðŸš¶", "original": "HALL E CORREDOR (BLOCO C)"}, {"nome": "PermanÃªncia Estudantil", "emoji": "ðŸ ", "original": "PERMANÃŠNCIA ESTUDANTIL (BLOCO C)"}], "Salas Modulares": [{"nome": "Sala de Artes", "emoji": "ðŸŽ¨", "original": "Sala de Artes (SALAS MODULARES)"}, {"nome": "LAFIF", "emoji": "ðŸ‹ï¸", "original": "LAFIF - LaboratÃ³rio de Atividades FÃ­sicas (SALAS MODULARES)"}, {"nome": "Lab. de Humanas", "emoji": "ðŸ”¬", "original": "LaboratÃ³rio de Humanas (SALAS MODULARES)"}, {"nome": "CENID", "emoji": "ðŸ¢", "original": "CENID (SALAS MODULARES)"}, {"nome": "M-01", "emoji": "ðŸ¢", "original": "M-01 (SALAS MODULARES)"}, {"nome": "RobÃ³tica", "emoji": "ðŸ¤–", "original": "ROBÃ“TICA (SALAS MODULARES)"}, {"nome": "TECNOIF DR", "emoji": "ðŸ’¡", "original": "TECNOIF DR (SALAS MODULARES)"}, {"nome": "Ãrea Salas Modulares", "emoji": "ðŸžï¸", "original": "ÃREA DAS SALAS MODULARES (SALAS MODULARES)"}], "Ãrea Externa": [{"nome": "Almoxarifado Container", "emoji": "ðŸ“¦", "original": "ALMOXARIFADO CONTAINER (ÃREA EXTERNA)"}, {"nome": "Container PatrimÃ´nio", "emoji": "ðŸ“¦", "original": "PATRIMÃ”NIO CONTAINER (ÃREA EXTERNA)"}, {"nome": "Container Quadra", "emoji": "ðŸ€", "original": "CONTAINER QUADRA (QUADRA POLIESPORTIVA)"}, {"nome": "Quadra Poliesportiva", "emoji": "ðŸ€", "original": "QUADRA POLIESPORTIVA (DR) (ÃREA EXTERNA)"}, {"nome": "Bosque", "emoji": "ðŸŒ¿", "original": "BOSQUE (BOSQUE)"}, {"nome": "Estac. VeÃ­culos Oficiais", "emoji": "ðŸš—", "original": "ESTACIONAMENTO VEÃCULOS OFICIAIS (ESTACIONAMENTO)"}, {"nome": "Estacionamento Geral", "emoji": "ðŸš—", "original": "ESTACIONAMENTO GERAL (ESTACIONAMENTO)"}, {"nome": "Guarita", "emoji": "ðŸšª", "original": "GUARITA (GUARITA)"}, {"nome": "Entrada Estudantes", "emoji": "ðŸ«", "original": "ENTRADA DOS ESTUDANTES (ÃREA EXTERNA)"}, {"nome": "BarracÃ£o", "emoji": "ðŸ—ï¸", "original": "BARRACÃƒO (PÃTIO EXTERNO FUNDOS.)"}, {"nome": "CRC", "emoji": "ðŸ—ï¸", "original": "CRC (BARRACÃƒO CRC)"}, {"nome": "Ãrea de ConvivÃªncia", "emoji": "ðŸžï¸", "original": "ÃREA DE CONVIVÃŠNCIA (ÃREA DE CONVIVÃŠNCIA ENTRE BLOCOS A-B)"}]};
+var SALA_GRUPOS = {"Bloco A": [{"nome": "Almoxarifado", "emoji": "🏛️", "original": "ALMOXARIFADO (Bloco A)"}, {"nome": "Apoio Almoxarifado", "emoji": "🍽️", "original": "APOIO ALMOXARIFADO (Bloco A)"}, {"nome": "Biblioteca", "emoji": "📚", "original": "BIBLIOTECA (Bloco A)"}, {"nome": "Copa", "emoji": "☕", "original": "COPA (Bloco A)"}, {"nome": "Coordenações", "emoji": "🏛️", "original": "COORDENAÇÕES (Bloco A)"}, {"nome": "Corredor Inferior", "emoji": "🚶", "original": "CORREDOR INFERIOR (Bloco A)"}, {"nome": "Corredor Superior", "emoji": "🚶", "original": "CORREDOR SUPERIOR (Bloco A)"}, {"nome": "Cozinha", "emoji": "🍳", "original": "COZINHA (Bloco A)"}, {"nome": "CEREL", "emoji": "🏥", "original": "CEREL (Bloco A)"}, {"nome": "DIRAD I", "emoji": "🏢", "original": "DIRAD I (Bloco A)"}, {"nome": "DIRAD II", "emoji": "🏢", "original": "DIRAD II (Bloco A)"}, {"nome": "DIREN", "emoji": "🏢", "original": "DIREN (Bloco A)"}, {"nome": "DIRGE", "emoji": "🏢", "original": "DIRGE (Bloco A)"}, {"nome": "Gabinete", "emoji": "🏛️", "original": "GABINETE (Bloco A)"}, {"nome": "NAPNE", "emoji": "♿", "original": "NAPNE (Bloco A)"}, {"nome": "NUGED", "emoji": "🏢", "original": "NUGED (Bloco A)"}, {"nome": "Inventário", "emoji": "📋", "original": "Inventário (Bloco A)"}, {"nome": "Refeitório Servidores", "emoji": "🍽️", "original": "REFEITORIO SERVIDORES (Bloco A)"}, {"nome": "Sala de Reuniões", "emoji": "🤝", "original": "SALA DE REUNIÕES - Bloco A - Piso Superior (Bloco A)"}, {"nome": "Sala dos Professores 1", "emoji": "👨‍🏫", "original": "SALA DOS PROFESSORES 1 (Bloco A)"}, {"nome": "Sala dos Professores 2", "emoji": "👨‍🏫", "original": "SALA DOS PROFESSORES 2 (Bloco A)"}, {"nome": "Sala dos Professores 3", "emoji": "👨‍🏫", "original": "SALA DOS PROFESSORES 3 (Bloco A)"}, {"nome": "Apoio COALP/COADS", "emoji": "🔧", "original": "SALA APOIO COALP / COADS (Bloco A)"}, {"nome": "Apoio Terceirizados", "emoji": "🔧", "original": "SALA DE APOIO TERCEIRIZADOS (Bloco A)"}, {"nome": "Atendimento NUGED", "emoji": "📋", "original": "SALA DE ATENDIMENTO NUGED (Bloco A)"}, {"nome": "Shaft Apoio COALP/COADS", "emoji": "⚙️", "original": "SHAFT SALA APOIO COALP / COADS (Bloco A)"}, {"nome": "Shaft Central Inf. Bloco A", "emoji": "⚙️", "original": "SHAFT CENTRAL INFERIOR BLOCO A (Bloco A)"}, {"nome": "Shaft Central Sup. Bloco A", "emoji": "⚙️", "original": "SHAFT CENTRAL BLOCO A SUPERIOR (Bloco A)"}, {"nome": "Shaft Escada Bloco A", "emoji": "⚙️", "original": "SHAFT SUPERIOR ESCADA BLOCO A (Bloco A)"}, {"nome": "Shaft DIRAD 1", "emoji": "⚙️", "original": "SHAFT DIRAD 1 (Bloco A)"}, {"nome": "Cantina", "emoji": "🌿", "original": "CANTINA (Bloco A)"}], "Bloco B": [{"nome": "Apoio Lab. Informática", "emoji": "🔧", "original": "APOIO LABORATÓRIO INFORMÁTICA (Bloco B)"}, {"nome": "DataCenter", "emoji": "🖥️", "original": "DATACENTER (Bloco B)"}, {"nome": "Corredor Inferior", "emoji": "🚶", "original": "CORREDOR INFERIOR (Bloco B)"}, {"nome": "Corredor Superior", "emoji": "🚶", "original": "CORREDOR SUPERIOR (Bloco B)"}, {"nome": "GameLab", "emoji": "🎮", "original": "GAMELAB (Bloco B)"}, {"nome": "IFStudio", "emoji": "🎵", "original": "IFSTUDIO (Bloco B)"}, {"nome": "IFMaker", "emoji": "🔬", "original": "IFMaker (Bloco B)"}, {"nome": "Lab. Informática 1", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 1 (Bloco B)"}, {"nome": "Lab. Informática 2", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 2 (Bloco B)"}, {"nome": "Lab. Informática 3", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 3 (Bloco B)"}, {"nome": "Lab. Informática 4", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 4 (Bloco B)"}, {"nome": "Lab. Informática 5", "emoji": "💻", "original": "LABORATÓRIO INFORMÁTICA 5 (Bloco B)"}, {"nome": "Lab. Biologia/Física", "emoji": "🔬", "original": "LABORATÓRIO BIOLOGIA/FÍSICA (Bloco B)"}, {"nome": "Lab. Química/Mat.", "emoji": "⚗️", "original": "LABORATÓRIO QUÍMICA/MATEMÁTICA (Bloco B)"}, {"nome": "Pátio Bloco B", "emoji": "🏞️", "original": "PÁTIO BLOCO B (Bloco B)"}, {"nome": "SERTI", "emoji": "🔬", "original": "SERTI (Bloco B)"}, {"nome": "Shaft Central Inf. Bloco B", "emoji": "⚙️", "original": "SHAFT CENTRAL INFERIOR BLOCO B (Bloco B)"}, {"nome": "Shaft Escada Bloco B", "emoji": "⚙️", "original": "SHAFT SUPERIOR ESCADA BLOCO B (Bloco B)"}, {"nome": "Shaft Lab. Informática 4", "emoji": "⚙️", "original": "SHAFT LABORATÓRIO INFORMÁTICA 4 (Bloco B)"}, {"nome": "Estúdio 1", "emoji": "🎬", "original": "ESTUDIO 1 (Bloco B)"}, {"nome": "Estúdio 2", "emoji": "🎬", "original": "ESTUDIO 2 (Bloco B)"}, {"nome": "Sala Vaga", "emoji": "📦", "original": "SALA VAGA (Bloco B)"}], "Bloco C": [{"nome": "Sala de Aula 1", "emoji": "🎓", "original": "SL 01 (BLOCO C)"}, {"nome": "Sala de Aula 2", "emoji": "🎓", "original": "SL 02 (BLOCO C)"}, {"nome": "Sala de Aula 3", "emoji": "🎓", "original": "SL 03 (BLOCO C)"}, {"nome": "Sala de Aula 4", "emoji": "🎓", "original": "SL 04 (BLOCO C)"}, {"nome": "Sala de Aula 5", "emoji": "🎓", "original": "SL 05 (BLOCO C)"}, {"nome": "Sala de Aula 6", "emoji": "🎓", "original": "SL 06 (BLOCO C)"}, {"nome": "Sala de Aula 7", "emoji": "🎓", "original": "SL 07 (BLOCO C)"}, {"nome": "Sala de Aula 8", "emoji": "🎓", "original": "SL 08 (BLOCO C)"}, {"nome": "Sala de Aula 9", "emoji": "🎓", "original": "SL 09 (BLOCO C)"}, {"nome": "Sala de Aula 10", "emoji": "🎓", "original": "SL 10 (BLOCO C)"}, {"nome": "Enfermaria", "emoji": "👩‍⚕️", "original": "ENFERMARIA (BLOCO C)"}, {"nome": "Assistente de Alunos", "emoji": "👥", "original": "ASSISTENTE DE ALUNOS (BLOCO C)"}, {"nome": "Lógica", "emoji": "📖", "original": "LÓGICA (BLOCO C)"}, {"nome": "Corredor/Hall Bloco C", "emoji": "🚶", "original": "CORREDOR E HALL BLOCO C (BLOCO C)"}, {"nome": "Hall/Corredor", "emoji": "🚶", "original": "HALL E CORREDOR (BLOCO C)"}, {"nome": "Permanência Estudantil", "emoji": "🏠", "original": "PERMANÊNCIA ESTUDANTIL (BLOCO C)"}], "Salas Modulares": [{"nome": "Sala de Artes", "emoji": "🎨", "original": "Sala de Artes (SALAS MODULARES)"}, {"nome": "LAFIF", "emoji": "🏋️", "original": "LAFIF - Laboratório de Atividades Físicas (SALAS MODULARES)"}, {"nome": "Lab. de Humanas", "emoji": "🔬", "original": "Laboratório de Humanas (SALAS MODULARES)"}, {"nome": "CENID", "emoji": "🏢", "original": "CENID (SALAS MODULARES)"}, {"nome": "M-01", "emoji": "🏢", "original": "M-01 (SALAS MODULARES)"}, {"nome": "Robótica", "emoji": "🤖", "original": "ROBÓTICA (SALAS MODULARES)"}, {"nome": "TECNOIF DR", "emoji": "💡", "original": "TECNOIF DR (SALAS MODULARES)"}, {"nome": "Área Salas Modulares", "emoji": "🏞️", "original": "ÁREA DAS SALAS MODULARES (SALAS MODULARES)"}], "Área Externa": [{"nome": "Almoxarifado Container", "emoji": "📦", "original": "ALMOXARIFADO CONTAINER (ÁREA EXTERNA)"}, {"nome": "Container Patrimônio", "emoji": "📦", "original": "PATRIMÔNIO CONTAINER (ÁREA EXTERNA)"}, {"nome": "Container Quadra", "emoji": "🏀", "original": "CONTAINER QUADRA (QUADRA POLIESPORTIVA)"}, {"nome": "Quadra Poliesportiva", "emoji": "🏀", "original": "QUADRA POLIESPORTIVA (DR) (ÁREA EXTERNA)"}, {"nome": "Bosque", "emoji": "🌿", "original": "BOSQUE (BOSQUE)"}, {"nome": "Estac. Veículos Oficiais", "emoji": "🚗", "original": "ESTACIONAMENTO VEÍCULOS OFICIAIS (ESTACIONAMENTO)"}, {"nome": "Estacionamento Geral", "emoji": "🚗", "original": "ESTACIONAMENTO GERAL (ESTACIONAMENTO)"}, {"nome": "Guarita", "emoji": "🚪", "original": "GUARITA (GUARITA)"}, {"nome": "Entrada Estudantes", "emoji": "🏫", "original": "ENTRADA DOS ESTUDANTES (ÁREA EXTERNA)"}, {"nome": "Barracão", "emoji": "🏗️", "original": "BARRACÃO (PÁTIO EXTERNO FUNDOS.)"}, {"nome": "CRC", "emoji": "🏗️", "original": "CRC (BARRACÃO CRC)"}, {"nome": "Área de Convivência", "emoji": "🏞️", "original": "ÁREA DE CONVIVÊNCIA (ÁREA DE CONVIVÊNCIA ENTRE BLOCOS A-B)"}]};
 
 function abreviarSala(nome) {
   if (SALA_MAP[nome]) return SALA_MAP[nome];
@@ -1305,7 +1305,7 @@ function abreviarSala(nome) {
   var bloco = '';
   var pi = ab.indexOf('('), pf = ab.lastIndexOf(')');
   if (pi > -1 && pf > pi) { bloco = ab.slice(pi+1, pf); ab = ab.slice(0, pi).trim(); }
-  return { curto: ab, bloco: bloco, emoji: 'ðŸ“¦' };
+  return { curto: ab, bloco: bloco, emoji: '📦' };
 }
 
 
@@ -1333,9 +1333,9 @@ function desocultarBtn(btn) {
 
 function ocultarSala(r, e) {
   if (e) e.stopPropagation();
-  if (!confirm('Ocultar "' + abreviarSala(r).curto + '"?\nVocÃª poderÃ¡ reativar em ConfiguraÃ§Ãµes.')) return;
+  if (!confirm('Ocultar "' + abreviarSala(r).curto + '"?\nVocê poderá reativar em Configurações.')) return;
   if (state.hiddenRooms.indexOf(r) === -1) state.hiddenRooms.push(r);
-  // Remove dos fixados tambÃ©m
+  // Remove dos fixados também
   var pi = state.pinnedRooms.indexOf(r);
   if (pi > -1) state.pinnedRooms.splice(pi, 1);
   saveRoomPrefs();
@@ -1351,7 +1351,7 @@ function revelarTodasSalas() {
   if (emptyDiv) emptyDiv.style.display = 'none';
   renderSettRooms();
   renderRoomList();
-  showToast('ok', 'ðŸ‘ Todas as salas reveladas', '');
+  showToast('ok', '👁 Todas as salas reveladas', '');
 }
 
 function desocultar(r) {
@@ -1365,7 +1365,7 @@ function roomItemHTML(r) {
   var cnt    = state.scans.filter(function(s){ return s.room === r; }).length;
   var ab     = abreviarSala(r);
   var sel    = state.currentRoom === r;
-  var emoji  = ab.emoji || 'ðŸ“';
+  var emoji  = ab.emoji || '📍';
   var isPinned = state.pinnedRooms.indexOf(r) > -1;
   var modoComp = window._modoComparacao;
   return '<div style="display:flex;align-items:center">'
@@ -1378,7 +1378,7 @@ function roomItemHTML(r) {
     +'<span class="ri-check">&#10003;</span>'
     +'</div>'
     +(!modoComp
-      ? '<button class="room-pin-btn'+(isPinned?' pinned':'')+'" onclick="togglePin(\''+escJ(r)+'\',event)" title="'+(isPinned?'Desafixar':'Fixar no topo')+'">'+(isPinned?'ðŸ“Œ':'ðŸ“')+'</button>'
+      ? '<button class="room-pin-btn'+(isPinned?' pinned':'')+'" onclick="togglePin(\''+escJ(r)+'\',event)" title="'+(isPinned?'Desafixar':'Fixar no topo')+'">'+(isPinned?'📌':'📍')+'</button>'
       : '')
     +'</div>';
 }
@@ -1387,12 +1387,12 @@ function renderRoomList(filtro) {
   var el = document.getElementById('roomList');
   filtro = (filtro || '').toLowerCase().trim();
 
-  // Salas visÃ­veis (nÃ£o ocultas)
+  // Salas visíveis (não ocultas)
   var visiveis = state.rooms.filter(function(r) {
     return state.hiddenRooms.indexOf(r) === -1;
   });
 
-  // Mostra botÃ£o revelar se todas ocultas (em vez de resetar automaticamente)
+  // Mostra botão revelar se todas ocultas (em vez de resetar automaticamente)
   var emptyDiv = document.getElementById('roomListEmpty');
   if (!visiveis.length && state.rooms.length) {
     if (emptyDiv) emptyDiv.style.display = 'block';
@@ -1427,8 +1427,8 @@ function renderRoomList(filtro) {
   if (pinned.length) {
     html += '<div class="room-group room-group-pin">'
       +'<div class="room-group-header" onclick="toggleGroup(this)">'
-      +'<span class="room-group-title">ðŸ“Œ Fixadas</span>'
-      +'<span class="room-group-chevron open">â€º</span>'
+      +'<span class="room-group-title">📌 Fixadas</span>'
+      +'<span class="room-group-chevron open">›</span>'
       +'</div>'
       +'<div class="room-group-items open">'
       + pinned.map(function(r){ return roomItemHTML(r); }).join('')
@@ -1444,13 +1444,13 @@ function renderRoomList(filtro) {
     porGrupo[g].push(r);
   });
 
-  var ordem = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Ãrea Externa','Outros'];
+  var ordem = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Área Externa','Outros'];
   ordem.forEach(function(grupo) {
     if (!porGrupo[grupo]) return;
     html += '<div class="room-group">'
       +'<div class="room-group-header" onclick="toggleGroup(this)">'
       +'<span class="room-group-title">'+esc(grupo)+'</span>'
-      +'<span class="room-group-chevron open">â€º</span>'
+      +'<span class="room-group-chevron open">›</span>'
       +'</div>'
       +'<div class="room-group-items open">'
       + porGrupo[grupo].map(function(r){ return roomItemHTML(r); }).join('')
@@ -1479,7 +1479,7 @@ function renderSettRooms() {
 
   if (ocultas.length) {
     html += '<div class="hidden-rooms-section">'
-      +'<div class="sett-title" style="margin-top:8px">&#128584; Salas ocultas (sÃ³ para vocÃª)</div>';
+      +'<div class="sett-title" style="margin-top:8px">&#128584; Salas ocultas (só para você)</div>';
     html += ocultas.map(function(r) {
       var ab = abreviarSala(r);
       return '<div class="hidden-room-item">'
@@ -1492,7 +1492,7 @@ function renderSettRooms() {
   }
 
   el.innerHTML = html;
-  // Mostra botÃ£o revelar se tiver salas ocultas
+  // Mostra botão revelar se tiver salas ocultas
   var btnRevelar = document.getElementById('btnRevelarSalas');
   if (btnRevelar) btnRevelar.style.display = ocultas.length ? 'block' : 'none';
 }
@@ -1504,7 +1504,7 @@ function selectRoom(name) {
     var title = document.querySelector('#scRooms .topbar-title');
     if (title) title.textContent = 'Selecionar Local';
     var sub = document.querySelector('#scRooms .topbar-sub');
-    if (sub) sub.textContent = 'Onde vocÃª estÃ¡ agora?';
+    if (sub) sub.textContent = 'Onde você está agora?';
     goBack();
     abrirComparacao(name);
     return;
@@ -1513,7 +1513,7 @@ function selectRoom(name) {
   localStorage.setItem('currentRoom', name);
   wrongRoomStreak = 0;
   updateRoomLabel();
-  // Se veio do scanner (sem local definido antes), vai direto pra cÃ¢mera
+  // Se veio do scanner (sem local definido antes), vai direto pra câmera
   if (window._selecionandoParaScan) {
     window._selecionandoParaScan = false;
     showScreen('scScanner');
@@ -1527,7 +1527,7 @@ function updateRoomLabel() {
   var lbl = state.currentRoom || 'Selecionar local';
   document.getElementById('currentRoomLabel').textContent = lbl;
   document.getElementById('scannerRoomLabel').textContent = lbl;
-  document.getElementById('scanRoomBadge').textContent = 'ðŸ“ ' + lbl;
+  document.getElementById('scanRoomBadge').textContent = '📍 ' + lbl;
   document.getElementById('noPatRoom').textContent = lbl || '(sem local)';
 }
 
@@ -1535,7 +1535,7 @@ function addRoom() {
   var name = prompt('Nome do local:');
   if (!name || !name.trim()) return;
   name = name.trim();
-  if (state.rooms.indexOf(name) > -1) { alert('Local jÃ¡ existe.'); return; }
+  if (state.rooms.indexOf(name) > -1) { alert('Local já existe.'); return; }
   state.rooms.push(name);
   saveRooms();
   renderRoomList();
@@ -1553,9 +1553,9 @@ function removeRoom(name) {
 
 function saveRooms() { localStorage.setItem('rooms', JSON.stringify(state.rooms)); }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  SCANNER
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function startScanner() {
   if (!state.currentRoom) {
     window._selecionandoParaScan = true;
@@ -1618,10 +1618,10 @@ function startCamera() {
           lastScanned = code; lastScannedTime = now;
           processScan(code);
         });
-      } catch(e) { showToast('warn','Scanner indisponÃ­vel','Use entrada manual'); }
+      } catch(e) { showToast('warn','Scanner indisponível','Use entrada manual'); }
     }
   }).catch(function(e) {
-    showToast('warn','CÃ¢mera negada','Permita o acesso Ã  cÃ¢mera nas configuraÃ§Ãµes');
+    showToast('warn','Câmera negada','Permita o acesso à câmera nas configurações');
     console.error(e);
   });
 }
@@ -1651,15 +1651,15 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  CORE SCAN LOGIC
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function normCod(c) { return String(c).replace(/^0+/, '') || '0'; }
 
-// â”€â”€ Scan direto + desfazer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Scan direto + desfazer ───────────────────────────────────
 var undoTimer   = null;
 var wrongRoomStreak    = 0;   // contador de scans consecutivos em sala errada
-var wrongRoomLastIds   = [];  // ids dos Ãºltimos scans em sala errada
+var wrongRoomLastIds   = [];  // ids dos últimos scans em sala errada
 var undoProgTimer = null;
 var lastEntry   = null;
 var UNDO_SECS   = 5;
@@ -1667,15 +1667,15 @@ var UNDO_SECS   = 5;
 function processScan(rawCode) {
   var code = normCod(rawCode);
 
-  // 1. Verifica duplicata local (instantÃ¢neo)
+  // 1. Verifica duplicata local (instantâneo)
   var dupLocal = state.scans.find(function(s){ return s.type==='scan' && normCod(s.code)===code; });
   if (dupLocal) {
     flashScan('warn');
-    showToast('dup','âš ï¸ JÃ¡ escaneado por vocÃª',''+dupLocal.room+' Â· '+fmtTime(new Date(dupLocal.ts)));
+    showToast('dup','⚠️ Já escaneado por você',''+dupLocal.room+' · '+fmtTime(new Date(dupLocal.ts)));
     return;
   }
 
-  // 2. Registra imediatamente (nÃ£o espera servidor)
+  // 2. Registra imediatamente (não espera servidor)
   commitScan(code);
 
   // 3. Verifica duplicata no servidor em background (outro servidor pode ter escaneado)
@@ -1683,10 +1683,10 @@ function processScan(rawCode) {
     checkDuplicate(code)
     .then(function(res) {
       if (res.duplicado) {
-        // Outro servidor jÃ¡ escaneou â€” avisa mas mantÃ©m o scan (gestor decide)
+        // Outro servidor já escaneou — avisa mas mantém o scan (gestor decide)
         flashScan('warn');
         showToast('dup',
-          'âš ï¸ PatrimÃ´nio jÃ¡ encontrado!',
+          '⚠️ Patrimônio já encontrado!',
           'Escaneado por ' + res.quem + ' em ' + res.local
         );
       }
@@ -1697,7 +1697,7 @@ function processScan(rawCode) {
 
 function commitScan(code) {
   var room  = state.currentRoom || '(sem local)';
-  // Recarrega currentUser do localStorage se necessÃ¡rio
+  // Recarrega currentUser do localStorage se necessário
   if (!currentUser) {
     var saved = localStorage.getItem('currentUser');
     if (saved) try { currentUser = JSON.parse(saved); } catch(e){}
@@ -1714,18 +1714,18 @@ function commitScan(code) {
   navigator.vibrate && navigator.vibrate(60);
   showUndoBar(code, room);
 
-  // ConfirmaÃ§Ã£o visual â€” busca descriÃ§Ã£o do SUAP em background
+  // Confirmação visual — busca descrição do SUAP em background
   if (state.isOnline) {
     lookupPatrimonio(code)
     .then(function(res) {
       if (res.ok && res.descricao) {
-        // Atualiza o undo bar com a descriÃ§Ã£o do item
+        // Atualiza o undo bar com a descrição do item
         var sub = document.getElementById('undoSub');
         if (sub) {
           var localCorreto = !res.salaOriginal || res.salaOriginal === room;
-          var icone = localCorreto ? 'âœ…' : 'ðŸŸ¡';
+          var icone = localCorreto ? '✅' : '🟡';
           sub.textContent = icone + ' ' + res.descricao
-            + (!localCorreto ? ' Â· original: ' + res.salaOriginal : '');
+            + (!localCorreto ? ' · original: ' + res.salaOriginal : '');
         }
 
         // Rastreia streak de itens em sala errada
@@ -1756,8 +1756,8 @@ function commitScan(code) {
 function showUndoBar(code, room) {
   clearTimeout(undoTimer);
   clearInterval(undoProgTimer);
-  document.getElementById('undoCode').textContent = 'âœ… ' + code;
-  document.getElementById('undoSub').textContent  = 'ðŸ“ ' + room + ' Â· toque para desfazer';
+  document.getElementById('undoCode').textContent = '✅ ' + code;
+  document.getElementById('undoSub').textContent  = '📍 ' + room + ' · toque para desfazer';
   var bar  = document.getElementById('undoBar');
   var prog = document.getElementById('undoProg');
   prog.style.transition = 'none';
@@ -1788,27 +1788,27 @@ function undoLast() {
   renderHistList();
   updateSyncBanner();
   hideUndoBar();
-  showToast('warn','â†© Desfeito','CÃ³digo removido do histÃ³rico');
+  showToast('warn','↩ Desfeito','Código removido do histórico');
   navigator.vibrate && navigator.vibrate([40,30,40]);
 }
 
 
 function openNoPatModal() {
-  // Abre cÃ¢mera direto â€” guia aparece apÃ³s inicializar
+  // Abre câmera direto — guia aparece após inicializar
   abrirCamera();
   noPatPhoto = null;
   noPatEstado = 'Excelente';
   document.getElementById('noPatDesc').value = '';
   noPatRoom_selected = null;
   var roomEl = document.getElementById('noPatRoom');
-  roomEl.innerHTML = esc(state.currentRoom || '(sem local)') + ' <span style="font-size:10px;opacity:.6">â–¼</span>';
+  roomEl.innerHTML = esc(state.currentRoom || '(sem local)') + ' <span style="font-size:10px;opacity:.6">▼</span>';
   document.getElementById('miniRoomPicker').style.display = 'none';
   // Reset foto
   var pa = document.getElementById('photoArea');
   var img = pa.querySelector('img');
   if (img) img.remove();
   pa.querySelector('.photo-placeholder').style.display = '';
-  // foto serÃ¡ criada via abrirCamera() sob demanda
+  // foto será criada via abrirCamera() sob demanda
   // Reset estado
   document.querySelectorAll('.estado-chip').forEach(function(c){ c.classList.remove('selected'); });
   document.querySelector('.estado-chip.excelente').classList.add('selected');
@@ -1826,7 +1826,7 @@ function resizeImage(base64, maxW, maxH, quality) {
     var img = new Image();
     img.onload = function() {
       var w = img.width, h = img.height;
-      // MantÃ©m proporÃ§Ã£o
+      // Mantém proporção
       if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
       if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
       var canvas = document.createElement('canvas');
@@ -1839,7 +1839,7 @@ function resizeImage(base64, maxW, maxH, quality) {
   });
 }
 
-// Cria um input novo a cada toque â€” Ãºnico jeito garantido no mobile
+// Cria um input novo a cada toque — único jeito garantido no mobile
 function abrirCamera() {
   var inp = document.createElement('input');
   inp.type    = 'file';
@@ -1864,19 +1864,19 @@ function abrirCamera() {
       // Redimensiona em background para envio (400x400 max, 75% qualidade ~50-80KB)
       resizeImage(fullPhoto, 400, 400, 0.75).then(function(resized) {
         noPatPhoto = resized;
-        // Chama IA automaticamente apÃ³s tirar a foto
+        // Chama IA automaticamente após tirar a foto
         sugerirDescricao(true);
-        // Mostra botÃ£o refazer
+        // Mostra botão refazer
         var btn = document.getElementById('suggestBtn');
         if (btn) {
           btn.style.display = 'inline-flex';
-          btn.innerHTML = 'ðŸ”„ Refazer';
+          btn.innerHTML = '🔄 Refazer';
         }
       });
     };
     reader.readAsDataURL(file);
   });
-  // Pequeno delay antes de clicar â€” necessÃ¡rio em alguns Android
+  // Pequeno delay antes de clicar — necessário em alguns Android
   setTimeout(function() { inp.click(); }, 50);
 }
 
@@ -1894,11 +1894,11 @@ function saveNoPat() {
 
   var entryId = uid();
   if (noPatPhoto) {
-    photoCache[entryId] = noPatPhoto; // espelho em memÃ³ria para sync imediato
+    photoCache[entryId] = noPatPhoto; // espelho em memória para sync imediato
     idbSalvarFoto(entryId, noPatPhoto); // persiste no IndexedDB (sobrevive ao fechar)
   }
 
-  // Recarrega currentUser do localStorage se necessÃ¡rio
+  // Recarrega currentUser do localStorage se necessário
   if (!currentUser) {
     var saved = localStorage.getItem('currentUser');
     if (saved) try { currentUser = JSON.parse(saved); } catch(e){}
@@ -1911,7 +1911,7 @@ function saveNoPat() {
     siape: currentUser ? currentUser.siape : '',
     desc:   desc,
     estado: noPatEstado,
-    photo:  noPatPhoto || '', // em memÃ³ria; saveScans nÃ£o vai persistir isso
+    photo:  noPatPhoto || '', // em memória; saveScans não vai persistir isso
     ts:     new Date().toISOString(),
     synced: false,
   };
@@ -1922,13 +1922,13 @@ function saveNoPat() {
   updateStats();
   renderHistList();
   document.getElementById('noPatModal').classList.remove('show');
-  showToast('ok','ðŸ“¸ Item registrado','Estado: '+noPatEstado+' Â· '+entry.room);
+  showToast('ok','📸 Item registrado','Estado: '+noPatEstado+' · '+entry.room);
   navigator.vibrate && navigator.vibrate([60,30,60]);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  SYNC
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function addToPendingSync(entry) {
   // Evita duplicar o mesmo id na fila
   if (state.pendingSync.indexOf(entry.id) === -1) {
@@ -2047,11 +2047,11 @@ function setSyncState(state_) {
 
   dot.className  = 'sync-dot ' + state_;
   if (state_ === 'online')  {
-    text.textContent = 'Conectado Â· tudo sincronizado'; cnt.textContent = '';
+    text.textContent = 'Conectado · tudo sincronizado'; cnt.textContent = '';
     if (banner) banner.classList.remove('show');
   }
   if (state_ === 'offline') {
-    text.textContent = 'Sem conexÃ£o Â· dados salvos localmente';
+    text.textContent = 'Sem conexão · dados salvos localmente';
     cnt.textContent  = n ? n+' pendentes' : '';
     if (banner && n > 0) banner.classList.add('show');
   }
@@ -2068,7 +2068,7 @@ function updateSyncBanner() {
   } else if (n) {
     setSyncState('offline');
     document.getElementById('syncCount').textContent = n + ' pendentes';
-    // sync Ã© iniciado pelo debounce do addToPendingSync, nÃ£o aqui
+    // sync é iniciado pelo debounce do addToPendingSync, não aqui
   } else {
     setSyncState('online');
   }
@@ -2078,31 +2078,31 @@ function testConnection() {
   testConnectionSupabase()
     .then(function() {
       updateSyncBanner();
-      showToast('ok','âœ… Supabase conectado!','Banco de dados OK');
+      showToast('ok','✅ Supabase conectado!','Banco de dados OK');
     })
-    .catch(function(e){ showToast('warn','âŒ Erro de conexÃ£o', e.toString()); });
+    .catch(function(e){ showToast('warn','❌ Erro de conexão', e.toString()); });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  HISTORY
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function renderHistList() {
   var el = document.getElementById('histList');
   var sub = document.getElementById('histSub');
   sub.textContent = state.scans.length + ' registros';
 
   if (!state.scans.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-ico">ðŸ“­</div>Nenhum scan ainda.</div>';
+    el.innerHTML = '<div class="empty"><div class="empty-ico">📭</div>Nenhum scan ainda.</div>';
     return;
   }
 
   var sorted = state.scans.slice().reverse();
   el.innerHTML = sorted.map(function(s) {
     var dot   = s.type === 'nopat' ? 'warn' : 'ok';
-    var title = s.type === 'nopat' ? (s.desc || 'Item sem patrimÃ´nio') : 'CÃ³d. ' + s.code;
-    var meta  = 'ðŸ“ ' + s.room + (s.type==='nopat' ? ' Â· ' + s.estado : '');
-    var sync  = s.synced ? '<div class="hi-sync done">â˜ sincronizado</div>' : '<div class="hi-sync pending">â³ pendente</div>';
-    var thumb = ''; // fotos ficam no IndexedDB, nÃ£o exibidas no histÃ³rico
+    var title = s.type === 'nopat' ? (s.desc || 'Item sem patrimônio') : 'Cód. ' + s.code;
+    var meta  = '📍 ' + s.room + (s.type==='nopat' ? ' · ' + s.estado : '');
+    var sync  = s.synced ? '<div class="hi-sync done">☁ sincronizado</div>' : '<div class="hi-sync pending">⏳ pendente</div>';
+    var thumb = ''; // fotos ficam no IndexedDB, não exibidas no histórico
     return '<div class="hist-item">'
       +'<div class="hi-dot '+dot+'"></div>'
       +'<div class="hi-info"><div class="hi-title">'+esc(title)+'</div>'
@@ -2115,9 +2115,9 @@ function renderHistList() {
   }).join('');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  STATS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function updateStats() {
   var found = state.scans.filter(function(s){ return s.type==='scan'; }).length;
   var nopat = state.scans.filter(function(s){ return s.type==='nopat'; }).length;
@@ -2126,12 +2126,12 @@ function updateStats() {
   document.getElementById('statTotal').textContent = found + nopat;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  TOAST
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function showToast(type, title, sub) {
   var el = document.getElementById('toast');
-  document.getElementById('toastIco').textContent   = type==='ok'?'âœ…':type==='warn'?'âš ï¸':'ðŸ”';
+  document.getElementById('toastIco').textContent   = type==='ok'?'✅':type==='warn'?'⚠️':'🔁';
   document.getElementById('toastTitle').textContent = title;
   document.getElementById('toastSub').textContent   = sub||'';
   el.className = 'result-toast ' + type + ' show';
@@ -2145,9 +2145,9 @@ function flashScan(type) {
   setTimeout(function(){ el.classList.remove('show'); }, 300);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  SETTINGS / PERSIST
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function saveScriptUrl() {
   configurarPlanilhaUrl();
 }
@@ -2188,8 +2188,8 @@ function configurarPlanilhaUrl() {
   showToast('ok', url ? 'URL da planilha salva' : 'Integracao com planilha desativada', '');
 }
 function saveScans() {
-  // NÃ£o salva fotos base64 no localStorage (limite 5MB)
-  // Fotos ficam sÃ³ em memÃ³ria e sÃ£o enviadas ao Drive na sync
+  // Não salva fotos base64 no localStorage (limite 5MB)
+  // Fotos ficam só em memória e são enviadas ao Drive na sync
   var semFoto = state.scans.map(function(s) {
     if (s.type !== 'nopat' || !s.photo) return s;
     var copia = JSON.parse(JSON.stringify(s));
@@ -2199,16 +2199,16 @@ function saveScans() {
   try {
     localStorage.setItem('scans', JSON.stringify(semFoto));
   } catch(e) {
-    // localStorage cheio â€” limpa entradas antigas sincronizadas
+    // localStorage cheio — limpa entradas antigas sincronizadas
     state.scans = state.scans.filter(function(s){ return !s.synced; });
     localStorage.setItem('scans', JSON.stringify(semFoto.filter(function(s){ return !s.synced; })));
   }
 }
 
 function exportCSV() {
-  var h = 'ID,Tipo,CÃ³digo,Local,DescriÃ§Ã£o,Estado,Data,Sincronizado\n';
+  var h = 'ID,Tipo,Código,Local,Descrição,Estado,Data,Sincronizado\n';
   var rows = state.scans.map(function(s) {
-    return [s.id,s.type,s.code||'',s.room,s.desc||'',s.estado||'',s.ts,s.synced?'Sim':'NÃ£o'].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');
+    return [s.id,s.type,s.code||'',s.room,s.desc||'',s.estado||'',s.ts,s.synced?'Sim':'Não'].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');
   }).join('\n');
   var blob = new Blob([h+rows], {type:'text/csv;charset=utf-8;'});
   var a = document.createElement('a');
@@ -2218,16 +2218,16 @@ function exportCSV() {
 }
 
 function confirmClear() {
-  if (!confirm('Apagar todos os dados da sessÃ£o? Esta aÃ§Ã£o nÃ£o pode ser desfeita.')) return;
+  if (!confirm('Apagar todos os dados da sessão? Esta ação não pode ser desfeita.')) return;
   state.scans = []; state.pendingSync = [];
   saveScans(); localStorage.setItem('pendingSync','[]');
   updateStats(); renderHistList(); updateSyncBanner();
-  showToast('ok','SessÃ£o limpa','HistÃ³rico apagado');
+  showToast('ok','Sessão limpa','Histórico apagado');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  UTILS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escJ(s){ return String(s||'').replace(/'/g,"\\'"); }
@@ -2238,7 +2238,7 @@ function toggleRoomPicker() {
       var sel = r === (noPatRoom_selected || state.currentRoom);
       var div = document.createElement('div');
       div.className = 'mini-room-item' + (sel ? ' selected' : '');
-      div.textContent = (sel ? 'âœ“ ' : '') + r;
+      div.textContent = (sel ? '✓ ' : '') + r;
       div.setAttribute('onclick', 'selectNoPatRoom(' + JSON.stringify(r) + ')');
       return div.outerHTML;
     }).join('');
@@ -2253,20 +2253,20 @@ var noPatRoom_selected = null;
 function selectNoPatRoom(name) {
   noPatRoom_selected = name;
   var el = document.getElementById('noPatRoom');
-  el.innerHTML = esc(name) + ' <span style="font-size:10px;opacity:.6">â–¼</span>';
+  el.innerHTML = esc(name) + ' <span style="font-size:10px;opacity:.6">▼</span>';
   document.getElementById('miniRoomPicker').style.display = 'none';
 }
 
 function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
 
-// â”€â”€ Login / SIAPE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Login / SIAPE ─────────────────────────────────────────────
 var currentUser = null; // { siape, nome }
 
-// â”€â”€ ComparaÃ§Ã£o por sala â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Comparação por sala ──────────────────────────────────────
 var compCache = null;    // cache de TODAS as salas
 var compSalaAtual = ''; // sala sendo visualizada
 
-// â”€â”€ Busca de patrimÃ´nio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Busca de patrimônio ──────────────────────────────────────
 var buscaTimer = null;
 function buscarPatrimonio(val) {
   val = String(val || '').trim();
@@ -2274,12 +2274,12 @@ function buscarPatrimonio(val) {
   var sub = document.getElementById('buscaSub');
 
   if (!val || val.length < 3) {
-    res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">ðŸ”Ž</div>Digite pelo menos 3 dÃ­gitos</div>';
-    sub.textContent = 'Digite o nÃºmero';
+    res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">🔎</div>Digite pelo menos 3 dígitos</div>';
+    sub.textContent = 'Digite o número';
     return;
   }
 
-  // Busca local primeiro (instantÃ¢nea)
+  // Busca local primeiro (instantânea)
   var numStr = val.replace(/^0+/, '');
   var localMatch = state.scans.filter(function(s){
     return s.type === 'scan' && String(s.code).replace(/^0+/,'').indexOf(numStr) > -1;
@@ -2289,12 +2289,12 @@ function buscarPatrimonio(val) {
     sub.textContent = localMatch.length + ' resultado(s) local';
     res.innerHTML = localMatch.map(function(s) {
       return renderBuscaItem({
-        numero: s.code, descricao: 'â€”', sala: s.sala || s.room,
-        status: 'âœ… Encontrado (local)', quem: s.funcionario || '', data: s.ts
+        numero: s.code, descricao: '—', sala: s.sala || s.room,
+        status: '✅ Encontrado (local)', quem: s.funcionario || '', data: s.ts
       });
     }).join('');
   } else {
-    res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">ðŸ” Buscando...</div>';
+    res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">🔍 Buscando...</div>';
     sub.textContent = 'Buscando...';
   }
 
@@ -2307,7 +2307,7 @@ function buscarPatrimonio(val) {
       if (!data.ok) return;
       sub.textContent = data.resultados.length + ' resultado(s)';
       if (!data.resultados.length) {
-        res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">ðŸ“­</div>PatrimÃ´nio nÃ£o encontrado</div>';
+        res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">📭</div>Patrimônio não encontrado</div>';
         return;
       }
       res.innerHTML = data.resultados.map(renderBuscaItem).join('');
@@ -2317,36 +2317,36 @@ function buscarPatrimonio(val) {
 }
 
 function renderBuscaItem(d) {
-  var corStatus = d.status && d.status.indexOf('âœ…') > -1 ? 'var(--green)'
-                : d.status && d.status.indexOf('ðŸŸ¡') > -1 ? 'var(--yellow)'
-                : d.status && d.status.indexOf('ðŸ”´') > -1 ? 'var(--red)'
+  var corStatus = d.status && d.status.indexOf('✅') > -1 ? 'var(--green)'
+                : d.status && d.status.indexOf('🟡') > -1 ? 'var(--yellow)'
+                : d.status && d.status.indexOf('🔴') > -1 ? 'var(--red)'
                 : 'var(--text2)';
   var dataFmt = d.data ? (typeof d.data === 'string' ? d.data.substring(0,16) : fmtTime(new Date(d.data))) : '';
   return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;margin-bottom:8px">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
-    +'<span style="font-size:13px;font-weight:700;color:var(--accent)">NÂº '+esc(d.numero)+'</span>'
-    +'<span style="font-size:11px;font-weight:700;color:'+corStatus+'">'+esc(d.status||'â³ Pendente')+'</span>'
+    +'<span style="font-size:13px;font-weight:700;color:var(--accent)">Nº '+esc(d.numero)+'</span>'
+    +'<span style="font-size:11px;font-weight:700;color:'+corStatus+'">'+esc(d.status||'⏳ Pendente')+'</span>'
     +'</div>'
-    +'<div style="font-size:12px;color:var(--text);margin-bottom:4px">'+esc(d.descricao||'â€”')+'</div>'
-    +'<div style="font-size:11px;color:var(--text2)">ðŸ“ '+esc(d.sala||'â€”')+(d.quem?' Â· '+esc(d.quem):'')+(dataFmt?' Â· '+esc(dataFmt):'')+'</div>'
+    +'<div style="font-size:12px;color:var(--text);margin-bottom:4px">'+esc(d.descricao||'—')+'</div>'
+    +'<div style="font-size:11px;color:var(--text2)">📍 '+esc(d.sala||'—')+(d.quem?' · '+esc(d.quem):'')+(dataFmt?' · '+esc(dataFmt):'')+'</div>'
     +'</div>';
 }
 
 function mostrarAvisoSala(salaOriginal, idsErrados) {
-  // Modal de aviso â€” servidor pode estar na sala errada
+  // Modal de aviso — servidor pode estar na sala errada
   var ab       = abreviarSala(state.currentRoom);
   var abOrig   = abreviarSala(salaOriginal);
   var modal    = document.getElementById('wrongRoomModal');
   var msgEl    = document.getElementById('wrongRoomMsg');
   if (!modal || !msgEl) return;
 
-  msgEl.innerHTML = '<div style="font-size:28px;margin-bottom:8px">âš ï¸</div><div style="font-weight:700;font-size:15px;margin-bottom:8px">VocÃª estÃ¡ na sala certa?</div><div style="font-size:13px;color:var(--text2);margin-bottom:4px">Os Ãºltimos 3 patrimÃ´nios pertencem Ã  <strong style="color:var(--yellow)">' + esc(abOrig.curto) + '</strong>, mas o local Ã© <strong style="color:var(--accent)">' + esc(ab.curto) + '</strong>.</div><div style="font-size:12px;color:var(--text2);margin-top:8px">Deseja trocar para <strong>' + esc(abOrig.curto) + '</strong>?</div>';
+  msgEl.innerHTML = '<div style="font-size:28px;margin-bottom:8px">⚠️</div><div style="font-weight:700;font-size:15px;margin-bottom:8px">Você está na sala certa?</div><div style="font-size:13px;color:var(--text2);margin-bottom:4px">Os últimos 3 patrimônios pertencem à <strong style="color:var(--yellow)">' + esc(abOrig.curto) + '</strong>, mas o local é <strong style="color:var(--accent)">' + esc(ab.curto) + '</strong>.</div><div style="font-size:12px;color:var(--text2);margin-top:8px">Deseja trocar para <strong>' + esc(abOrig.curto) + '</strong>?</div>';
 
   document.getElementById('wrongRoomSugerida').setAttribute('data-sala', salaOriginal);
   document.getElementById('wrongRoomSugerida').setAttribute('data-ids', JSON.stringify(idsErrados || []));
   modal.classList.add('show');
 
-  // Countdown 2 segundos antes de habilitar o botÃ£o Sim
+  // Countdown 2 segundos antes de habilitar o botão Sim
   var btn = document.getElementById('wrongRoomSugerida');
   var cdEl = document.getElementById('wrongRoomCountdown');
   btn.disabled = true;
@@ -2379,11 +2379,11 @@ function trocarParaSalasSugerida() {
   if (sala) {
     selectRoom(sala);
 
-    // Pergunta se quer corrigir os Ãºltimos itens
+    // Pergunta se quer corrigir os últimos itens
     if (ids.length > 0 && confirm('Corrigir os ultimos ' + ids.length + ' patrimonios para ' + abreviarSala(sala).curto + '? Isso vai atualizar a sala deles na planilha.')) {
       corrigirSalaScans(ids, sala);
     } else {
-      showToast('ok', 'ðŸ“ Sala alterada', abreviarSala(sala).curto);
+      showToast('ok', '📍 Sala alterada', abreviarSala(sala).curto);
     }
   }
 }
@@ -2398,20 +2398,20 @@ function corrigirSalaScans(ids, novaSala) {
   updateStats();
   renderHistList();
 
-  showToast('ok', 'âœ… Corrigindo ' + ids.length + ' itens...', 'Sala: ' + abreviarSala(novaSala).curto);
+  showToast('ok', '✅ Corrigindo ' + ids.length + ' itens...', 'Sala: ' + abreviarSala(novaSala).curto);
 
   // Corrige no servidor
   if (state.isOnline) {
     corrigirSala(ids, novaSala)
     .then(function(res) {
       if (res.ok) {
-        showToast('ok', 'âœ… ' + ids.length + ' itens corrigidos na planilha', abreviarSala(novaSala).curto);
-        compCache = null; // invalida cache de comparaÃ§Ã£o
+        showToast('ok', '✅ ' + ids.length + ' itens corrigidos na planilha', abreviarSala(novaSala).curto);
+        compCache = null; // invalida cache de comparação
       } else {
-        showToast('dup', 'âš ï¸ Erro ao corrigir na planilha', 'Tente sincronizar manualmente');
+        showToast('dup', '⚠️ Erro ao corrigir na planilha', 'Tente sincronizar manualmente');
       }
     })
-    .catch(function(){ showToast('dup','âš ï¸ Sem conexÃ£o','CorreÃ§Ã£o ficou sÃ³ local'); });
+    .catch(function(){ showToast('dup','⚠️ Sem conexão','Correção ficou só local'); });
   }
 }
 
@@ -2420,15 +2420,15 @@ function histBtn(btn) {
 }
 
 function abrirSelecaoComparacao() {
-  // Abre seletor de salas no modo comparaÃ§Ã£o
+  // Abre seletor de salas no modo comparação
   compSalaAtual = '';
   window._modoComparacao = true;
   showScreen('scRooms');
-  // Muda tÃ­tulo da tela de salas
+  // Muda título da tela de salas
   var title = document.querySelector('#scRooms .topbar-title');
   if (title) title.textContent = 'Selecionar sala';
   var sub = document.querySelector('#scRooms .topbar-sub');
-  if (sub) sub.textContent = 'Toque para ver a comparaÃ§Ã£o';
+  if (sub) sub.textContent = 'Toque para ver a comparação';
 }
 
 function abrirComparacao(sala) {
@@ -2438,30 +2438,30 @@ function abrirComparacao(sala) {
   document.getElementById('compSub').textContent   = ab.bloco || '';
   showScreen('scComparacao');
 
-  // Se jÃ¡ tem cache, usa imediatamente
+  // Se já tem cache, usa imediatamente
   if (compCache) {
     mostrarCompSala(sala);
     return;
   }
 
-  // Primeira vez â€” busca tudo de uma vez
-  document.getElementById('compList').innerHTML = '<div class="empty"><div class="empty-ico">â³</div>Carregando dados...</div>';
-  document.getElementById('compCorreto').textContent = 'â€”';
-  document.getElementById('compOutro').textContent   = 'â€”';
-  document.getElementById('compNao').textContent     = 'â€”';
-  document.getElementById('compPend').textContent    = 'â€”';
+  // Primeira vez — busca tudo de uma vez
+  document.getElementById('compList').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando dados...</div>';
+  document.getElementById('compCorreto').textContent = '—';
+  document.getElementById('compOutro').textContent   = '—';
+  document.getElementById('compNao').textContent     = '—';
+  document.getElementById('compPend').textContent    = '—';
 
   getComparacaoSala()
   .then(function(res) {
     if (!res.ok) {
-      document.getElementById('compList').innerHTML = '<div class="empty">âš ï¸ ' + (res.erro || 'Erro ao carregar') + '</div>';
+      document.getElementById('compList').innerHTML = '<div class="empty">⚠️ ' + (res.erro || 'Erro ao carregar') + '</div>';
       return;
     }
     compCache = res.porSala || {};
     mostrarCompSala(compSalaAtual);
   })
   .catch(function() {
-    document.getElementById('compList').innerHTML = '<div class="empty">âŒ Erro de conexÃ£o</div>';
+    document.getElementById('compList').innerHTML = '<div class="empty">❌ Erro de conexão</div>';
   });
 }
 
@@ -2497,12 +2497,12 @@ function renderCompList(filtro) {
     document.getElementById('compList').innerHTML = '<div class="empty">Nenhum item nesta categoria</div>';
     return;
   }
-  var icons = { correto:'âœ…', outro_local:'ðŸŸ¡', nao_localizado:'âŒ', pendente:'â³' };
+  var icons = { correto:'✅', outro_local:'🟡', nao_localizado:'❌', pendente:'⏳' };
   document.getElementById('compList').innerHTML = itensRaw.map(function(it) {
-    var tipo = it[2], icon = icons[tipo] || 'â€¢';
+    var tipo = it[2], icon = icons[tipo] || '•';
     var meta = '';
-    if (tipo === 'outro_local' && it[3]) meta = 'ðŸ“ ' + esc(it[3]) + (it[4]?' Â· '+esc(it[4]):'');
-    if (tipo === 'nao_localizado')       meta = 'NÃ£o encontrado';
+    if (tipo === 'outro_local' && it[3]) meta = '📍 ' + esc(it[3]) + (it[4]?' · '+esc(it[4]):'');
+    if (tipo === 'nao_localizado')       meta = 'Não encontrado';
     return '<div class="comp-item '+tipo+'">'
       +'<div style="display:flex;align-items:center;gap:6px">'
       +'<span>'+icon+'</span><span class="comp-item-num">'+esc(it[0])+'</span>'
@@ -2521,12 +2521,12 @@ function showRoomHistory(sala) {
   document.getElementById('roomHistSub').textContent = itens.length + ' itens escaneados';
   var el = document.getElementById('roomHistList');
   if (!itens.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-ico">ðŸ“­</div>Nenhum item escaneado nesta sala</div>';
+    el.innerHTML = '<div class="empty"><div class="empty-ico">📭</div>Nenhum item escaneado nesta sala</div>';
   } else {
     el.innerHTML = itens.map(function(s) {
-      var icon  = s.type === 'nopat' ? 'ðŸ“·' : 'ðŸ·ï¸';
-      var label = s.type === 'nopat' ? (s.desc || 'Sem patrimÃ´nio') : s.code;
-      var sync  = s.synced ? 'â˜' : 'â³';
+      var icon  = s.type === 'nopat' ? '📷' : '🏷️';
+      var label = s.type === 'nopat' ? (s.desc || 'Sem patrimônio') : s.code;
+      var sync  = s.synced ? '☁' : '⏳';
       return '<div class="room-hist-item">'
         +'<span style="font-size:16px">'+icon+'</span>'
         +'<div style="flex:1;min-width:0">'
@@ -2545,16 +2545,16 @@ function showRoomHistory(sala) {
 
 function mostrarInfoSala(nome) {
   var ab = abreviarSala(nome);
-  showToast('ok', esc(ab.curto), ab.bloco ? 'ðŸ“ ' + esc(ab.bloco) : nome);
+  showToast('ok', esc(ab.curto), ab.bloco ? '📍 ' + esc(ab.bloco) : nome);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════
 //  MINHAS SALAS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════
 function showMinhasSalas() {
   var user = currentUser || { nome: 'Servidor', siape: '' };
   document.getElementById('msSalasTitulo').textContent = user.nome.split(' ')[0];
-  document.getElementById('msSubtitulo').textContent   = 'SIAPE ' + (user.siape || 'â€”');
+  document.getElementById('msSubtitulo').textContent   = 'SIAPE ' + (user.siape || '—');
   renderMinhasSalas();
   showScreen('scMinhasSalas');
 }
@@ -2580,7 +2580,7 @@ function renderMinhasSalas() {
   var elNaoVis = document.getElementById('msSalasNaoVisitadas');
 
   if (!salasVisitadas.length) {
-    elVisit.innerHTML = '<div class="empty" style="padding:24px 0"><div class="empty-ico">ðŸ“­</div>VocÃª ainda nÃ£o escaneou nenhuma sala</div>';
+    elVisit.innerHTML = '<div class="empty" style="padding:24px 0"><div class="empty-ico">📭</div>Você ainda não escaneou nenhuma sala</div>';
     elNaoVis.innerHTML = '';
     return;
   }
@@ -2588,7 +2588,7 @@ function renderMinhasSalas() {
   // Ordena por mais escaneadas
   salasVisitadas.sort(function(a,b){ return porSala[b] - porSala[a]; });
 
-  var visitHtml = '<div class="ms-section-label">Salas que vocÃª visitou</div>';
+  var visitHtml = '<div class="ms-section-label">Salas que você visitou</div>';
   salasVisitadas.forEach(function(sala) {
     var ab       = abreviarSala(sala);
     var feitos   = porSala[sala];
@@ -2597,12 +2597,12 @@ function renderMinhasSalas() {
     var cor      = pct === null ? 'var(--accent)' : pct >= 90 ? 'var(--green)' : pct >= 50 ? 'var(--accent)' : 'var(--yellow)';
     var countTxt = total > 0 ? feitos + ' / ' + total : feitos + ' itens';
     var subTxt   = total > 0
-      ? pct + '% Â· ' + (total - feitos) + ' pendentes' + (pct === 100 ? ' Â· âœ… ConcluÃ­do' : '')
+      ? pct + '% · ' + (total - feitos) + ' pendentes' + (pct === 100 ? ' · ✅ Concluído' : '')
       : (ab.bloco || '');
 
     visitHtml += '<div class="ms-sala-card" onclick="showCampusDetalhe(\'' + escJ(sala) + '\')">'
       + '<div class="ms-sala-header">'
-      + '<div class="ms-sala-name">' + (ab.emoji || 'ðŸ“') + ' ' + esc(ab.curto) + '</div>'
+      + '<div class="ms-sala-name">' + (ab.emoji || '📍') + ' ' + esc(ab.curto) + '</div>'
       + '<div class="ms-sala-count" style="color:' + cor + '">' + countTxt + '</div>'
       + '</div>'
       + '<div class="ms-sala-bar-bg"><div class="ms-sala-bar" style="width:' + (pct !== null ? pct : Math.min(100, feitos * 10)) + '%;background:' + cor + '"></div></div>'
@@ -2611,7 +2611,7 @@ function renderMinhasSalas() {
   });
   elVisit.innerHTML = visitHtml;
 
-  // Salas nÃ£o visitadas
+  // Salas não visitadas
   var todasSalas   = state.rooms || [];
   var naoVisitadas = todasSalas.filter(function(s){ return !porSala[s]; });
   if (!naoVisitadas.length) { elNaoVis.innerHTML = ''; return; }
@@ -2623,13 +2623,13 @@ function renderMinhasSalas() {
     return tb - ta;
   });
 
-  var naoHtml = '<div class="ms-section-label">Salas nÃ£o visitadas (' + naoVisitadas.length + ')</div>';
+  var naoHtml = '<div class="ms-section-label">Salas não visitadas (' + naoVisitadas.length + ')</div>';
   naoVisitadas.slice(0, 15).forEach(function(sala) {
     var ab    = abreviarSala(sala);
     var total = suapTotais ? (suapTotais[sala] || 0) : 0;
     naoHtml += '<div class="ms-nao-item">'
-      + '<span style="font-size:14px">' + (ab.emoji || 'ðŸ“') + '</span>'
-      + '<div class="ms-nao-name">' + esc(ab.curto) + (ab.bloco ? ' Â· ' + esc(ab.bloco) : '') + '</div>'
+      + '<span style="font-size:14px">' + (ab.emoji || '📍') + '</span>'
+      + '<div class="ms-nao-name">' + esc(ab.curto) + (ab.bloco ? ' · ' + esc(ab.bloco) : '') + '</div>'
       + (total ? '<div class="ms-nao-count">' + total + ' itens</div>' : '')
       + '</div>';
   });
@@ -2639,9 +2639,9 @@ function renderMinhasSalas() {
   elNaoVis.innerHTML = naoHtml;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  CAMPUS â€” todas as salas com progresso
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════
+//  CAMPUS — todas as salas com progresso
+// ════════════════════════════════════════════
 var campusData = null; // cache
 
 function showCampus() {
@@ -2661,17 +2661,17 @@ function showCampusDetalhe(sala) {
 }
 
 function carregarCampus(cb) {
-  document.getElementById('campusList').innerHTML = '<div class="empty"><div class="empty-ico">â³</div>Carregando...</div>';
+  document.getElementById('campusList').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>';
   getComparacaoSala().then(function(res) {
     if (!res.ok) {
-      document.getElementById('campusList').innerHTML = '<div class="empty">âš ï¸ Erro ao carregar</div>';
+      document.getElementById('campusList').innerHTML = '<div class="empty">⚠️ Erro ao carregar</div>';
       return;
     }
     campusData = res.porSala || {};
     renderCampus('');
     if (cb) cb();
   }).catch(function() {
-    document.getElementById('campusList').innerHTML = '<div class="empty">âŒ Sem conexÃ£o</div>';
+    document.getElementById('campusList').innerHTML = '<div class="empty">❌ Sem conexão</div>';
   });
 }
 
@@ -2682,7 +2682,7 @@ function filtrarCampus(filtro) {
 function renderCampus(filtro) {
   if (!campusData) return;
   var todasSalas = state.rooms || [];
-  var ordem = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Ãrea Externa'];
+  var ordem = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Área Externa'];
   var porGrupo = {};
   todasSalas.forEach(function(sala) {
     var ab = abreviarSala(sala);
@@ -2707,10 +2707,10 @@ function renderCampus(filtro) {
       var enc     = itens.filter(function(i){ return i[2] === 'correto' || i[2] === 'outro_local'; }).length;
       var pct     = total > 0 ? Math.min(100, Math.round(enc / total * 100)) : 0;
       var cor     = pct >= 90 ? 'var(--green)' : pct >= 50 ? 'var(--accent)' : 'var(--yellow)';
-      var foot    = total > 0 ? enc + ' / ' + total + (pct === 100 ? ' Â· âœ…' : ' Â· ' + (total - enc) + ' pendentes') : 'Sem dados SUAP';
+      var foot    = total > 0 ? enc + ' / ' + total + (pct === 100 ? ' · ✅' : ' · ' + (total - enc) + ' pendentes') : 'Sem dados SUAP';
       html += '<div class="campus-sala-card" id="ccard-' + encodeURIComponent(sala) + '" onclick="toggleCampusSala(\'' + escJ(sala) + '\',this)">'
         + '<div class="campus-sala-header">'
-        + '<div class="campus-sala-emoji">' + (ab.emoji || 'ðŸ“') + '</div>'
+        + '<div class="campus-sala-emoji">' + (ab.emoji || '📍') + '</div>'
         + '<div class="campus-sala-info"><div class="campus-sala-name">' + esc(ab.curto) + '</div>'
         + (ab.bloco ? '<div class="campus-sala-bloco">' + esc(ab.bloco) + '</div>' : '')
         + '</div>'
@@ -2723,11 +2723,11 @@ function renderCampus(filtro) {
   });
 
   if (!totalSalas) {
-    html = '<div class="empty" style="padding:32px 0"><div class="empty-ico">ðŸ”</div>Nenhuma sala encontrada</div>';
+    html = '<div class="empty" style="padding:32px 0"><div class="empty-ico">🔍</div>Nenhuma sala encontrada</div>';
   }
 
   document.getElementById('campusList').innerHTML = html;
-  document.getElementById('campusSub').textContent = totalSalas + ' salas Â· ' + (Object.keys(campusData).length ? Object.keys(campusData).length + ' com dados' : 'Carregando dados...');
+  document.getElementById('campusSub').textContent = totalSalas + ' salas · ' + (Object.keys(campusData).length ? Object.keys(campusData).length + ' com dados' : 'Carregando dados...');
 }
 
 function toggleCampusSala(sala, card) {
@@ -2753,14 +2753,14 @@ function abrirDetalheCampus(sala, card) {
     return;
   }
 
-  var icons = { correto:'âœ…', outro_local:'ðŸŸ¡', nao_localizado:'âŒ', pendente:'â³' };
+  var icons = { correto:'✅', outro_local:'🟡', nao_localizado:'❌', pendente:'⏳' };
   var mostrar = itens.slice(0, 8);
   var detailHtml = '<div class="campus-detail">'
     + mostrar.map(function(it) {
         return '<div class="campus-detail-row">'
           + '<div class="campus-detail-num">' + esc(it[0]) + '</div>'
           + '<div class="campus-detail-desc">' + esc(it[1]) + '</div>'
-          + '<div class="campus-detail-status">' + (icons[it[2]] || 'â€¢') + '</div>'
+          + '<div class="campus-detail-status">' + (icons[it[2]] || '•') + '</div>'
           + '</div>';
       }).join('')
     + (itens.length > 8 ? '<div style="font-size:10px;color:var(--text2);text-align:center;padding-top:6px">+ ' + (itens.length - 8) + ' itens</div>' : '')
@@ -2768,9 +2768,9 @@ function abrirDetalheCampus(sala, card) {
   card.insertAdjacentHTML('beforeend', detailHtml);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  SCANNER CONTEXT â€” banner de progresso da sala
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════
+//  SCANNER CONTEXT — banner de progresso da sala
+// ════════════════════════════════════════════
 function atualizarContextoScanner() {
   var sala    = state.currentRoom;
   var ctxDiv  = document.getElementById('scannerRoomContext');
@@ -2782,7 +2782,7 @@ function atualizarContextoScanner() {
 
   if (total > 0) {
     var faltam = Math.max(0, total - meusNaSala);
-    ctxText.innerHTML = '<strong>' + meusNaSala + '</strong> de <strong>' + total + '</strong> escaneados Â· faltam <strong style="color:#f59e0b">' + faltam + '</strong>';
+    ctxText.innerHTML = '<strong>' + meusNaSala + '</strong> de <strong>' + total + '</strong> escaneados · faltam <strong style="color:#f59e0b">' + faltam + '</strong>';
     ctxDiv.style.display = 'flex';
   } else if (meusNaSala > 0) {
     ctxText.textContent = meusNaSala + ' itens escaneados nesta sala';
@@ -2826,7 +2826,7 @@ function calcularTempoEstimado() {
   var el = document.getElementById('progTempoEstimado');
   if (!el) return;
 
-  // Calcula ritmo: scans por hora nas Ãºltimas 2h
+  // Calcula ritmo: scans por hora nas últimas 2h
   var agora = Date.now();
   var janela = 2 * 3600 * 1000; // 2 horas
   var recentes = state.scans.filter(function(s){
@@ -2844,7 +2844,7 @@ function calcularTempoEstimado() {
 
   var faltam = Math.max(0, totalSuap - state.scans.filter(function(s){ return s.type==='scan'; }).length);
   if (faltam === 0) {
-    el.innerHTML = 'ðŸŽ‰ <strong>InventÃ¡rio completo!</strong>';
+    el.innerHTML = '🎉 <strong>Inventário completo!</strong>';
     el.style.display = 'block';
     return;
   }
@@ -2856,11 +2856,11 @@ function calcularTempoEstimado() {
   } else if (horasRestantes < 24) {
     texto = Math.ceil(horasRestantes) + ' hora(s)';
   } else {
-    texto = Math.ceil(horasRestantes / 8) + ' dias Ãºteis (8h/dia)';
+    texto = Math.ceil(horasRestantes / 8) + ' dias úteis (8h/dia)';
   }
 
-  el.innerHTML = 'â± Ritmo atual: <strong>' + Math.round(ritmoHora) + ' itens/hora</strong> Â· '
-    + 'Faltam ~<strong>' + faltam + '</strong> itens Â· Estimativa: <strong>' + texto + '</strong>';
+  el.innerHTML = '⏱ Ritmo atual: <strong>' + Math.round(ritmoHora) + ' itens/hora</strong> · '
+    + 'Faltam ~<strong>' + faltam + '</strong> itens · Estimativa: <strong>' + texto + '</strong>';
   el.style.display = 'block';
 }
 
@@ -2874,10 +2874,10 @@ function renderProgressRooms() {
   document.getElementById('progSalas').textContent = salas;
   document.getElementById('progNopat').textContent = nopat;
 
-  // â”€â”€ Tempo estimado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Tempo estimado ──────────────────────────────────────────
   calcularTempoEstimado();
 
-  // Progresso por sala â€” combina scans locais com totais do SUAP
+  // Progresso por sala — combina scans locais com totais do SUAP
   var porSala = {};
   state.scans.forEach(function(s) {
     if (!porSala[s.room]) porSala[s.room] = { scan:0, nopat:0 };
@@ -2891,16 +2891,16 @@ function renderProgressRooms() {
 
   var el = document.getElementById('progRoomList');
   if (!salasSorted.length) {
-    el.innerHTML = '<div class="prog-empty">ðŸ“­<br>Nenhum item escaneado ainda</div>';
+    el.innerHTML = '<div class="prog-empty">📭<br>Nenhum item escaneado ainda</div>';
     return;
   }
 
   el.innerHTML = salasSorted.map(function(r) {
     var d       = porSala[r];
     var ab      = abreviarSala(r);
-    var emoji   = ab.emoji || 'ðŸ“';
+    var emoji   = ab.emoji || '📍';
 
-    // Apenas patrimÃ´nios contam para o progresso
+    // Apenas patrimônios contam para o progresso
     var totalSuap = suapTotais ? (suapTotais[r] || 0) : 0;
     var pct = totalSuap > 0 ? Math.min(100, Math.round(d.scan / totalSuap * 100)) : null;
     var cor = pct === null ? 'var(--accent)'
@@ -2909,16 +2909,16 @@ function renderProgressRooms() {
             : 'var(--yellow)';
 
     var barLabel = totalSuap > 0
-      ? d.scan + ' de ' + totalSuap + ' patrimÃ´nios (' + pct + '%)'
-        + (d.nopat ? ' Â· ' + d.nopat + ' sem patrim.' : '')
-      : d.scan + ' patrimÃ´nios' + (d.nopat ? ' Â· ' + d.nopat + ' sem patrim.' : '');
+      ? d.scan + ' de ' + totalSuap + ' patrimônios (' + pct + '%)'
+        + (d.nopat ? ' · ' + d.nopat + ' sem patrim.' : '')
+      : d.scan + ' patrimônios' + (d.nopat ? ' · ' + d.nopat + ' sem patrim.' : '');
 
     var barWidth = pct !== null ? pct : Math.min(100, Math.round(d.scan / 10 * 100));
 
     return '<div class="prog-room-item">'
       +'<div class="prog-room-header">'
       +'<div style="display:flex;align-items:center;gap:8px">'
-      +'<span style="font-size:18px">'+(ab.emoji||'ðŸ“')+'</span>'
+      +'<span style="font-size:18px">'+(ab.emoji||'📍')+'</span>'
       +'<div><div class="prog-room-name">'+esc(ab.curto)+'</div>'
       +(ab.bloco?'<div class="prog-room-block">'+esc(ab.bloco)+'</div>':'')
       +'</div></div>'
@@ -2937,7 +2937,7 @@ function renderProgressRooms() {
 }
 
 function iniciarApp() {
-  // Sanitiza hiddenRooms â€” sÃ³ mantÃ©m salas que existem na lista atual
+  // Sanitiza hiddenRooms — só mantém salas que existem na lista atual
   var roomSet = {};
   state.rooms.forEach(function(r){ roomSet[r] = 1; });
   state.hiddenRooms = state.hiddenRooms.filter(function(r){ return roomSet[r]; });
@@ -2950,7 +2950,7 @@ function iniciarApp() {
   localStorage.setItem('hiddenRooms', JSON.stringify(state.hiddenRooms));
   localStorage.setItem('pinnedRooms', JSON.stringify(state.pinnedRooms));
 
-  // Atualiza lista de salas se versÃ£o mudou â€” tambÃ©m reseta hidden/pinned
+  // Atualiza lista de salas se versão mudou — também reseta hidden/pinned
   if (localStorage.getItem('roomsVersion') !== ROOMS_VERSION) {
     var novaLista = getSalasSUAP();
     state.rooms = novaLista;
@@ -2978,7 +2978,7 @@ function iniciarApp() {
 function fazerLogin() {
   var siape = document.getElementById('siapeInput').value.trim();
   if (!siape || siape.length < 4) {
-    document.getElementById('loginError').textContent = 'Digite um SIAPE vÃ¡lido';
+    document.getElementById('loginError').textContent = 'Digite um SIAPE válido';
     return;
   }
 
@@ -2996,17 +2996,17 @@ function fazerLogin() {
         localStorage.setItem('currentUser', JSON.stringify(user));
         document.getElementById('loginWrap').style.display = 'none';
         aplicarUsuario(user);
-        // Carrega histÃ³rico do servidor
+        // Carrega histórico do servidor
         if (res.scans && res.scans.length) {
           carregarHistoricoServidor(res.scans);
         }
-        showToast('ok', 'OlÃ¡, ' + res.nome.split(' ')[0] + '!', 'SIAPE ' + siape);
+        showToast('ok', 'Olá, ' + res.nome.split(' ')[0] + '!', 'SIAPE ' + siape);
       } else {
-        document.getElementById('loginError').textContent = (res.erro || 'SIAPE nÃ£o encontrado') + ' [raw: ' + JSON.stringify(res).substring(0,80) + ']';
+        document.getElementById('loginError').textContent = (res.erro || 'SIAPE não encontrado') + ' [raw: ' + JSON.stringify(res).substring(0,80) + ']';
       }
     })
     .catch(function(e) {
-      document.getElementById('loginError').textContent = 'Erro de conexÃ£o: ' + e.toString();
+      document.getElementById('loginError').textContent = 'Erro de conexão: ' + e.toString();
     })
     .finally(function() {
       btn.innerHTML = 'Entrar';
@@ -3014,7 +3014,7 @@ function fazerLogin() {
     });
 }
 
-// â”€â”€ Login admin por email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Login admin por email ─────────────────────────────────────
 function mostrarLoginAdmin() {
   document.getElementById('loginCardSiape').style.display = 'none';
   document.getElementById('loginCardAdmin').style.display  = '';
@@ -3043,15 +3043,15 @@ function fazerLoginAdmin() {
       localStorage.setItem('currentUser', JSON.stringify(user));
       document.getElementById('loginWrap').style.display = 'none';
       aplicarUsuario(user);
-      showToast('ok', 'OlÃ¡, ' + res.nome.split(' ')[0] + '!', 'Admin');
+      showToast('ok', 'Olá, ' + res.nome.split(' ')[0] + '!', 'Admin');
     })
-    .catch(function(e) { errEl.textContent = 'Erro de conexÃ£o: ' + e; })
+    .catch(function(e) { errEl.textContent = 'Erro de conexão: ' + e; })
     .finally(function() { btn.innerHTML = 'Entrar'; btn.disabled = false; });
 }
 
 function abrirRecuperarSenha() {
   var email = (document.getElementById('adminEmailInput').value || '').trim();
-  var input = prompt('Email para receber o link de recuperaÃ§Ã£o:', email);
+  var input = prompt('Email para receber o link de recuperação:', email);
   if (!input || !input.trim()) return;
   recuperarSenha(input.trim())
     .then(function(res) {
@@ -3060,7 +3060,7 @@ function abrirRecuperarSenha() {
     });
 }
 
-// â”€â”€ RecuperaÃ§Ã£o de senha via link do email â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Recuperação de senha via link do email ────────────────────
 var _resetToken = null;
 
 function verificarResetSenha() {
@@ -3087,9 +3087,9 @@ function salvarNovaSenha() {
   var btn      = document.getElementById('btnSalvarSenha');
   errEl.textContent = '';
   if (nova.length < 6)        { errEl.textContent = 'Senha deve ter pelo menos 6 caracteres'; return; }
-  if (nova !== confirma)       { errEl.textContent = 'As senhas nÃ£o coincidem'; return; }
-  if (!_resetToken)            { errEl.textContent = 'Token invÃ¡lido, solicite novo link'; return; }
-  btn.disabled = true; btn.textContent = 'Salvandoâ€¦';
+  if (nova !== confirma)       { errEl.textContent = 'As senhas não coincidem'; return; }
+  if (!_resetToken)            { errEl.textContent = 'Token inválido, solicite novo link'; return; }
+  btn.disabled = true; btn.textContent = 'Salvando…';
   trocarSenha(nova, _resetToken)
     .then(function(res) {
       if (!res.ok) { errEl.textContent = res.erro || 'Erro ao salvar'; return; }
@@ -3110,7 +3110,7 @@ function aplicarUsuario(user) {
   document.getElementById('userName').textContent   = user.nome;
   document.getElementById('userSiape').textContent  = 'SIAPE: ' + user.siape;
   document.getElementById('userBadge').style.display = 'flex';
-  // Mostra botÃ£o admin se for administrador
+  // Mostra botão admin se for administrador
   var adminBtn = document.getElementById('adminBtn');
   if (adminBtn) adminBtn.style.display = user.admin ? 'block' : 'none';
   // Preenche sub do admin
@@ -3122,11 +3122,11 @@ function fazerLogout() {
   var pendentes = state.pendingSync.length;
   var msg = 'Deseja trocar de conta?\n\n';
   if (pendentes > 0) {
-    msg += 'âš ï¸ VocÃª tem ' + pendentes + ' item(s) ainda nÃ£o sincronizados.\nSincronize antes de sair para nÃ£o perder dados.\n\n';
+    msg += '⚠️ Você tem ' + pendentes + ' item(s) ainda não sincronizados.\nSincronize antes de sair para não perder dados.\n\n';
   } else {
-    msg += 'âœ… Todos os dados estÃ£o salvos na planilha.\n\n';
+    msg += '✅ Todos os dados estão salvos na planilha.\n\n';
   }
-  msg += 'Seus dados locais serÃ£o apagados deste celular.';
+  msg += 'Seus dados locais serão apagados deste celular.';
   if (!confirm(msg)) return;
   localStorage.removeItem('currentUser');
   currentUser = null;
@@ -3140,7 +3140,7 @@ function fazerLogout() {
 }
 
 function carregarHistoricoServidor(scans) {
-  // Mescla histÃ³rico do servidor com local (evita duplicatas)
+  // Mescla histórico do servidor com local (evita duplicatas)
   var ids = state.scans.map(function(s){ return s.id; });
   var novos = scans.filter(function(s){ return ids.indexOf(s.id) === -1; });
   if (novos.length) {
@@ -3151,10 +3151,10 @@ function carregarHistoricoServidor(scans) {
   }
 }
 
-// â”€â”€ Gemini IA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Gemini IA ─────────────────────────────────────────────────
 var GEMINI_KEY_DEFAULT = ''; // chave gerenciada pelo Apps Script
 
-// â”€â”€ IndexedDB â€” armazena fotos persistentemente no celular â”€â”€â”€â”€
+// ── IndexedDB — armazena fotos persistentemente no celular ────
 var DB_NAME    = 'inventarioCampus';
 var DB_VERSION = 1;
 var DB_STORE   = 'fotos';
@@ -3220,34 +3220,34 @@ function saveGeminiKey() {
   var key = document.getElementById('geminiKeyInput').value.trim();
   if (!key) return;
   localStorage.setItem('geminiKey', key);
-  showToast('ok','âœ… Chave Gemini salva!','BotÃ£o âœ¨ Sugerir disponÃ­vel apÃ³s tirar foto');
+  showToast('ok','✅ Chave Gemini salva!','Botão ✨ Sugerir disponível após tirar foto');
 }
 
 function testarIA() {
   var btn = document.getElementById('testIABtn');
-  btn.textContent = 'â³ Testando...';
+  btn.textContent = '⏳ Testando...';
   btn.disabled = true;
 
-  // Testa a Edge Function com imagem real (cÃ¢mera frontal simulada via canvas 10x10)
+  // Testa a Edge Function com imagem real (câmera frontal simulada via canvas 10x10)
   var b64Teste = 'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
   descreverFoto('image/png', b64Teste)
   .then(function(res) {
     if (res.ok || res.descricao) {
-      showToast('ok', 'âœ… IA funcionando!', res.descricao || 'ok');
+      showToast('ok', '✅ IA funcionando!', res.descricao || 'ok');
     } else {
       var detalhe = (res.erro || 'Falhou').substring(0, 120);
-      showToast('warn', 'âŒ IA falhou', detalhe);
+      showToast('warn', '❌ IA falhou', detalhe);
       console.warn('[testarIA] erro completo:', res.erro);
     }
   })
-  .catch(function(e) { showToast('warn', 'Erro de conexÃ£o', e.toString()); })
-  .finally(function() { btn.textContent = 'ðŸ§ª Testar IA'; btn.disabled = false; });
+  .catch(function(e) { showToast('warn', 'Erro de conexão', e.toString()); })
+  .finally(function() { btn.textContent = '🧪 Testar IA'; btn.disabled = false; });
 }
 
 function loadGeminiKey() {
   var inp = document.getElementById('geminiKeyInput');
   if (inp) inp.value = localStorage.getItem('geminiKey') || '';
-  if (inp && !inp.value) inp.placeholder = 'Usando chave padrÃ£o (AIza...)';
+  if (inp && !inp.value) inp.placeholder = 'Usando chave padrão (AIza...)';
 }
 
 function sugerirDescricao(auto) {
@@ -3260,7 +3260,7 @@ function sugerirDescricao(auto) {
   
   // Mostra placeholder no campo enquanto carrega
   var campo = document.getElementById('noPatDesc');
-  if (!campo.value) campo.placeholder = 'âœ¨ Gerando descriÃ§Ã£o...';
+  if (!campo.value) campo.placeholder = '✨ Gerando descrição...';
 
   // Remove prefixo data:image/...;base64,
   var b64 = noPatPhoto.split(',')[1];
@@ -3273,27 +3273,27 @@ function sugerirDescricao(auto) {
       campo.value = res.descricao;
       campo.style.borderColor = 'var(--accent)';
       setTimeout(function(){ campo.style.borderColor = ''; }, 1500);
-      if (!auto) showToast('ok','âœ¨ DescriÃ§Ã£o sugerida!','Edite se necessÃ¡rio');
+      if (!auto) showToast('ok','✨ Descrição sugerida!','Edite se necessário');
     } else {
-      showToast('warn', 'âš ï¸ ' + (res.erro || 'IA nÃ£o reconheceu o item'),'Descreva manualmente');
+      showToast('warn', '⚠️ ' + (res.erro || 'IA não reconheceu o item'),'Descreva manualmente');
     }
   })
   .catch(function() {
-    showToast('warn','Erro ao contatar servidor','Verifique a conexÃ£o');
+    showToast('warn','Erro ao contatar servidor','Verifique a conexão');
   })
   .finally(function() {
-    btn.innerHTML = 'ðŸ”„ Refazer';
+    btn.innerHTML = '🔄 Refazer';
     btn.disabled = false;
     btn.style.opacity = '1';
-    document.getElementById('noPatDesc').placeholder = "Ex: Cadeira giratÃ³ria preta, impressora, monitor 19'...";
+    document.getElementById('noPatDesc').placeholder = "Ex: Cadeira giratória preta, impressora, monitor 19'...";
   });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-//  PAINEL DE ADMINISTRAÃ‡ÃƒO
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ══════════════════════════════════════════════════════════════
+//  PAINEL DE ADMINISTRAÇÃO
+// ══════════════════════════════════════════════════════════════
 
-// â”€â”€ Trocar abas do painel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Trocar abas do painel ─────────────────────────────────────
 function adminTab(tab) {
   var tabMap  = { func: 'tabFunc',        import: 'tabImport',       reset: 'tabReset' };
   var paneMap = { func: 'adminPanelFunc', import: 'adminPanelImport', reset: 'adminPanelReset' };
@@ -3304,15 +3304,15 @@ function adminTab(tab) {
   if (tab === 'func') adminCarregarFunc();
 }
 
-// â”€â”€ Carregar lista de funcionÃ¡rios â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Carregar lista de funcionários ────────────────────────────
 function adminCarregarFunc() {
   var lista = document.getElementById('funcList');
-  lista.innerHTML = '<p style="color:#888;text-align:center">Carregandoâ€¦</p>';
+  lista.innerHTML = '<p style="color:#888;text-align:center">Carregando…</p>';
   adminOp('listarFuncionarios', currentUser.siape)
     .then(function(res) {
       if (!res.ok) { lista.innerHTML = '<p style="color:red">' + (res.erro||'Erro') + '</p>'; return; }
       var funcs = res.funcionarios || [];
-      if (!funcs.length) { lista.innerHTML = '<p style="color:#888;text-align:center">Nenhum funcionÃ¡rio cadastrado.</p>'; return; }
+      if (!funcs.length) { lista.innerHTML = '<p style="color:#888;text-align:center">Nenhum funcionário cadastrado.</p>'; return; }
       lista.innerHTML = funcs.map(function(f) {
         var inicial = (f.nome||'?')[0].toUpperCase();
         var badge   = f.admin ? ' <span style="font-size:10px;background:#4f46e5;color:#fff;padding:1px 6px;border-radius:9px;vertical-align:middle">admin</span>' : '';
@@ -3332,7 +3332,7 @@ function adminCarregarFunc() {
     .catch(function(e) { lista.innerHTML = '<p style="color:red">Erro: ' + e + '</p>'; });
 }
 
-// â”€â”€ Mostrar / ocultar formulÃ¡rio de novo funcionÃ¡rio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Mostrar / ocultar formulário de novo funcionário ──────────
 function adminAbrirAddFunc() {
   document.getElementById('addFuncForm').style.display = '';
   document.getElementById('addFuncNome').focus();
@@ -3344,43 +3344,43 @@ function adminFecharAddFunc() {
   document.getElementById('addFuncAdmin').checked = false;
 }
 
-// â”€â”€ Salvar novo funcionÃ¡rio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Salvar novo funcionário ───────────────────────────────────
 function adminSalvarFunc() {
   var nome  = (document.getElementById('addFuncNome').value  || '').trim();
   var siape = (document.getElementById('addFuncSiape').value || '').trim().replace(/^0+/, '');
   var isAdm = document.getElementById('addFuncAdmin').checked;
   if (!nome || !siape) { showToast('warn', 'Preencha nome e SIAPE', ''); return; }
-  if (!/^\d+$/.test(siape)) { showToast('warn', 'SIAPE deve conter apenas nÃºmeros', ''); return; }
+  if (!/^\d+$/.test(siape)) { showToast('warn', 'SIAPE deve conter apenas números', ''); return; }
   adminOp('addFuncionario', currentUser.siape, { siape: siape, nome: nome, admin: isAdm })
     .then(function(res) {
       if (!res.ok) { showToast('erro', 'Erro ao salvar: ' + (res.erro||''), ''); return; }
-      showToast('ok', 'FuncionÃ¡rio salvo!', nome + ' Â· ' + siape);
+      showToast('ok', 'Funcionário salvo!', nome + ' · ' + siape);
       adminFecharAddFunc();
       adminCarregarFunc();
     })
     .catch(function(e) { showToast('erro', 'Erro: ' + e, ''); });
 }
 
-// â”€â”€ Remover funcionÃ¡rio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Remover funcionário ───────────────────────────────────────
 function adminRemoverFunc(siape, nome) {
-  if (!confirm('Remover "' + nome + '" (SIAPE ' + siape + ')?\n\nEle(a) nÃ£o conseguirÃ¡ mais fazer login.')) return;
+  if (!confirm('Remover "' + nome + '" (SIAPE ' + siape + ')?\n\nEle(a) não conseguirá mais fazer login.')) return;
   adminOp('removeFuncionario', currentUser.siape, { siape: siape })
     .then(function(res) {
       if (!res.ok) { showToast('erro', 'Erro: ' + (res.erro||''), ''); return; }
-      showToast('ok', 'FuncionÃ¡rio removido', nome);
+      showToast('ok', 'Funcionário removido', nome);
       adminCarregarFunc();
     })
     .catch(function(e) { showToast('erro', 'Erro: ' + e, ''); });
 }
 
-// â”€â”€ Ler planilha (.xlsx/.xls/.csv) com SheetJS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Ler planilha (.xlsx/.xls/.csv) com SheetJS ────────────────
 var _adminPlanilhaRows = [];   // linhas brutas (array de objetos)
 var _adminPlanilhaCols = [];   // nomes das colunas detectadas
 
 function adminLerPlanilha(input) {
   var file = input.files && input.files[0];
   if (!file) return;
-  document.getElementById('importStatus').textContent = 'Lendo arquivoâ€¦';
+  document.getElementById('importStatus').textContent = 'Lendo arquivo…';
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
@@ -3453,7 +3453,7 @@ function adminMostrarPreview() {
   }
 }
 
-// â”€â”€ Executar importaÃ§Ã£o â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Executar importação ───────────────────────────────────────
 function adminImportar() {
   var colNum  = document.getElementById('mapNumero').value;
   var colDesc = document.getElementById('mapDescricao').value;
@@ -3461,7 +3461,7 @@ function adminImportar() {
   var colEst  = document.getElementById('mapEstado').value;
 
   if (!colNum || colNum === '(ignorar)') {
-    showToast('warn', 'Selecione a coluna de NÃºmero', ''); return;
+    showToast('warn', 'Selecione a coluna de Número', ''); return;
   }
 
   var rows = _adminPlanilhaRows.map(function(r) {
@@ -3473,21 +3473,21 @@ function adminImportar() {
     };
   }).filter(function(r){ return r.numero; });
 
-  if (!rows.length) { showToast('warn', 'Nenhuma linha com nÃºmero vÃ¡lido encontrada', ''); return; }
+  if (!rows.length) { showToast('warn', 'Nenhuma linha com número válido encontrada', ''); return; }
 
   var btn = document.getElementById('importBtn');
   btn.disabled = true;
-  btn.textContent = 'Importandoâ€¦';
-  document.getElementById('importStatus').textContent = 'Enviando ' + rows.length + ' itensâ€¦';
+  btn.textContent = 'Importando…';
+  document.getElementById('importStatus').textContent = 'Enviando ' + rows.length + ' itens…';
 
   adminOp('importarPatrimonios', currentUser.siape, { rows: rows })
     .then(function(res) {
       if (!res.ok) {
-        showToast('erro', 'Erro na importaÃ§Ã£o', res.erro || '');
+        showToast('erro', 'Erro na importação', res.erro || '');
         document.getElementById('importStatus').textContent = 'Erro: ' + (res.erro||'');
       } else {
-        showToast('ok', res.importados + ' patrimÃ´nios importados!', '');
-        document.getElementById('importStatus').textContent = 'âœ… ' + res.importados + ' patrimÃ´nios importados com sucesso!';
+        showToast('ok', res.importados + ' patrimônios importados!', '');
+        document.getElementById('importStatus').textContent = '✅ ' + res.importados + ' patrimônios importados com sucesso!';
         document.getElementById('importPreview').style.display = 'none';
         document.getElementById('importFileInput').value = '';
         _adminPlanilhaRows = [];
@@ -3500,44 +3500,44 @@ function adminImportar() {
     })
     .finally(function() {
       btn.disabled = false;
-      btn.textContent = 'ðŸ“¥ Importar';
+      btn.textContent = '📥 Importar';
     });
 }
 
-// â”€â”€ Resetar inventÃ¡rio â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Resetar inventário ────────────────────────────────────────
 function adminResetar() {
-  var confirmacao = prompt('Esta aÃ§Ã£o apaga TODOS os scans e resultados de inventÃ¡rio.\n\nDigite CONFIRMAR (em maiÃºsculas) para prosseguir:');
+  var confirmacao = prompt('Esta ação apaga TODOS os scans e resultados de inventário.\n\nDigite CONFIRMAR (em maiúsculas) para prosseguir:');
   if (confirmacao !== 'CONFIRMAR') { showToast('warn', 'Resetar cancelado', ''); return; }
   var btn = document.getElementById('btnResetar');
   btn.disabled = true;
-  btn.textContent = 'Resetandoâ€¦';
+  btn.textContent = 'Resetando…';
   adminOp('resetarInventario', currentUser.siape)
     .then(function(res) {
       if (!res.ok) {
         showToast('erro', 'Erro ao resetar: ' + (res.erro||''), '');
       } else {
-        showToast('ok', 'InventÃ¡rio resetado com sucesso!', 'Todos os scans foram apagados');
-        document.getElementById('resetStatus').textContent = 'âœ… Resetado em ' + new Date().toLocaleString('pt-BR');
+        showToast('ok', 'Inventário resetado com sucesso!', 'Todos os scans foram apagados');
+        document.getElementById('resetStatus').textContent = '✅ Resetado em ' + new Date().toLocaleString('pt-BR');
       }
     })
     .catch(function(e) { showToast('erro', 'Erro: ' + e, ''); })
     .finally(function() {
       btn.disabled = false;
-      btn.textContent = 'ðŸ—‘ï¸ Resetar InventÃ¡rio';
+      btn.textContent = '🗑️ Resetar Inventário';
     });
 }
 
-// â”€â”€ Escape HTML simples â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Escape HTML simples ───────────────────────────────────────
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// â”€â”€ VerificaÃ§Ã£o de atualizaÃ§Ã£o â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Verificação de atualização ───────────────────────────────
 var UPDATE_URL = 'https://leonardoolivera.github.io/inventarioifms/index.html';
 var checkUpdateTimer = null;
 
 function checkForUpdate() {
-  // Busca o HTML publicado e extrai a versÃ£o
+  // Busca o HTML publicado e extrai a versão
   fetch(UPDATE_URL + '?nocache=' + Date.now(), { cache: 'no-store' })
     .then(function(r) { return r.text(); })
     .then(function(html) {
@@ -3547,12 +3547,12 @@ function checkForUpdate() {
       var localVersion  = APP_VERSION;
 
       if (remoteVersion !== localVersion) {
-        var msg1 = 'ðŸ†• VersÃ£o ' + remoteVersion + ' disponÃ­vel!';
-        var msg2 = 'VocÃª estÃ¡ na ' + localVersion + ' Â· Toque para atualizar';
+        var msg1 = '🆕 Versão ' + remoteVersion + ' disponível!';
+        var msg2 = 'Você está na ' + localVersion + ' · Toque para atualizar';
         document.getElementById('updateTitle').textContent = msg1;
         document.getElementById('updateSub').textContent   = msg2;
         document.getElementById('updateBanner').classList.add('show');
-        // TambÃ©m mostra no login se estiver visÃ­vel
+        // Também mostra no login se estiver visível
         var bl = document.getElementById('updateBannerLogin');
         if (bl) { bl.style.display='flex'; document.getElementById('updateTitleLogin').textContent=msg1; document.getElementById('updateSubLogin').textContent=msg2; }
       }
@@ -3580,13 +3580,13 @@ function recarregarApp() {
   }
 }
 
-// â”€â”€ PWA Install prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PWA Install prompt ────────────────────────────────────────
 var deferredInstallPrompt = null;
 
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   deferredInstallPrompt = e;
-  // SÃ³ mostra se nunca dispensou
+  // Só mostra se nunca dispensou
   if (!localStorage.getItem('installDismissed')) {
     document.getElementById('installBanner').classList.add('show');
   }
@@ -3595,7 +3595,7 @@ window.addEventListener('beforeinstallprompt', function(e) {
 window.addEventListener('appinstalled', function() {
   document.getElementById('installBanner').classList.remove('show');
   deferredInstallPrompt = null;
-  showToast('ok','âœ… App instalado!','Acesse pela tela inicial do celular');
+  showToast('ok','✅ App instalado!','Acesse pela tela inicial do celular');
 });
 
 function doInstall() {
@@ -3609,26 +3609,26 @@ function doInstall() {
   });
 }
 
-// Abre o app instalado automaticamente apÃ³s instalar
+// Abre o app instalado automaticamente após instalar
 window.addEventListener('appinstalled', function() {
   document.getElementById('installBanner').classList.remove('show');
   deferredInstallPrompt = null;
-  // Tenta abrir a versÃ£o standalone (app instalado)
+  // Tenta abrir a versão standalone (app instalado)
   setTimeout(function() {
-    // Se ainda estiver no browser (nÃ£o standalone), redireciona para o app
+    // Se ainda estiver no browser (não standalone), redireciona para o app
     if (!window.matchMedia('(display-mode: standalone)').matches &&
         !window.navigator.standalone) {
-      showToast('ok', 'âœ… App instalado!', 'Procure o Ã­cone na tela inicial do celular');
+      showToast('ok', '✅ App instalado!', 'Procure o ícone na tela inicial do celular');
     }
   }, 500);
 });
 
-// Se abriu via standalone apÃ³s instalar, mostra boas-vindas
+// Se abriu via standalone após instalar, mostra boas-vindas
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
   var primeiraVez = !localStorage.getItem('appAberto');
   if (primeiraVez) {
     localStorage.setItem('appAberto', '1');
-    // SerÃ¡ mostrado apÃ³s o app inicializar
+    // Será mostrado após o app inicializar
     window._mostrarBoasVindas = true;
   }
 }
@@ -3638,15 +3638,15 @@ function dismissInstall() {
   localStorage.setItem('installDismissed', '1');
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 //  DASHBOARD GESTOR
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════
 var MIN_SCANS_DIA = 50;
 var _dbPats = [];
 var _dbInv  = [];
 var _dbTimer = null;
 
-var DB_BLOCOS = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Ãrea Externa'];
+var DB_BLOCOS = ['Bloco A','Bloco B','Bloco C','Salas Modulares','Área Externa'];
 function dbGetBloco(sala) {
   if (!sala) return 'Outros';
   var s = sala.toUpperCase();
@@ -3654,10 +3654,10 @@ function dbGetBloco(sala) {
   if (s.indexOf('(BLOCO B)') > -1)         return 'Bloco B';
   if (s.indexOf('(BLOCO C)') > -1)         return 'Bloco C';
   if (s.indexOf('(SALAS MODULARES)') > -1) return 'Salas Modulares';
-  return 'Ãrea Externa';
+  return 'Área Externa';
 }
 function dbIsEnc(status) {
-  return status === 'âœ… Encontrado' || status === 'ðŸŸ¡ Outro local';
+  return status === '✅ Encontrado' || status === '🟡 Outro local';
 }
 function dbSet(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; }
 function dbMediana(arr) {
@@ -3677,8 +3677,8 @@ function carregarDashboard() {
     _dbPats = results[0] || [];
     _dbInv  = results[1] || [];
     dbRenderTudo();
-    if (badge) { badge.textContent = 'â— ao vivo'; badge.className = 'db-live-badge'; }
-    dbSet('dbLastUpdate', 'Atualizado Ã s ' + new Date().toLocaleTimeString('pt-BR'));
+    if (badge) { badge.textContent = '● ao vivo'; badge.className = 'db-live-badge'; }
+    dbSet('dbLastUpdate', 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR'));
     clearInterval(_dbTimer);
     _dbTimer = setInterval(function() {
       var sc = document.getElementById('scDashboard');
@@ -3700,20 +3700,20 @@ function dbRenderTudo() {
   var inv   = _dbInv;
   var total = pats.length;
 
-  // Progresso: conta patrimÃ´nios Ãºnicos escaneados na tabela scans
+  // Progresso: conta patrimônios únicos escaneados na tabela scans
   var codigosEsc = new Set(inv.map(function(i){ return dbStripZ(i.codigo||''); }).filter(Boolean));
   var enc = codigosEsc.size;
-  var dup = pats.filter(function(p){ return p.status === 'ðŸ”´ DUPLICADO'; }).length;
+  var dup = pats.filter(function(p){ return p.status === '🔴 DUPLICADO'; }).length;
   var pct = total > 0 ? Math.round(enc / total * 100) : 0;
 
-  // Servidores Ãºnicos
+  // Servidores únicos
   var servMap = {};
   inv.forEach(function(i){ if (i.funcionario) servMap[i.funcionario] = (servMap[i.funcionario]||0)+1; });
   var kpiSrv = Object.keys(servMap).length;
 
   // KPIs
   dbSet('dbKpiEnc', enc.toLocaleString('pt-BR'));
-  dbSet('dbKpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimÃ´nios');
+  dbSet('dbKpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimônios');
   dbSet('dbKpiPct', pct + '%');
   dbSet('dbKpiSrv', kpiSrv);
   dbSet('dbKpiDup', dup);
@@ -3727,7 +3727,7 @@ function dbRenderTudo() {
   dbSet('dbBarPct',   pct + '%');
   dbSet('dbBarRight', total.toLocaleString('pt-BR') + ' total');
 
-  // Blocos â€” usa patrimÃ´nios marcados (status) para os blocos
+  // Blocos — usa patrimônios marcados (status) para os blocos
   var blocoData = {};
   pats.forEach(function(p) {
     var b = dbGetBloco(p.sala_suap);
@@ -3752,7 +3752,7 @@ function dbRenderTudo() {
   var blocoEl = document.getElementById('dbBlocos');
   if (blocoEl) blocoEl.innerHTML = blocoHtml || '<div style="font-size:12px;color:var(--text2)">Sem dados</div>';
 
-  // Estimativa â€” mediana de dias com >= MIN_SCANS_DIA scans
+  // Estimativa — mediana de dias com >= MIN_SCANS_DIA scans
   var faltam = total - enc;
   var porDia = {};
   inv.forEach(function(i) {
@@ -3764,40 +3764,40 @@ function dbRenderTudo() {
                           .filter(function(n){ return n >= MIN_SCANS_DIA; });
   dbSet('dbFaltam', faltam.toLocaleString('pt-BR'));
   if (diasValidos.length === 0) {
-    dbSet('dbRitmo',  'â€”');
-    dbSet('dbEstVal', 'â€”'); dbSet('dbEstUnit', 'dados insuficientes');
+    dbSet('dbRitmo',  '—');
+    dbSet('dbEstVal', '—'); dbSet('dbEstUnit', 'dados insuficientes');
   } else {
     var medDiaria = dbMediana(diasValidos);
     var diasEst   = faltam / medDiaria;
     dbSet('dbRitmo', medDiaria);
-    if (diasEst < 1)  { dbSet('dbEstVal', '<1');               dbSet('dbEstUnit', 'dia Ãºtil'); }
-    else              { dbSet('dbEstVal', diasEst.toFixed(1));  dbSet('dbEstUnit', 'dias Ãºteis'); }
+    if (diasEst < 1)  { dbSet('dbEstVal', '<1');               dbSet('dbEstUnit', 'dia útil'); }
+    else              { dbSet('dbEstVal', diasEst.toFixed(1));  dbSet('dbEstUnit', 'dias úteis'); }
   }
 
   // Alertas
   var alertHtml = '';
-  if (dup > 0) alertHtml += '<div class="db-alert db-alert-red">ðŸ”´ ' + dup + ' patrimÃ´nio(s) duplicado(s)</div>';
+  if (dup > 0) alertHtml += '<div class="db-alert db-alert-red">🔴 ' + dup + ' patrimônio(s) duplicado(s)</div>';
   DB_BLOCOS.forEach(function(b) {
     var d = blocoData[b];
     if (d && d.total > 0 && d.enc === d.total)
-      alertHtml += '<div class="db-alert db-alert-green">âœ… ' + b + ' concluÃ­do!</div>';
+      alertHtml += '<div class="db-alert db-alert-green">✅ ' + b + ' concluído!</div>';
   });
   var alertEl = document.getElementById('dbAlertas');
-  if (alertEl) alertEl.innerHTML = alertHtml || '<div style="font-size:12px;color:var(--text2)">âœ… Tudo sob controle</div>';
+  if (alertEl) alertEl.innerHTML = alertHtml || '<div style="font-size:12px;color:var(--text2)">✅ Tudo sob controle</div>';
 
   // Feed
   var feedHtml = inv.slice(0, 10).map(function(item) {
     var pat    = pats.find(function(p){ return dbStripZ(p.numero) === dbStripZ(item.codigo); });
-    var isDup  = pat && pat.status === 'ðŸ”´ DUPLICADO';
-    var isWrong= pat && pat.status === 'ðŸŸ¡ Outro local';
+    var isDup  = pat && pat.status === '🔴 DUPLICADO';
+    var isWrong= pat && pat.status === '🟡 Outro local';
     var dotColor = isDup ? 'var(--red)' : isWrong ? 'var(--yellow)' : 'var(--green)';
-    var extra    = isDup   ? ' <span style="color:var(--red);font-size:10px">Â· dup!</span>'
-                 : isWrong ? ' <span style="color:var(--yellow);font-size:10px">Â· sala errada</span>' : '';
+    var extra    = isDup   ? ' <span style="color:var(--red);font-size:10px">· dup!</span>'
+                 : isWrong ? ' <span style="color:var(--yellow);font-size:10px">· sala errada</span>' : '';
     var hora = item.criado_em ? new Date(item.criado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
     return '<div class="db-feed-item">' +
       '<div class="db-feed-dot" style="background:'+dotColor+'"></div>' +
       '<div><div class="db-feed-text"><strong>'+escHtml(item.funcionario||'Servidor')+'</strong>' +
-      ' escaneou <strong>'+escHtml(item.codigo||'?')+'</strong> â†’ '+escHtml(item.sala||'â€”')+extra+'</div>' +
+      ' escaneou <strong>'+escHtml(item.codigo||'?')+'</strong> → '+escHtml(item.sala||'—')+extra+'</div>' +
       '<div class="db-feed-time">'+hora+'</div></div>' +
     '</div>';
   }).join('');
@@ -3812,10 +3812,10 @@ function dbStripZ(s) { return String(s||'').replace(/^0+/,''); }
     <div id="wrongRoomMsg"></div>
     <div class="wrong-room-actions">
       <button class="wrong-room-btn primary" id="wrongRoomSugerida" onclick="trocarParaSalasSugerida()" disabled style="opacity:.6">Sim, trocar sala (<span id="wrongRoomCountdown">2</span>s)</button>
-      <button class="wrong-room-btn secondary" onclick="fecharAvisoSala()">NÃ£o, estou certo</button>
+      <button class="wrong-room-btn secondary" onclick="fecharAvisoSala()">Não, estou certo</button>
     </div>
   </div>
 </div>
 </body>
-    +'<span style="font-size:13px;font-weight:700;color:var(--accent)">NÂº '+esc(d.numero)+'</span>'
+    +'<span style="font-size:13px;font-weight:700;color:var(--accent)">Nº '+esc(d.numero)+'</span>'
 
