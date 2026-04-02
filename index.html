@@ -665,6 +665,27 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
      SCREEN: HISTORY<!-- ════════════════════════════════════════════
      SCREEN: HISTORY
 ═══════════════════════════════════════════════ -->
+<!-- ???????????????????????????????????????????????
+     SCREEN: BUSCA
+??????????????????????????????????????????????? -->
+<div class="screen hidden" id="scBusca">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">Voltar</button>
+    <div>
+      <div class="topbar-title">Buscar patrim&ocirc;nio</div>
+      <div class="topbar-sub" id="buscaSub">Digite o numero</div>
+    </div>
+  </div>
+  <div class="sbody">
+    <div class="room-search-wrap" style="position:static;padding-bottom:14px">
+      <input class="room-search" id="buscaInput" type="search" placeholder="Buscar por numero do patrimonio..." autocomplete="off" inputmode="numeric" oninput="debounceBusca(this.value)">
+    </div>
+    <div id="buscaResult">
+      <div class="empty" style="padding:32px 0"><div class="empty-ico">&#128269;</div>Digite pelo menos 3 digitos</div>
+    </div>
+  </div>
+</div>
+
 <div class="screen hidden" id="scHistory">
   <div class="topbar">
     <button class="back-btn" onclick="goBack()">‹ Voltar</button>
@@ -2267,19 +2288,29 @@ var compCache = null;    // cache de TODAS as salas
 var compSalaAtual = ''; // sala sendo visualizada
 
 // ── Busca de patrimônio ──────────────────────────────────────
+var buscarPatrimonioRemoto = window.buscarPatrimonio;
 var buscaTimer = null;
-function buscarPatrimonio(val) {
+
+function debounceBusca(val) {
+  clearTimeout(buscaTimer);
+  buscaTimer = setTimeout(function() {
+    buscarPatrimonioUI(val);
+  }, 250);
+}
+
+function buscarPatrimonioUI(val) {
   val = String(val || '').trim();
   var res = document.getElementById('buscaResult');
   var sub = document.getElementById('buscaSub');
+  if (!res || !sub) return;
 
   if (!val || val.length < 3) {
-    res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">🔎</div>Digite pelo menos 3 dígitos</div>';
-    sub.textContent = 'Digite o número';
+    res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">&#128269;</div>Digite pelo menos 3 digitos</div>';
+    sub.textContent = 'Digite o numero';
     return;
   }
 
-  // Busca local primeiro (instantânea)
+  // Busca local primeiro (instantanea)
   var numStr = val.replace(/^0+/, '');
   var localMatch = state.scans.filter(function(s){
     return s.type === 'scan' && String(s.code).replace(/^0+/,'').indexOf(numStr) > -1;
@@ -2289,31 +2320,28 @@ function buscarPatrimonio(val) {
     sub.textContent = localMatch.length + ' resultado(s) local';
     res.innerHTML = localMatch.map(function(s) {
       return renderBuscaItem({
-        numero: s.code, descricao: '—', sala: s.sala || s.room,
-        status: '✅ Encontrado (local)', quem: s.funcionario || '', data: s.ts
+        numero: s.code, descricao: '-', sala: s.sala || s.room,
+        status: '\u2705 Encontrado (local)', quem: s.funcionario || '', data: s.ts
       });
     }).join('');
   } else {
-    res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">🔍 Buscando...</div>';
+    res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px">Buscando...</div>';
     sub.textContent = 'Buscando...';
   }
 
-  // Busca no servidor (debounce 600ms)
-  clearTimeout(buscaTimer);
-  if (!state.isOnline) return;
-  buscaTimer = setTimeout(function() {
-    buscarPatrimonio(val)
+  if (!state.isOnline || typeof buscarPatrimonioRemoto !== 'function') return;
+
+  buscarPatrimonioRemoto(val)
     .then(function(data) {
       if (!data.ok) return;
       sub.textContent = data.resultados.length + ' resultado(s)';
       if (!data.resultados.length) {
-        res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">📭</div>Patrimônio não encontrado</div>';
+        res.innerHTML = '<div class="empty" style="padding:32px 0"><div class="empty-ico">&#128236;</div>Patrimonio nao encontrado</div>';
         return;
       }
       res.innerHTML = data.resultados.map(renderBuscaItem).join('');
     })
     .catch(function(){});
-  }, 600);
 }
 
 function renderBuscaItem(d) {
