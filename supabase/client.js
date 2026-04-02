@@ -21,6 +21,29 @@ function sbFetch(path, opts) {
   });
 }
 
+// Busca todos os registros paginando de 1000 em 1000 (contorna max-rows=1000 do Supabase)
+function sbFetchAll(path) {
+  var PAGE = 1000;
+  var result = [];
+  var sep = path.indexOf('?') > -1 ? '&' : '?';
+  function fetchPage(from) {
+    return fetch(SUPABASE_URL + path + sep + 'limit=' + PAGE + '&offset=' + from, {
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + SUPABASE_ANON,
+        'Content-Type': 'application/json'
+      }
+    }).then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!Array.isArray(data) || !data.length) return result;
+        result = result.concat(data);
+        if (data.length < PAGE) return result;
+        return fetchPage(from + PAGE);
+      });
+  }
+  return fetchPage(0);
+}
+
 // ── LOGIN por SIAPE ───────────────────────────────────────────
 function loginSiape(siape) {
   var s = String(siape).trim().replace(/^0+/, '');

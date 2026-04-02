@@ -226,7 +226,8 @@ async function fetchAllRows(table, select, orderCol, ascending) {
   var PAGE = 1000, from = 0, result = [];
   while (true) {
     var q = sb.from(table).select(select).range(from, from + PAGE - 1);
-    if (orderCol) q = q.order(orderCol, { ascending: !!ascending });
+    // ORDER BY obrigatório para paginação consistente
+    q = q.order(orderCol || 'id', { ascending: !!ascending });
     var { data, error } = await q;
     if (error) throw error;
     result = result.concat(data || []);
@@ -240,7 +241,7 @@ async function carregarTudo() {
   setBadge('connecting');
   try {
     var [patsData, invData] = await Promise.all([
-      fetchAllRows('patrimonios', 'numero,sala_suap,status,local_encontrado'),
+      fetchAllRows('patrimonios', 'numero,sala_suap,status,local_encontrado', 'numero', true),
       fetchAllRows('scans', 'codigo,sala,funcionario,siape,criado_em', 'criado_em', false)
     ]);
 

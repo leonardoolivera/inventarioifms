@@ -3466,8 +3466,8 @@ function carregarDashboard() {
   if (badge) { badge.textContent = 'atualizando...'; badge.className = 'db-live-badge connecting'; }
 
   Promise.all([
-    sbFetch('/rest/v1/patrimonios?select=numero,sala_suap,status&limit=10000'),
-    sbFetch('/rest/v1/scans?select=codigo,sala,funcionario,siape,criado_em&order=criado_em.desc&limit=10000')
+    sbFetchAll('/rest/v1/patrimonios?select=numero,sala_suap,status'),
+    sbFetchAll('/rest/v1/scans?select=codigo,sala,funcionario,siape,criado_em&order=criado_em.desc')
   ]).then(function(results) {
     _dbPats = results[0] || [];
     _dbInv  = results[1] || [];
