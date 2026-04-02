@@ -2708,7 +2708,7 @@ function renderCampus(filtro) {
       var pct     = total > 0 ? Math.min(100, Math.round(enc / total * 100)) : 0;
       var cor     = pct >= 90 ? 'var(--green)' : pct >= 50 ? 'var(--accent)' : 'var(--yellow)';
       var foot    = total > 0 ? enc + ' / ' + total + (pct === 100 ? ' Â· âœ…' : ' Â· ' + (total - enc) + ' pendentes') : 'Sem dados SUAP';
-      html += '<div class="campus-sala-card" id="ccard-' + encodeURIComponent(sala) + '" onclick="toggleCampusSala('' + escJ(sala) + '',this)">'
+      html += '<div class="campus-sala-card" id="ccard-' + encodeURIComponent(sala) + '" onclick="toggleCampusSala(\'' + escJ(sala) + '\',this)">'
         + '<div class="campus-sala-header">'
         + '<div class="campus-sala-emoji">' + (ab.emoji || 'ðŸ“') + '</div>'
         + '<div class="campus-sala-info"><div class="campus-sala-name">' + esc(ab.curto) + '</div>'
