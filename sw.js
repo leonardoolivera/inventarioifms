@@ -1,4 +1,4 @@
-var CACHE_NAME = 'inventario-v6.3';
+var CACHE_NAME = 'inventario-v6.4';
 
 self.addEventListener('install', function(e) {
   // Ativa imediatamente sem esperar fechar abas

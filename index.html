@@ -77,18 +77,14 @@ body{position:relative}
 .home-row,.home-row-btn,.user-badge,.sync-banner,.install-banner,.update-banner,.room-selector{display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--surface);border:1px solid rgba(148,163,184,.12);border-radius:18px;padding:14px 16px;box-shadow:var(--sh)}
 .home-row,.home-row-btn,.room-selector{cursor:pointer;transition:transform .16s ease,border-color .2s ease,background .2s ease}
 .home-row:active,.home-row-btn:active,.room-selector:active{transform:scale(.992);border-color:rgba(29,158,117,.28)}
-.home-row-icon,.install-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;flex-shrink:0;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.12);font-size:18px;color:var(--text)}
-.home-row-icon.green{background:rgba(29,158,117,.12);border-color:rgba(29,158,117,.24);color:#67e8b2}
-.home-row-icon.blue{background:rgba(91,140,255,.12);border-color:rgba(91,140,255,.2);color:#b9cbff}
-.home-row-icon.amber{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.2);color:#fbbf24}
-.home-row-icon.violet{background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.22);color:#c4b5fd}
+.home-row-icon,.install-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(148,163,184,.12);font-size:18px;color:var(--text2)}
+.home-row-icon svg,.install-icon svg,.si-icon svg,.settings-linkicon svg{width:20px;height:20px;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.home-row-icon.current{background:rgba(29,158,117,.15);border-color:rgba(29,158,117,.24);color:#1D9E75}
 .home-row-main,.install-info,.update-info,.ub-info,.sync-main{flex:1;min-width:0}
 .home-row-title,.install-title,.update-title,.ub-name{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
 .home-row-sub,.install-sub,.update-sub,.ub-siape,.sync-text{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.45}
 .home-row-meta,.sync-count,.row-chevron,.install-close,.ub-logout{flex-shrink:0;color:var(--text3);font-size:14px;font-weight:700}
 .home-row-btn{width:100%;font-family:'Space Grotesk',sans-serif;background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--surface);text-align:left;border-radius:18px}
-.home-row-btn.admin{border-color:rgba(124,92,252,.22)}
-.home-row-btn.manager{border-color:rgba(29,158,117,.22)}
 .home-row-btn .home-row-title{font-size:14px}
 .home-row-btn .home-row-sub{margin-top:2px}
 .room-selector{margin-bottom:0}
@@ -156,6 +152,13 @@ body{position:relative}
 
 /* bottom scanner bar */
 .scanner-bottom{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--bg);border-top:1px solid var(--border);padding:14px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));flex-shrink:0}
+.scanner-search-wrap{padding:10px 16px 0;background:linear-gradient(180deg,rgba(11,16,32,.98),rgba(11,16,32,.9));border-bottom:1px solid rgba(148,163,184,.08);flex-shrink:0}
+.scanner-search-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none}
+.scanner-search-input:focus{border-color:var(--accent)}
+.scanner-search-panel{display:none;padding:10px 0 12px}
+.scanner-search-panel.show{display:block}
+.scanner-search-hint{font-size:11px;color:var(--text2);margin-bottom:8px}
+.scanner-search-results{max-height:min(38vh,280px);overflow:auto;padding-right:2px}
 .manual-row{display:flex;gap:8px}
 .manual-input{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none}
 .manual-input:focus{border-color:var(--accent)}
@@ -320,10 +323,20 @@ body{position:relative}
 
 /* ── USER BADGE ── */
 .user-badge{margin-bottom:0}
-.ub-avatar{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 10px 22px rgba(91,140,255,.22)}
+.ub-avatar{width:42px;height:42px;border-radius:14px;background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.24);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#1D9E75;flex-shrink:0;box-shadow:0 10px 22px rgba(29,158,117,.14)}
 .ub-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ub-siape{font-family:'JetBrains Mono',monospace}
+.ub-siape{font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .ub-logout{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px}
+.user-sync-inline{display:inline-flex;align-items:center;gap:6px;color:var(--text2)}
+.user-sync-dot{width:7px;height:7px;border-radius:50%;background:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.14)}
+.user-sync-inline.online{color:#86efac}
+.user-sync-inline.online .user-sync-dot{background:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.14)}
+.user-sync-inline.pending{color:#fbbf24}
+.user-sync-inline.pending .user-sync-dot{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.14)}
+.user-sync-inline.offline{color:var(--text2)}
+.user-sync-inline.offline .user-sync-dot{background:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.14)}
+.user-sync-inline.syncing{color:#b9cbff}
+.user-sync-inline.syncing .user-sync-dot{background:var(--accent);box-shadow:0 0 0 3px rgba(91,140,255,.14)}
 
 /* ── ROOM SEARCH & GROUPS ── */
 .room-search-wrap{padding:0 0 12px;position:sticky;top:0;background:var(--bg);z-index:10}
@@ -566,7 +579,13 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="home-section">
       <div class="home-list">
         <div class="install-banner" id="installBanner">
-          <div class="install-icon">+</div>
+          <div class="install-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12"></path>
+              <path d="m7 10 5 5 5-5"></path>
+              <path d="M5 21h14"></path>
+            </svg>
+          </div>
           <div class="install-info">
             <div class="install-title">Instalar como app</div>
             <div class="install-sub">Acesso rapido sem abrir o navegador</div>
@@ -576,7 +595,12 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         </div>
 
         <div class="update-banner" id="updateBanner">
-          <div class="home-row-icon green">*</div>
+          <div class="home-row-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+              <path d="M21 3v6h-6"></path>
+            </svg>
+          </div>
           <div class="update-info">
             <div class="update-title" id="updateTitle">Nova versao disponivel</div>
             <div class="update-sub" id="updateSub">Atualize para continuar usando</div>
@@ -589,16 +613,15 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="home-section" id="adminBtn" style="display:none">
       <div class="home-section-label">Gestao</div>
       <div class="home-list">
-        <button class="home-row-btn admin" onclick="showScreen('scAdmin');adminCarregarFunc()">
-          <span class="home-row-icon violet">A</span>
-          <span class="home-row-main">
-            <span class="home-row-title">Painel de administracao</span>
-            <span class="home-row-sub" id="adminSub">Acessos e configuracoes do inventario</span>
+        <button class="home-row-btn" onclick="showScreen('scDashboard');carregarDashboard()">
+          <span class="home-row-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3v18h18"></path>
+              <path d="M18 17V9"></path>
+              <path d="M13 17V5"></path>
+              <path d="M8 17v-3"></path>
+            </svg>
           </span>
-          <span class="row-chevron">&rsaquo;</span>
-        </button>
-        <button class="home-row-btn manager" onclick="showScreen('scDashboard');carregarDashboard()">
-          <span class="home-row-icon green">D</span>
           <span class="home-row-main">
             <span class="home-row-title">Dashboard do gestor</span>
             <span class="home-row-sub">Indicadores e andamento do campus</span>
@@ -615,18 +638,15 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
           <div class="ub-avatar" id="userAvatar">?</div>
           <div class="ub-info">
             <div class="ub-name" id="userName">-</div>
-            <div class="ub-siape" id="userSiape">SIAPE: -</div>
+            <div class="ub-siape">
+              <span id="userSiapeLabel">SIAPE: -</span>
+              <span class="user-sync-inline offline" id="userSyncInline">
+                <span class="user-sync-dot" id="userSyncDot"></span>
+                <span id="userSyncText">Offline</span>
+              </span>
+            </div>
           </div>
           <button class="ub-logout" onclick="fazerLogout()" title="Sair">&rarr;</button>
-        </div>
-
-        <div class="sync-banner" id="syncBanner" onclick="syncNow()">
-          <div class="sync-dot offline" id="syncDot"></div>
-          <div class="sync-main">
-            <div class="home-row-title">Sincronizacao</div>
-            <div class="sync-text" id="syncText">Verificando conexao...</div>
-          </div>
-          <div class="sync-count" id="syncCount"></div>
         </div>
       </div>
     </div>
@@ -635,48 +655,15 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="home-section-label">Fluxo atual</div>
       <div class="home-list">
         <div class="room-selector" onclick="showScreen('scRooms')">
-          <div class="home-row-icon blue">L</div>
-          <div class="home-row-main">
-            <div class="rs-label">Local atual</div>
-            <div class="rs-value"><span id="currentRoomLabel">Selecionar local</span></div>
+          <div class="home-row-icon current">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 10c0 4.993-8 11-8 11S4 14.993 4 10a8 8 0 1 1 16 0Z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
           </div>
-          <span class="rs-chevron">&rsaquo;</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="home-section">
-      <div class="home-section-label">Acesso rapido</div>
-      <div class="home-list">
-        <div class="home-row" onclick="showMinhasSalas()">
-          <span class="home-row-icon blue">S</span>
           <div class="home-row-main">
-            <div class="home-row-title">Minhas salas</div>
-            <div class="home-row-sub">Seu progresso por ambiente</div>
-          </div>
-          <span class="row-chevron">&rsaquo;</span>
-        </div>
-        <div class="home-row" onclick="openNoPatModal(null)">
-          <span class="home-row-icon amber">F</span>
-          <div class="home-row-main">
-            <div class="home-row-title">Sem patrimonio</div>
-            <div class="home-row-sub">Foto e descricao do item</div>
-          </div>
-          <span class="row-chevron">&rsaquo;</span>
-        </div>
-        <div class="home-row" onclick="showCampus()">
-          <span class="home-row-icon green">C</span>
-          <div class="home-row-main">
-            <div class="home-row-title">Campus</div>
-            <div class="home-row-sub">Salas, cobertura e detalhes</div>
-          </div>
-          <span class="row-chevron">&rsaquo;</span>
-        </div>
-        <div class="home-row" onclick="showScreen('scBusca');setTimeout(function(){document.getElementById('buscaInput').focus();},300)">
-          <span class="home-row-icon">B</span>
-          <div class="home-row-main">
-            <div class="home-row-title">Buscar patrimonio</div>
-            <div class="home-row-sub">Consulta rapida por numero</div>
+            <div class="home-row-title" id="currentRoomLabel">Selecionar local</div>
+            <div class="home-row-sub" id="currentRoomMeta">Local atual</div>
           </div>
           <span class="row-chevron">&rsaquo;</span>
         </div>
@@ -726,6 +713,13 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div>
       <div class="topbar-title">Scanner</div>
       <div class="topbar-sub" id="scannerRoomLabel">—</div>
+    </div>
+  </div>
+  <div class="scanner-search-wrap">
+    <input class="scanner-search-input" id="scannerSearchInput" type="search" placeholder="Buscar patrimonio por numero..." autocomplete="off" inputmode="numeric" oninput="handleScannerSearchInput(this.value)">
+    <div class="scanner-search-panel" id="scannerSearchPanel">
+      <div class="scanner-search-hint" id="scannerSearchHint">Digite pelo menos 3 digitos</div>
+      <div class="scanner-search-results" id="scannerSearchResults"></div>
     </div>
   </div>
   <div class="scanner-wrap">
@@ -864,18 +858,60 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <span class="settings-badge">Sincronizacao local</span>
       </div>
     </div>
+    <div class="sett-section" id="settingsAdminSection" style="display:none">
+      <div class="sett-item" onclick="showScreen('scAdmin');adminCarregarFunc()">
+        <span class="si-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v3"></path>
+            <path d="M18.36 5.64l-2.12 2.12"></path>
+            <path d="M21 12h-3"></path>
+            <path d="M18.36 18.36l-2.12-2.12"></path>
+            <path d="M12 21v-3"></path>
+            <path d="M5.64 18.36l2.12-2.12"></path>
+            <path d="M3 12h3"></path>
+            <path d="M5.64 5.64l2.12 2.12"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </span>
+        <div class="si-info"><div class="si-title">Painel de administracao</div><div class="si-sub" id="adminSub">Acessos e configuracoes do inventario</div></div>
+        <span class="si-arrow">&rsaquo;</span>
+      </div>
+    </div>
     <div class="sett-section">
       <a href="https://docs.google.com/spreadsheets/d/1hUgSHuF7-yju3V5TEFcPj2PYuyJsGGJuFUKIwWu3GNg/edit?gid=729880183#gid=729880183" target="_blank" class="settings-linkcard">
-        <span class="settings-linkicon">PLAN</span>
+        <span class="settings-linkicon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+            <path d="M3 10h18"></path>
+            <path d="M8 4v16"></path>
+            <path d="M16 10v10"></path>
+          </svg>
+        </span>
         <div class="settings-linkmeta">
           <div class="settings-linktitle">Abrir planilha</div>
           <div class="settings-linksub">Visualize o espelho operacional do inventario no Google Sheets.</div>
         </div>
-        <span class="settings-linkarrow">-></span>
+        <span class="settings-linkarrow">&rsaquo;</span>
       </a>
     </div>
     <div class="sett-section">
-      <div class="sett-title">🔗 Banco de dados</div>
+      <div class="sett-item" onclick="showCampus()">
+        <span class="si-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 22V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v18"></path>
+            <path d="M2 22h20"></path>
+            <path d="M10 6h4"></path>
+            <path d="M10 10h4"></path>
+            <path d="M10 14h4"></path>
+            <path d="M10 18h4"></path>
+          </svg>
+        </span>
+        <div class="si-info"><div class="si-title">Campus</div><div class="si-sub">Salas, cobertura e detalhes do campus</div></div>
+        <span class="si-arrow">&rsaquo;</span>
+      </div>
+    </div>
+    <div class="sett-section">
+      <div class="sett-title">?? Banco de dados</div>
       <button class="cfg-btn sec" onclick="testConnection(this)">Testar conexão com Supabase</button>
       <button class="cfg-btn sec" id="testIABtn" onclick="testarIA()">🧪 Testar IA (Gemini)</button>
     </div>
@@ -883,19 +919,39 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="sett-section">
       <div class="sett-title">Planilha</div>
       <div class="sett-item" onclick="sincronizarPlanilha(true,this)">
-        <span class="si-icon">SYNC</span>
+        <span class="si-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 12a9 9 0 0 1 15.5-6.36L21 8"></path>
+            <path d="M21 3v5h-5"></path>
+            <path d="M21 12a9 9 0 0 1-15.5 6.36L3 16"></path>
+            <path d="M8 16H3v5"></path>
+          </svg>
+        </span>
         <div class="si-info"><div class="si-title">Atualizar planilha</div><div class="si-sub">Espelha os dados do Supabase no Google Sheets</div></div>
-        <span class="si-arrow">></span>
+        <span class="si-arrow">&rsaquo;</span>
       </div>
       <div class="sett-item" onclick="testarPlanilha(this)">
-        <span class="si-icon">TEST</span>
+        <span class="si-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 2v7.31"></path>
+            <path d="M14 9.3V2"></path>
+            <path d="M8.5 2h7"></path>
+            <path d="M14 9.3 19.74 19a2 2 0 0 1-1.72 3H5.98a2 2 0 0 1-1.72-3L10 9.3"></path>
+            <path d="M7 16h10"></path>
+          </svg>
+        </span>
         <div class="si-info"><div class="si-title">Testar integracao</div><div class="si-sub">Verifica se o Apps Script esta acessivel</div></div>
-        <span class="si-arrow">></span>
+        <span class="si-arrow">&rsaquo;</span>
       </div>
       <div class="sett-item" onclick="configurarPlanilhaUrl(this)">
-        <span class="si-icon">URL</span>
+        <span class="si-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L10.7 5.22"></path>
+            <path d="M14 11a5 5 0 0 0-7.07 0L4.81 13.12a5 5 0 1 0 7.07 7.07L13.3 18.8"></path>
+          </svg>
+        </span>
         <div class="si-info"><div class="si-title">Configurar URL do Apps Script</div><div class="si-sub">Usado apenas para atualizar a planilha</div></div>
-        <span class="si-arrow">></span>
+        <span class="si-arrow">&rsaquo;</span>
       </div>
     </div>
 
@@ -909,14 +965,28 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="sett-section">
       <div class="sett-title">🗂 Dados</div>
       <div class="sett-item" onclick="exportCSV()">
-        <span class="si-icon">📥</span>
-        <div class="si-info"><div class="si-title">Exportar CSV</div><div class="si-sub">Todos os scans desta sessão</div></div>
-        <span class="si-arrow">›</span>
+        <span class="si-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12"></path>
+            <path d="m7 10 5 5 5-5"></path>
+            <path d="M5 21h14"></path>
+          </svg>
+        </span>
+        <div class="si-info"><div class="si-title">Exportar CSV</div><div class="si-sub">Todos os scans desta sess?o</div></div>
+        <span class="si-arrow">&rsaquo;</span>
       </div>
       <div class="sett-item" onclick="confirmClear()">
-        <span class="si-icon">🗑️</span>
-        <div class="si-info"><div class="si-title">Limpar sessão</div><div class="si-sub">Apaga histórico local</div></div>
-        <span class="si-arrow">›</span>
+        <span class="si-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18"></path>
+            <path d="M8 6V4h8v2"></path>
+            <path d="M19 6l-1 14H6L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+          </svg>
+        </span>
+        <div class="si-info"><div class="si-title">Limpar sess?o</div><div class="si-sub">Apaga hist?rico local</div></div>
+        <span class="si-arrow">&rsaquo;</span>
       </div>
     </div>
 
@@ -1262,7 +1332,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 <script>
 // ── VERSÃO — altere aqui a cada deploy ──────────────────────
-var APP_VERSION = 'v9.3';
+var APP_VERSION = 'v9.4';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
 // Aplica versão imediatamente (não espera window.load)
 document.addEventListener('DOMContentLoaded', function() {
@@ -1497,6 +1567,31 @@ function renderHomeSummary() {
 // ═══════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════
+function toSentenceCase(str) {
+  return String(str || '')
+    .toLocaleLowerCase('pt-BR')
+    .replace(/(^|[\s\/\-])([a-z\u00c0-\u00ff])/g, function(_, sep, chr) {
+      return sep + chr.toLocaleUpperCase('pt-BR');
+    });
+}
+
+function getCurrentRoomDisplay(roomName) {
+  if (!roomName) {
+    return { title: 'Selecionar local', meta: 'Local atual' };
+  }
+  var original = String(roomName).trim();
+  var blockMatch = original.match(/\(([^)]+)\)\s*$/);
+  var block = blockMatch ? toSentenceCase(blockMatch[1].trim()) : '';
+  var title = original.replace(/\s*\([^)]+\)\s*$/, '').trim();
+  title = toSentenceCase(title)
+    .replace(/\bSup\.\b/g, 'Superior')
+    .replace(/\bInf\.\b/g, 'Inferior');
+  return {
+    title: title || 'Selecionar local',
+    meta: block ? 'Local atual \u00b7 ' + block : 'Local atual'
+  };
+}
+
 function showScreen(id) {
   var cur = document.querySelector('.screen:not(.hidden):not(.slide-left)');
   if (cur && cur.id !== id) {
@@ -1759,11 +1854,12 @@ function selectRoom(name) {
 }
 
 function updateRoomLabel() {
-  var lbl = state.currentRoom || 'Selecionar local';
-  document.getElementById('currentRoomLabel').textContent = lbl;
-  document.getElementById('scannerRoomLabel').textContent = lbl;
-  document.getElementById('scanRoomBadge').textContent = '📍 ' + lbl;
-  document.getElementById('noPatRoom').textContent = lbl || '(sem local)';
+  var room = getCurrentRoomDisplay(state.currentRoom);
+  document.getElementById('currentRoomLabel').textContent = room.title;
+  document.getElementById('currentRoomMeta').textContent = room.meta;
+  document.getElementById('scannerRoomLabel').textContent = room.title;
+  document.getElementById('scanRoomBadge').textContent = 'Local: ' + room.title;
+  document.getElementById('noPatRoom').textContent = room.title || '(sem local)';
 }
 
 function addRoom() {
@@ -2247,11 +2343,9 @@ function syncNow() {
       updateSyncBanner();
       syncRunning = false;
       if (falhas.length === 0) {
-        setSyncState('online');
         if (sincronizados.length > 0) sincronizarPlanilha(false);
         return { ok: true, sincronizados: sincronizados.length };
       }
-      setSyncState('offline');
       setTimeout(syncNow, 10000);
       return { ok: false, sincronizados: sincronizados.length, falhas: falhas.length };
     }
@@ -2277,7 +2371,7 @@ function syncNow() {
     return enviarLote(0);
   }).catch(function(err) {
     syncRunning = false;
-    setSyncState('offline');
+    updateSyncBanner();
     return { ok: false, erro: String(err) };
   });
 }
@@ -2286,20 +2380,34 @@ function setSyncState(state_) {
   var text   = document.getElementById('syncText');
   var cnt    = document.getElementById('syncCount');
   var banner = document.getElementById('offlineBanner');
+  var userInline = document.getElementById('userSyncInline');
+  var userText   = document.getElementById('userSyncText');
   var n      = state.pendingSync.length;
 
-  dot.className  = 'sync-dot ' + state_;
-  if (state_ === 'online')  {
-    text.textContent = 'Conectado · tudo sincronizado'; cnt.textContent = '';
+  if (dot) dot.className = 'sync-dot ' + state_;
+  if (userInline) userInline.className = 'user-sync-inline ' + state_;
+  if (state_ === 'online') {
+    if (text) text.textContent = 'Conectado \u00b7 tudo sincronizado';
+    if (cnt) cnt.textContent = '';
+    if (userText) userText.textContent = 'Conectado';
+    if (banner) banner.classList.remove('show');
+  }
+  if (state_ === 'pending') {
+    if (text) text.textContent = 'Pendente \u00b7 aguardando sincronizacao';
+    if (cnt) cnt.textContent = n ? n + ' pendentes' : '';
+    if (userText) userText.textContent = 'Pendente (' + n + ' item' + (n == 1 ? '' : 's') + ')';
     if (banner) banner.classList.remove('show');
   }
   if (state_ === 'offline') {
-    text.textContent = 'Sem conexão · dados salvos localmente';
-    cnt.textContent  = n ? n+' pendentes' : '';
+    if (text) text.textContent = 'Sem conexao \u00b7 dados salvos localmente';
+    if (cnt) cnt.textContent = n ? n + ' pendentes' : '';
+    if (userText) userText.textContent = 'Offline';
     if (banner && n > 0) banner.classList.add('show');
   }
   if (state_ === 'syncing') {
-    text.textContent = 'Sincronizando...'; cnt.textContent = '';
+    if (text) text.textContent = 'Sincronizando...';
+    if (cnt) cnt.textContent = '';
+    if (userText) userText.textContent = 'Sincronizando';
     if (banner) banner.classList.remove('show');
   }
 }
@@ -2309,9 +2417,8 @@ function updateSyncBanner() {
   if (!state.isOnline) {
     setSyncState('offline');
   } else if (n) {
-    setSyncState('offline');
-    document.getElementById('syncCount').textContent = n + ' pendentes';
-    // sync é iniciado pelo debounce do addToPendingSync, não aqui
+    setSyncState('pending');
+    // sync e iniciado pelo debounce do addToPendingSync, nao aqui
   } else {
     setSyncState('online');
   }
@@ -2569,19 +2676,34 @@ var compSalaAtual = ''; // sala sendo visualizada
 
 // ── Busca de patrimônio ──────────────────────────────────────
 var buscarPatrimonioRemoto = window.buscarPatrimonio;
-var buscaTimer = null;
+var buscaTimers = {};
 
-function debounceBusca(val) {
-  clearTimeout(buscaTimer);
-  buscaTimer = setTimeout(function() {
-    buscarPatrimonioUI(val);
+function debounceBusca(val, contextName) {
+  var key = contextName || 'default';
+  clearTimeout(buscaTimers[key]);
+  buscaTimers[key] = setTimeout(function() {
+    buscarPatrimonioUI(val, key);
   }, 250);
 }
 
-function buscarPatrimonioUI(val) {
+function getBuscaContext(contextName) {
+  if (contextName === 'scanner') {
+    return {
+      resultEl: document.getElementById('scannerSearchResults'),
+      subEl: document.getElementById('scannerSearchHint')
+    };
+  }
+  return {
+    resultEl: document.getElementById('buscaResult'),
+    subEl: document.getElementById('buscaSub')
+  };
+}
+
+function buscarPatrimonioUI(val, contextName) {
   val = String(val || '').trim();
-  var res = document.getElementById('buscaResult');
-  var sub = document.getElementById('buscaSub');
+  var ctx = getBuscaContext(contextName);
+  var res = ctx.resultEl;
+  var sub = ctx.subEl;
   if (!res || !sub) return;
 
   if (!val || val.length < 3) {
@@ -2590,7 +2712,6 @@ function buscarPatrimonioUI(val) {
     return;
   }
 
-  // Busca local primeiro (instantanea)
   var numStr = val.replace(/^0+/, '');
   var localMatch = state.scans.filter(function(s){
     return s.type === 'scan' && String(s.code).replace(/^0+/,'').indexOf(numStr) > -1;
@@ -2638,6 +2759,22 @@ function renderBuscaItem(d) {
     +'<div style="font-size:12px;color:var(--text);margin-bottom:4px">'+esc(d.descricao||'—')+'</div>'
     +'<div style="font-size:11px;color:var(--text2)">📍 '+esc(d.sala||'—')+(d.quem?' · '+esc(d.quem):'')+(dataFmt?' · '+esc(dataFmt):'')+'</div>'
     +'</div>';
+}
+
+function handleScannerSearchInput(val) {
+  var panel = document.getElementById('scannerSearchPanel');
+  var results = document.getElementById('scannerSearchResults');
+  var hint = document.getElementById('scannerSearchHint');
+  val = String(val || '').trim();
+  if (!panel || !results || !hint) return;
+  if (!val) {
+    panel.classList.remove('show');
+    hint.textContent = 'Digite pelo menos 3 digitos';
+    results.innerHTML = '';
+    return;
+  }
+  panel.classList.add('show');
+  debounceBusca(val, 'scanner');
 }
 
 function mostrarAvisoSala(salaOriginal, idsErrados) {
@@ -3417,14 +3554,17 @@ function aplicarUsuario(user) {
   var initials = user.nome.split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
   document.getElementById('userAvatar').textContent = initials;
   document.getElementById('userName').textContent   = user.nome;
-  document.getElementById('userSiape').textContent  = 'SIAPE: ' + user.siape;
+  document.getElementById('userSiapeLabel').textContent  = 'SIAPE: ' + user.siape;
   document.getElementById('userBadge').style.display = 'flex';
-  // Mostra botão admin se for administrador
+  // Mostra botao admin se for administrador
   var adminBtn = document.getElementById('adminBtn');
   if (adminBtn) adminBtn.style.display = user.admin ? 'block' : 'none';
+  var settingsAdminSection = document.getElementById('settingsAdminSection');
+  if (settingsAdminSection) settingsAdminSection.style.display = user.admin ? 'block' : 'none';
   // Preenche sub do admin
   var adminSub = document.getElementById('adminSub');
   if (adminSub) adminSub.textContent = user.nome;
+  updateSyncBanner();
 }
 
 function fazerLogout() {
@@ -3442,6 +3582,8 @@ function fazerLogout() {
   document.getElementById('userBadge').style.display = 'none';
   var adminBtn = document.getElementById('adminBtn');
   if (adminBtn) adminBtn.style.display = 'none';
+  var settingsAdminSection = document.getElementById('settingsAdminSection');
+  if (settingsAdminSection) settingsAdminSection.style.display = 'none';
   document.getElementById('siapeInput').value = '';
   document.getElementById('loginError').textContent = '';
   document.getElementById('loginWrap').style.display = 'flex';
