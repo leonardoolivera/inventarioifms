@@ -93,20 +93,16 @@ ALTER TABLE log_operacoes   ENABLE ROW LEVEL SECURITY;
 -- Funcionários: só leitura pública (para login)
 CREATE POLICY "leitura publica" ON funcionarios FOR SELECT USING (true);
 
--- Patrimônios: leitura pública + update pelo app (marcar encontrado)
+-- Patrimônios: leitura pública; escrita deve passar por Edge Functions
 CREATE POLICY "leitura publica"  ON patrimonios FOR SELECT USING (true);
-CREATE POLICY "app pode atualizar" ON patrimonios FOR UPDATE USING (true);
 
--- Scans: leitura + inserção pública
+-- Scans: leitura pública; inserção via Edge Function
 CREATE POLICY "leitura publica" ON scans FOR SELECT USING (true);
-CREATE POLICY "app pode inserir" ON scans FOR INSERT WITH CHECK (true);
 
--- Sem patrimônio: leitura + inserção pública
+-- Sem patrimônio: leitura pública; inserção via Edge Function
 CREATE POLICY "leitura publica"  ON sem_patrimonio FOR SELECT USING (true);
-CREATE POLICY "app pode inserir" ON sem_patrimonio FOR INSERT WITH CHECK (true);
 
--- Log: inserção pública
-CREATE POLICY "app pode inserir" ON log_operacoes FOR INSERT WITH CHECK (true);
+-- Log: somente leitura pública; escrita via Edge Function
 CREATE POLICY "leitura publica"  ON log_operacoes FOR SELECT USING (true);
 
 -- ================================================================

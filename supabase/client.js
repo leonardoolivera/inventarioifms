@@ -55,54 +55,28 @@ function loginSiape(siape) {
 }
 
 // ── SYNC em lote ──────────────────────────────────────────────
+// O cliente envia tudo para a Edge Function; as regras críticas
+// e a escrita no banco ficam centralizadas no servidor.
 function batchSync(items) {
-  var scans  = items.filter(function(i){ return i.type === 'scan'; });
-  var nopats = items.filter(function(i){ return i.type === 'nopat'; });
-  var promises = [];
-
-  // Insere scans + marca patrimônios
-  if (scans.length) {
-    var scanRows = scans.map(function(i) {
-      return { id: i.id, codigo: i.code, sala: i.room,
-               funcionario: i.funcionario||null, siape: i.siape||null, criado_em: i.ts };
-    });
-    promises.push(
-      sbFetch('/rest/v1/scans', { method: 'POST', body: JSON.stringify(scanRows),
-        headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON,
-          'Content-Type': 'application/json', 'Prefer': 'resolution=ignore-duplicates' }
-      }).then(function() {
-        return Promise.all(scans.map(function(i) {
-          return marcarEncontrado(i.code, i.room, i.funcionario||'', i.siape||'');
-        }));
-      })
-    );
-  }
-
-  // Itens sem patrimônio — faz upload da foto antes de inserir
-  if (nopats.length) {
-    var nopatPromises = nopats.map(function(i) {
-      var uploadPromise = (i.photo && i.photo.length > 50)
-        ? uploadFoto(i.id, i.photo).catch(function() { return null; })
-        : Promise.resolve(null);
-
-      return uploadPromise.then(function(fotoUrl) {
-        return { id: i.id, sala: i.room, descricao: i.desc, estado: i.estado,
-                 foto_url: fotoUrl || i.foto_url || null,
-                 funcionario: i.funcionario||null, siape: i.siape||null, criado_em: i.ts };
-      });
-    });
-
-    promises.push(
-      Promise.all(nopatPromises).then(function(nopatRows) {
-        return sbFetch('/rest/v1/sem_patrimonio', { method: 'POST', body: JSON.stringify(nopatRows),
-          headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON,
-            'Content-Type': 'application/json', 'Prefer': 'resolution=ignore-duplicates' }
-        });
-      })
-    );
-  }
-
-  return Promise.all(promises).then(function() { return { ok: true, sincronizados: items.length }; });
+  return fetch(SUPABASE_URL + '/functions/v1/inventario-sync', {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON,
+      'Authorization': 'Bearer ' + SUPABASE_ANON,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ items: items || [] })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    if (!res || res.ok === false) {
+      return { ok: false, erro: res && res.erro ? res.erro : 'Falha ao sincronizar' };
+    }
+    return { ok: true, sincronizados: res.sincronizados || items.length, detalhes: res };
+  })
+  .catch(function(err) {
+    return { ok: false, erro: err && err.message ? err.message : String(err) };
+  });
 }
 
 // ── MARCAR patrimônio como encontrado ─────────────────────────
