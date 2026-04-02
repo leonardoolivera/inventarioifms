@@ -101,10 +101,14 @@ body{position:relative}
 .sync-count{font-size:12px;font-weight:700;color:var(--yellow)}
 
 /* ── ROOM PICKER ── */
-.room-list{display:flex;flex-direction:column;gap:8px}
-.room-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s}
+.room-list{display:flex;flex-direction:column;gap:10px}
+.room-picker-hero{padding:18px;border-radius:22px;margin-bottom:16px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);box-shadow:var(--sh)}
+.room-picker-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);font-weight:700;margin-bottom:10px}
+.room-picker-title{font-size:22px;line-height:1.14;letter-spacing:-.03em;font-weight:700;margin-bottom:8px}
+.room-picker-sub{font-size:13px;line-height:1.55;color:var(--text2)}
+.room-item{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border:1px solid var(--border);border-radius:18px;padding:15px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .2s;box-shadow:var(--sh)}
 .room-item:active,.room-item.selected{border-color:var(--accent);background:rgba(79,140,255,.1)}
-.ri-icon{font-size:22px}
+.ri-icon{font-size:22px;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.16)}
 .ri-info{flex:1}
 .ri-name{font-size:14px;font-weight:600}
 .ri-count{font-size:11px;color:var(--text2);margin-top:1px}
@@ -114,11 +118,11 @@ body{position:relative}
 .add-room-btn:active{border-color:var(--accent);color:var(--accent)}
 
 /* ── SCANNER ── */
-.scanner-wrap{position:relative;background:#000;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.scanner-wrap{position:relative;background:radial-gradient(circle at top,rgba(91,140,255,.12),transparent 35%),#05070d;flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center}
 
 #scannerVideo{width:100%;height:100%;object-fit:cover}
 .scanner-overlay{position:absolute;inset:0;pointer-events:none}
-.scan-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:72%;max-width:280px;aspect-ratio:1.8;border:2px solid rgba(255,255,255,.2);border-radius:12px}
+.scan-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:72%;max-width:300px;aspect-ratio:1.8;border:2px solid rgba(255,255,255,.16);border-radius:20px;box-shadow:0 0 0 999px rgba(3,8,20,.22)}
 /* photo guide removed */
 .scan-frame::before,.scan-frame::after{content:'';position:absolute;width:24px;height:24px;border-color:var(--accent);border-style:solid}
 .scan-frame::before{top:-2px;left:-2px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
@@ -136,12 +140,12 @@ body{position:relative}
 .scan-flash.show{opacity:1}
 
 /* bottom scanner bar */
-.scanner-bottom{background:var(--bg);border-top:1px solid var(--border);padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));flex-shrink:0}
+.scanner-bottom{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--bg);border-top:1px solid var(--border);padding:14px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));flex-shrink:0}
 .manual-row{display:flex;gap:8px}
-.manual-input{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none}
+.manual-input{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;outline:none}
 .manual-input:focus{border-color:var(--accent)}
-.manual-btn{background:var(--accent);border:none;border-radius:8px;padding:10px 16px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
-.nopat-btn{width:100%;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.manual-btn{background:linear-gradient(135deg,var(--accent),#709eff);border:none;border-radius:12px;padding:12px 18px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 10px 22px rgba(79,140,255,.22)}
+.nopat-btn{width:100%;margin-top:10px;background:rgba(255,255,255,.02);border:1px solid rgba(249,115,22,.26);border-radius:14px;padding:12px;color:#f6b37f;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .nopat-btn:active{border-color:var(--orange);color:var(--orange)}
 
 /* ── RESULT TOAST ── */
@@ -157,11 +161,11 @@ body{position:relative}
 /* ── NO-PAT MODAL ── */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;flex-direction:column;justify-content:flex-end;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-bg.show{opacity:1;pointer-events:all}
-.modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px;padding-bottom:max(24px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.modal-sheet{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--surface);border-radius:24px 24px 0 0;padding:22px 18px;padding-bottom:max(24px,env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);border-top:1px solid rgba(148,163,184,.14);box-shadow:0 -24px 60px rgba(3,8,20,.38)}
 .modal-bg.show .modal-sheet{transform:none}
 .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
-.modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.photo-area{background:var(--bg);border:2px dashed var(--border);border-radius:var(--r2);aspect-ratio:4/3;max-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin-bottom:12px;transition:border-color .2s;position:relative}
+.modal-title{font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.photo-area{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--bg);border:2px dashed rgba(148,163,184,.2);border-radius:18px;aspect-ratio:4/3;max-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin-bottom:14px;transition:border-color .2s,transform .15s;position:relative}
 .photo-area:active{border-color:var(--accent)}
 .photo-area img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .photo-placeholder{text-align:center;pointer-events:none}
@@ -169,7 +173,7 @@ body{position:relative}
 .photo-placeholder p{font-size:12px;color:var(--text2)}
 #photoInput{display:none}
 .field-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);font-weight:600;margin-bottom:6px}
-.field-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;margin-bottom:12px;resize:none}
+.field-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;margin-bottom:12px;resize:none}
 .field-input:focus{border-color:var(--accent)}
 
 /* Estado chips */
@@ -180,7 +184,7 @@ body{position:relative}
 .estado-chip.selected.regular{border-color:var(--yellow);background:rgba(245,158,11,.15);color:var(--yellow)}
 .estado-chip.selected.ruim{border-color:var(--red);background:rgba(239,68,68,.15);color:var(--red)}
 
-.modal-save-btn{width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.modal-save-btn{width:100%;background:linear-gradient(135deg,#1D9E75,#178A66);border:none;border-radius:14px;padding:15px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .15s;box-shadow:0 16px 28px rgba(29,158,117,.24)}
 .modal-save-btn:active{opacity:.85}
 .modal-cancel{width:100%;background:transparent;border:none;padding:12px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer;margin-top:4px}
 
@@ -531,7 +535,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <div class="home-summary-card">
           <div class="home-summary-label">Progresso</div>
           <div class="home-summary-value progress" id="homeProgressPct">0%</div>
-          <div class="home-summary-sub">conclu&iacute;do</div>
+          <div class="home-summary-sub">concluido</div>
         </div>
       </div>
       <div class="home-progress-row">
@@ -640,6 +644,11 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div><div class="topbar-title">Selecionar Local</div><div class="topbar-sub">Onde você está agora?</div></div>
   </div>
   <div class="sbody">
+    <div class="room-picker-hero">
+      <div class="room-picker-kicker">Selecionar ambiente</div>
+      <div class="room-picker-title">Escolha a sala atual para continuar o censo.</div>
+      <div class="room-picker-sub">Defina o local antes de escanear. Isso mantem o historico correto e melhora o acompanhamento por sala.</div>
+    </div>
     <div class="room-search-wrap">
       <input class="room-search" id="roomSearch" type="search" placeholder="🔍 Buscar sala..." oninput="renderRoomList(this.value)">
     </div>
@@ -1429,7 +1438,7 @@ function renderHomeSummary() {
   assets.textContent = resumo.bensEscaneados;
   pct.textContent = resumo.progresso + '%';
   fill.style.width = resumo.progresso + '%';
-  textEl.textContent = resumo.progresso + '% conclu&iacute;do';
+  textEl.textContent = resumo.progresso + '% concluido';
 }
 
 // ═══════════════════════════════════════════════
