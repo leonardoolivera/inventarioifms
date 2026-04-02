@@ -179,18 +179,23 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space 
 /* ── SETTINGS ── */
 .sett-section{margin-bottom:20px}
 .sett-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600;margin-bottom:10px}
-.sett-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.sett-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .12s ease,opacity .2s ease,border-color .2s ease,background .2s ease}
 .si-icon{font-size:20px;flex-shrink:0}
 .si-info{flex:1}
 .si-title{font-size:13px;font-weight:600}
 .si-sub{font-size:11px;color:var(--text2);margin-top:2px}
 .si-arrow{color:var(--text3)}
+.sett-item:active{transform:scale(.992);border-color:var(--accent)}
+.sett-item.busy{opacity:.78;pointer-events:none;border-color:var(--accent);background:rgba(79,140,255,.08)}
+.sett-item.busy .si-title{color:var(--accent)}
 
 /* ── URL CONFIG ── */
 .url-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;margin-bottom:10px;word-break:break-all}
 .url-input:focus{border-color:var(--accent)}
-.cfg-btn{width:100%;background:var(--accent);border:none;border-radius:8px;padding:12px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.cfg-btn{width:100%;background:var(--accent);border:none;border-radius:8px;padding:12px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;transition:transform .12s ease,opacity .2s ease,border-color .2s ease}
 .cfg-btn.sec{background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+.cfg-btn:active{transform:scale(.992)}
+.cfg-btn.busy{opacity:.78;pointer-events:none;border-color:var(--accent)}
 
 /* ── NAV BAR ── */
 .navbar{display:flex;background:var(--surface);border-top:1px solid var(--border);padding-bottom:max(8px,env(safe-area-inset-bottom));flex-shrink:0}
@@ -714,23 +719,23 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
     <div class="sett-section">
       <div class="sett-title">🔗 Banco de dados</div>
-      <button class="cfg-btn sec" onclick="testConnection()">Testar conexão com Supabase</button>
+      <button class="cfg-btn sec" onclick="testConnection(this)">Testar conexão com Supabase</button>
       <button class="cfg-btn sec" id="testIABtn" onclick="testarIA()">🧪 Testar IA (Gemini)</button>
     </div>
 
     <div class="sett-section">
       <div class="sett-title">Planilha</div>
-      <div class="sett-item" onclick="sincronizarPlanilha(true)">
+      <div class="sett-item" onclick="sincronizarPlanilha(true,this)">
         <span class="si-icon">SYNC</span>
         <div class="si-info"><div class="si-title">Atualizar planilha</div><div class="si-sub">Espelha os dados do Supabase no Google Sheets</div></div>
         <span class="si-arrow">></span>
       </div>
-      <div class="sett-item" onclick="testarPlanilha()">
+      <div class="sett-item" onclick="testarPlanilha(this)">
         <span class="si-icon">TEST</span>
         <div class="si-info"><div class="si-title">Testar integracao</div><div class="si-sub">Verifica se o Apps Script esta acessivel</div></div>
         <span class="si-arrow">></span>
       </div>
-      <div class="sett-item" onclick="configurarPlanilhaUrl()">
+      <div class="sett-item" onclick="configurarPlanilhaUrl(this)">
         <span class="si-icon">URL</span>
         <div class="si-info"><div class="si-title">Configurar URL do Apps Script</div><div class="si-sub">Usado apenas para atualizar a planilha</div></div>
         <span class="si-arrow">></span>
@@ -2095,18 +2100,63 @@ function updateSyncBanner() {
   }
 }
 
-function testConnection() {
-  testConnectionSupabase()
-    .then(function() {
-      updateSyncBanner();
-      showToast('ok','✅ Supabase conectado!','Banco de dados OK');
-    })
-    .catch(function(e){ showToast('warn','❌ Erro de conexão', e.toString()); });
+function setActionBusy(el, busy, subText) {
+  if (!el) return;
+  el.classList.toggle('busy', !!busy);
+  if (el.tagName === 'BUTTON') {
+    el.disabled = !!busy;
+    if (busy) {
+      if (!el.dataset.originalHtml) el.dataset.originalHtml = el.innerHTML;
+      el.innerHTML = '<span class="spin"></span>' + (subText || 'Processando...');
+    } else if (el.dataset.originalHtml) {
+      el.innerHTML = el.dataset.originalHtml;
+    }
+    return;
+  }
+  var arrow = el.querySelector('.si-arrow');
+  if (arrow) {
+    if (busy) {
+      if (!arrow.dataset.originalHtml) arrow.dataset.originalHtml = arrow.innerHTML;
+      arrow.innerHTML = '<span class="spin" style="width:14px;height:14px;border-top-color:var(--accent);border-color:rgba(79,140,255,.25);margin-right:0"></span>';
+    } else if (arrow.dataset.originalHtml) {
+      arrow.innerHTML = arrow.dataset.originalHtml;
+    }
+  }
+  var sub = el.querySelector('.si-sub');
+  if (sub && subText) {
+    if (busy) {
+      if (!sub.dataset.originalText) sub.dataset.originalText = sub.textContent;
+      sub.textContent = subText;
+    } else if (sub.dataset.originalText) {
+      sub.textContent = sub.dataset.originalText;
+    }
+  }
 }
 
-// ═══════════════════════════════════════════════
-//  HISTORY
-// ═══════════════════════════════════════════════
+function withActionFeedback(el, subText, work) {
+  setActionBusy(el, true, subText);
+  return new Promise(function(resolve, reject) {
+    setTimeout(function() {
+      Promise.resolve()
+        .then(work)
+        .then(resolve)
+        .catch(reject)
+        .finally(function() { setActionBusy(el, false); });
+    }, 40);
+  });
+}
+
+function testConnection(el) {
+  return withActionFeedback(el, 'Testando conexao...', function() {
+    return testConnectionSupabase()
+      .then(function() {
+        updateSyncBanner();
+        showToast('ok','? Supabase conectado!','Banco de dados OK');
+      })
+      .catch(function(e){ showToast('warn','? Erro de conex?o', e.toString()); });
+  });
+}
+
 function renderHistList() {
   var el = document.getElementById('histList');
   var sub = document.getElementById('histSub');
@@ -2178,35 +2228,44 @@ function loadScriptUrl() {
 function salvarScriptUrl() {
   configurarPlanilhaUrl();
 }
-function testarPlanilha() {
-  if (!state.scriptUrl) {
-    showToast('warn', 'URL nao configurada', 'Cole a URL do Apps Script primeiro');
-    return;
-  }
-  fetch(state.scriptUrl + '?action=ping', { mode: 'no-cors' })
-    .then(function() { showToast('ok', 'Planilha acessivel', 'Conexao OK'); })
-    .catch(function() { showToast('erro', 'Nao foi possivel acessar', 'Verifique a URL'); });
+function testarPlanilha(el) {
+  return withActionFeedback(el, 'Testando integracao...', function() {
+    if (!state.scriptUrl) {
+      showToast('warn', 'URL nao configurada', 'Cole a URL do Apps Script primeiro');
+      return;
+    }
+    return fetch(state.scriptUrl + '?action=ping', { mode: 'no-cors' })
+      .then(function() { showToast('ok', 'Planilha acessivel', 'Conexao OK'); })
+      .catch(function() { showToast('erro', 'Nao foi possivel acessar', 'Verifique a URL'); });
+  });
 }
 var SHEETS_TOKEN = 'inv-ifms-2394174';
-function sincronizarPlanilha(manual) {
-  if (!state.scriptUrl) return;
-  var url = state.scriptUrl + '?action=syncPlanilha&token=' + SHEETS_TOKEN;
-  fetch(url, { mode: 'no-cors' })
-    .then(function() {
-      console.log('[Planilha] sincronizacao disparada');
-      if (manual) showToast('ok', 'Atualizacao da planilha iniciada', 'O Apps Script vai puxar os dados do Supabase');
-    })
-    .catch(function(e) { console.warn('[Planilha] erro:', e); });
+function sincronizarPlanilha(manual, el) {
+  return withActionFeedback(el, 'Disparando atualizacao...', function() {
+    if (!state.scriptUrl) {
+      if (manual) showToast('warn', 'URL nao configurada', 'Cole a URL do Apps Script primeiro');
+      return;
+    }
+    var url = state.scriptUrl + '?action=syncPlanilha&token=' + SHEETS_TOKEN;
+    return fetch(url, { mode: 'no-cors' })
+      .then(function() {
+        console.log('[Planilha] sincronizacao disparada');
+        if (manual) showToast('ok', 'Atualizacao da planilha iniciada', 'O Apps Script vai puxar os dados do Supabase');
+      })
+      .catch(function(e) { console.warn('[Planilha] erro:', e); });
+  });
 }
-function configurarPlanilhaUrl() {
-  var atual = state.scriptUrl || '';
-  var url = prompt('Cole a URL publicada do Apps Script responsavel por atualizar a planilha:', atual);
-  if (url === null) return;
-  url = String(url || '').trim();
-  state.scriptUrl = url;
-  if (url) localStorage.setItem('scriptUrl', url);
-  else localStorage.removeItem('scriptUrl');
-  showToast('ok', url ? 'URL da planilha salva' : 'Integracao com planilha desativada', '');
+function configurarPlanilhaUrl(el) {
+  return withActionFeedback(el, 'Abrindo configuracao...', function() {
+    var atual = state.scriptUrl || '';
+    var url = prompt('Cole a URL publicada do Apps Script responsavel por atualizar a planilha:', atual);
+    if (url === null) return;
+    url = String(url || '').trim();
+    state.scriptUrl = url;
+    if (url) localStorage.setItem('scriptUrl', url);
+    else localStorage.removeItem('scriptUrl');
+    showToast('ok', url ? 'URL da planilha salva' : 'Integracao com planilha desativada', '');
+  });
 }
 function saveScans() {
   // Não salva fotos base64 no localStorage (limite 5MB)
