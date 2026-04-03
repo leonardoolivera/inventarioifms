@@ -24,14 +24,17 @@ O projeto esta migrando de um modelo concentrado em `index.html` para uma organi
 Etapa 1 em andamento:
 
 - guia de organizacao em `docs/organizacao-codigo-enterprise.md`
-- primeiro modulo externo em `js/ui/enterprise-overrides.js`
+- extracao inicial de utilitarios em `js/utils/format.js`
+- extracao de navegacao em `js/core/router.js`
+- extracao de features em `js/features/busca.js`, `js/features/admin.js` e `js/features/dashboard.js`
+- ajustes visuais compartilhados em `js/ui/enterprise-overrides.js`
 
 ## Proximas extracoes sugeridas
 
-1. `js/utils/format.js`
-2. `js/features/busca.js`
-3. `js/features/dashboard.js`
-4. `js/features/admin.js`
+1. `js/core/state.js`
+2. `js/features/salas.js`
+3. `js/features/scanner.js`
+4. `js/features/sync.js`
 5. `css/base.css`, `css/components.css`, `css/screens.css`
 
 ## Risco conhecido
