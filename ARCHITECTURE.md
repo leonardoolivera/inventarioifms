@@ -30,7 +30,7 @@ Etapa 1 em andamento:
 - extracao de bootstrap em `js/core/bootstrap.js`
 - extracao de PWA e updates em `js/core/pwa.js`
 - extracao de dados em `js/data/salas.js`
-- extracao de features em `js/features/busca.js`, `js/features/salas.js`, `js/features/scanner.js`, `js/features/sync.js`, `js/features/nopat.js`, `js/features/admin.js` e `js/features/dashboard.js`
+- extracao de features em `js/features/home.js`, `js/features/busca.js`, `js/features/salas.js`, `js/features/scanner.js`, `js/features/sync.js`, `js/features/nopat.js`, `js/features/admin.js` e `js/features/dashboard.js`
 - inicio da separacao de estilos em `css/base.css`, `css/components.css` e `css/screens.css`
 - ajustes visuais compartilhados em `js/ui/enterprise-overrides.js`
 
