@@ -2,201 +2,742 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard Gestor — Inventário IFMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<title>Visão geral - Inventario IFMS</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f1117;color:#f0f2ff;min-height:100vh}
-.dash{padding:20px;max-width:1200px;margin:0 auto}
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
-/* Topbar */
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #2e3347;flex-wrap:wrap;gap:10px}
-.topbar h1{font-size:18px;font-weight:600}
-.topbar-sub{font-size:12px;color:#8891b0;margin-top:3px}
-.topbar-actions{display:flex;gap:10px;align-items:center}
-.badge-live{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);font-weight:600}
-.badge-connecting{background:rgba(245,158,11,.15);color:#f59e0b;border-color:rgba(245,158,11,.3)}
-.badge-error{background:rgba(239,68,68,.15);color:#ef4444;border-color:rgba(239,68,68,.3)}
-.btn-reload{font-size:12px;padding:6px 14px;background:#1a1d27;border:1px solid #2e3347;border-radius:8px;color:#f0f2ff;cursor:pointer;transition:background .15s}
-.btn-reload:hover{background:#2e3347}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b1020;
+  --bg-soft:#11182d;
+  --surface:#131a2e;
+  --surface-2:#19233a;
+  --surface-3:#0f1730;
+  --border:rgba(148,163,184,.16);
+  --border-strong:rgba(148,163,184,.24);
+  --text:#eef2ff;
+  --text-2:#9aa5c3;
+  --text-3:#66708f;
+  --accent:#5b8cff;
+  --accent-soft:rgba(91,140,255,.18);
+  --green:#22c55e;
+  --green-soft:rgba(34,197,94,.16);
+  --yellow:#f59e0b;
+  --yellow-soft:rgba(245,158,11,.16);
+  --red:#ef4444;
+  --red-soft:rgba(239,68,68,.16);
+  --shadow:0 24px 64px rgba(3,8,20,.34);
+  --radius-xl:28px;
+  --radius-lg:22px;
+  --radius-md:18px;
+  --radius-sm:14px;
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:20px;
+  --space-6:24px;
+  --space-7:32px;
+  --space-8:40px;
+}
+html,body{min-height:100%;background:
+  radial-gradient(circle at top left,rgba(91,140,255,.18),transparent 28%),
+  radial-gradient(circle at top right,rgba(34,197,94,.12),transparent 24%),
+  linear-gradient(180deg,#0b1020 0%,#0d1325 100%);
+  color:var(--text);
+  font-family:'Space Grotesk',sans-serif;
+}
+body{min-height:100vh}
+a{color:inherit}
+button,input{font:inherit}
+button{cursor:pointer}
 
-/* Grid layouts */
-.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-@media(max-width:768px){
-  .grid4{grid-template-columns:repeat(2,1fr)}
-  .grid2{grid-template-columns:1fr}
+.dashboard-shell{max-width:1440px;margin:0 auto;padding:32px 20px 40px}
+.dashboard-stack{display:grid;gap:24px}
+
+.hero{
+  position:relative;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(320px,.9fr);
+  gap:24px;
+  padding:28px;
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:var(--radius-xl);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),
+    var(--surface);
+  box-shadow:var(--shadow);
+}
+.hero::after{
+  content:'';
+  position:absolute;
+  inset:auto -80px -120px auto;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(91,140,255,.22),transparent 68%);
+  pointer-events:none;
+}
+.hero-copy{position:relative;z-index:1}
+.hero-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:16px;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--text-2);
+}
+.hero-title{
+  font-size:clamp(32px,4vw,52px);
+  line-height:1.02;
+  letter-spacing:-.04em;
+  font-weight:700;
+  max-width:12ch;
+}
+.hero-subtitle{
+  max-width:62ch;
+  margin-top:16px;
+  font-size:15px;
+  line-height:1.65;
+  color:var(--text-2);
+}
+.hero-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:20px;
+}
+.meta-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:44px;
+  padding:10px 14px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.03);
+  color:var(--text-2);
+  font-size:13px;
+  font-weight:500;
+}
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:44px;
+  padding:10px 14px;
+  border-radius:999px;
+  border:1px solid rgba(34,197,94,.28);
+  background:rgba(34,197,94,.14);
+  color:#86efac;
+  font-size:13px;
+  font-weight:700;
+}
+.status-pill.connecting{
+  background:rgba(245,158,11,.14);
+  border-color:rgba(245,158,11,.28);
+  color:#fcd34d;
+}
+.status-pill.error{
+  background:rgba(239,68,68,.14);
+  border-color:rgba(239,68,68,.28);
+  color:#fca5a5;
+}
+.status-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:currentColor;
+  box-shadow:0 0 0 6px rgba(255,255,255,.06);
 }
 
-/* Card base */
-.card{background:#1a1d27;border:1px solid #2e3347;border-radius:12px;padding:16px}
+.hero-actions{
+  position:relative;
+  z-index:1;
+  display:grid;
+  align-content:space-between;
+  gap:20px;
+}
+.action-panel,.overview-panel,.panel{
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:var(--radius-lg);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.022),transparent),
+    var(--surface);
+  box-shadow:var(--shadow);
+}
+.action-panel{padding:22px}
+.action-title{
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  font-weight:700;
+}
+.action-value{
+  margin-top:14px;
+  font-size:40px;
+  line-height:1;
+  letter-spacing:-.05em;
+  font-weight:700;
+  font-family:'JetBrains Mono',monospace;
+}
+.action-sub{
+  margin-top:10px;
+  font-size:13px;
+  line-height:1.55;
+  color:var(--text-2);
+}
+.action-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:20px;
+}
+.btn{
+  min-height:44px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  padding:11px 18px;
+  transition:transform .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.btn-primary{
+  background:#1d9e75;
+  border-color:rgba(29,158,117,.3);
+  color:#fff;
+  font-weight:700;
+  box-shadow:0 16px 28px rgba(29,158,117,.22);
+}
+.btn-secondary{
+  background:rgba(255,255,255,.03);
+  color:var(--text);
+  font-weight:600;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary:hover{background:#178a66}
+.btn-secondary:hover{background:rgba(255,255,255,.05);border-color:var(--border-strong)}
 
-/* KPIs */
-.kpi-label{font-size:11px;color:#8891b0;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
-.kpi-val{font-size:28px;font-weight:700;font-family:monospace}
-.kpi-sub{font-size:11px;color:#8891b0;margin-top:4px}
-.c-blue{color:#4f8cff}.c-green{color:#22c55e}.c-yellow{color:#f59e0b}.c-red{color:#ef4444}
+.overview-panel{padding:22px}
+.overview-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-top:16px;
+}
+.overview-card{
+  padding:16px;
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+}
+.overview-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:var(--text-3);
+  font-weight:700;
+}
+.overview-value{
+  margin-top:10px;
+  font-size:22px;
+  font-family:'JetBrains Mono',monospace;
+  font-weight:700;
+  letter-spacing:-.04em;
+}
+.overview-sub{
+  margin-top:6px;
+  font-size:11px;
+  color:var(--text-2);
+}
 
-/* Section titles */
-.section-title{font-size:11px;font-weight:600;color:#8891b0;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:16px;
+}
+.kpi-card{
+  padding:22px;
+  border:1px solid rgba(148,163,184,.12);
+  border-radius:22px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.024),transparent),
+    var(--surface);
+  box-shadow:var(--shadow);
+}
+.kpi-label{
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  font-weight:700;
+}
+.kpi-value{
+  margin-top:12px;
+  font-size:36px;
+  font-family:'JetBrains Mono',monospace;
+  font-weight:700;
+  letter-spacing:-.05em;
+}
+.kpi-sub{
+  margin-top:8px;
+  font-size:12px;
+  line-height:1.5;
+  color:var(--text-2);
+}
+.tone-accent{color:var(--accent)}
+.tone-green{color:var(--green)}
+.tone-yellow{color:var(--yellow)}
+.tone-red{color:var(--red)}
 
-/* Progress bar geral */
-.general-bar-wrap{margin:10px 0 4px}
-.general-bar-bg{height:10px;background:#2e3347;border-radius:5px;overflow:hidden}
-.general-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#22c55e,#4f8cff);transition:width 1s ease}
-.general-bar-labels{display:flex;justify-content:space-between;font-size:11px;color:#8891b0;margin-top:6px}
+.main-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.3fr) minmax(320px,.8fr);
+  gap:24px;
+}
+.panel{padding:24px}
+.panel-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+.panel-heading{
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  font-weight:700;
+}
+.panel-title{
+  margin-top:8px;
+  font-size:24px;
+  line-height:1.15;
+  letter-spacing:-.03em;
+  font-weight:700;
+}
+.panel-sub{
+  margin-top:8px;
+  max-width:56ch;
+  font-size:13px;
+  line-height:1.6;
+  color:var(--text-2);
+}
+.panel-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:36px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.03);
+  color:var(--text-2);
+  font-size:12px;
+  font-weight:600;
+  white-space:nowrap;
+}
 
-/* Blocos */
-.bloco-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.bloco-label{font-size:12px;width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
-.bar-bg{flex:1;height:6px;background:#2e3347;border-radius:3px;overflow:hidden}
-.bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
-.bar-pct{font-size:11px;width:36px;text-align:right;flex-shrink:0}
-.bloco-sub{font-size:10px;color:#8891b0;margin:-6px 0 10px 150px}
+.progress-card{padding:26px}
+.general-bar-wrap{margin-top:20px}
+.general-bar-bg{
+  height:12px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(148,163,184,.12);
+}
+.general-bar-fill{
+  height:100%;
+  width:0;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--green),var(--accent));
+  transition:width .9s ease;
+}
+.general-bar-labels{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  margin-top:10px;
+  font-size:12px;
+  color:var(--text-2);
+}
+.general-bar-labels strong{color:var(--text);font-weight:700}
 
-/* Estimativa */
-.est-grid{display:flex;gap:20px}
-.est-item .est-val{font-size:22px;font-weight:700}
-.est-item .est-lbl{font-size:10px;color:#8891b0;margin-bottom:2px}
-.est-item .est-unit{font-size:10px;color:#8891b0;margin-top:2px}
+.block-list{display:grid;gap:14px}
+.block-item{display:grid;gap:8px}
+.block-row{
+  display:grid;
+  grid-template-columns:minmax(96px,148px) minmax(0,1fr) auto;
+  gap:14px;
+  align-items:center;
+}
+.block-label{
+  font-size:13px;
+  font-weight:600;
+  color:var(--text);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.block-bar{
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(148,163,184,.12);
+}
+.block-fill{
+  height:100%;
+  border-radius:999px;
+  transition:width .8s ease;
+}
+.block-pct{
+  min-width:40px;
+  text-align:right;
+  font-size:12px;
+  font-family:'JetBrains Mono',monospace;
+  font-weight:600;
+}
+.block-sub{
+  padding-left:calc(148px + 14px);
+  font-size:11px;
+  color:var(--text-2);
+}
 
-/* Alertas */
-.alert-item{display:flex;gap:8px;padding:8px 12px;border-radius:8px;margin-bottom:8px;font-size:12px;line-height:1.4}
-.alert-red{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
-.alert-yellow{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
-.alert-green{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#86efac}
+.side-stack{
+  display:grid;
+  gap:24px;
+}
+.est-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.est-item{
+  padding:16px;
+  border-radius:18px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+}
+.est-label{
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--text-3);
+  font-weight:700;
+}
+.est-value{
+  margin-top:10px;
+  font-size:28px;
+  font-weight:700;
+  letter-spacing:-.04em;
+  font-family:'JetBrains Mono',monospace;
+}
+.est-unit{
+  margin-top:6px;
+  font-size:11px;
+  color:var(--text-2);
+}
 
-/* Ranking */
-.srv-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;background:#1e2535;color:#4f8cff;border:1px solid #2e3347}
-.srv-info{flex:1;min-width:0}
-.srv-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.srv-bar-bg{height:3px;background:#2e3347;border-radius:2px;margin-top:5px}
-.srv-bar-fill{height:100%;border-radius:2px;transition:width .8s}
-.srv-count{font-size:12px;color:#8891b0;flex-shrink:0}
+.alert-list{display:grid;gap:10px}
+.alert-item{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  font-size:13px;
+  line-height:1.55;
+}
+.alert-item strong{font-weight:700}
+.alert-red{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);color:#fca5a5}
+.alert-yellow{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2);color:#fcd34d}
+.alert-green{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2);color:#86efac}
 
-/* Feed */
-.feed-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #2e3347;animation:fadeIn .4s ease}
+.feed-list{display:grid;gap:0}
+.feed-item{
+  display:grid;
+  grid-template-columns:12px minmax(0,1fr) auto;
+  gap:14px;
+  align-items:start;
+  padding:14px 0;
+  border-bottom:1px solid rgba(148,163,184,.1);
+  animation:feedIn .3s ease;
+}
 .feed-item:last-child{border-bottom:none}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.feed-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
-.dot-green{background:#22c55e}.dot-yellow{background:#f59e0b}.dot-red{background:#ef4444}
-.feed-text{font-size:12px;line-height:1.5}
-.feed-time{font-size:10px;color:#8891b0;margin-top:2px}
+.feed-dot{
+  width:10px;
+  height:10px;
+  margin-top:6px;
+  border-radius:50%;
+}
+.feed-text{
+  font-size:13px;
+  line-height:1.6;
+  color:var(--text);
+}
+.feed-text strong{font-weight:700}
+.feed-note{
+  display:inline-block;
+  margin-left:4px;
+  font-size:11px;
+  font-weight:600;
+}
+.feed-time{
+  font-size:11px;
+  color:var(--text-2);
+  white-space:nowrap;
+}
+@keyframes feedIn{
+  from{opacity:0;transform:translateY(-4px)}
+  to{opacity:1;transform:translateY(0)}
+}
 
-/* Loading / error */
-.loading{text-align:center;padding:40px;color:#8891b0;font-size:13px}
-.error-msg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px;color:#fca5a5;font-size:13px;margin:0 0 16px}
+.empty-state,.loading-state{
+  padding:28px 18px;
+  border-radius:18px;
+  border:1px dashed rgba(148,163,184,.18);
+  background:rgba(255,255,255,.02);
+  color:var(--text-2);
+  font-size:13px;
+  text-align:center;
+}
+.error-msg{
+  display:none;
+  padding:16px 18px;
+  border-radius:18px;
+  border:1px solid rgba(239,68,68,.22);
+  background:rgba(239,68,68,.1);
+  color:#fca5a5;
+  font-size:13px;
+  line-height:1.55;
+}
 
-/* Coluna direita stacked */
-.stack-col{display:flex;flex-direction:column;gap:12px}
+@media (max-width:1180px){
+  .hero,.main-grid{grid-template-columns:1fr}
+  .hero-title{max-width:none}
+}
+@media (max-width:960px){
+  .dashboard-shell{padding:24px 16px 32px}
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .est-grid{grid-template-columns:1fr}
+  .block-row{grid-template-columns:minmax(88px,128px) minmax(0,1fr) auto}
+  .block-sub{padding-left:calc(128px + 14px)}
+}
+@media (max-width:640px){
+  .dashboard-shell{padding:18px 14px 24px}
+  .hero,.panel,.kpi-card,.action-panel,.overview-panel{padding:18px}
+  .hero-meta,.action-row{flex-direction:column;align-items:stretch}
+  .kpi-grid,.overview-grid{grid-template-columns:1fr}
+  .general-bar-labels{flex-direction:column;gap:6px}
+  .block-row{grid-template-columns:1fr;gap:8px}
+  .block-pct{text-align:left}
+  .block-sub{padding-left:0}
+  .feed-item{grid-template-columns:12px minmax(0,1fr)}
+  .feed-time{grid-column:2}
+}
 </style>
 </head>
 <body>
-<div class="dash">
-
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div>
-      <h1>📊 Dashboard — Inventário Campus IFMS</h1>
-      <div class="topbar-sub" id="lastUpdate">Carregando dados...</div>
-    </div>
-    <div class="topbar-actions">
-      <span class="badge-live badge-connecting" id="liveBadge">conectando...</span>
-      <button class="btn-reload" onclick="carregarTudo()">↻ Atualizar</button>
-    </div>
-  </div>
-
-  <div id="errorMsg" style="display:none" class="error-msg"></div>
-
-  <!-- KPIs -->
-  <div class="grid4">
-    <div class="card">
-      <div class="kpi-label">Total encontrado</div>
-      <div class="kpi-val c-blue" id="kpiEnc">—</div>
-      <div class="kpi-sub" id="kpiEncSub">de — patrimônios</div>
-    </div>
-    <div class="card">
-      <div class="kpi-label">Progresso geral</div>
-      <div class="kpi-val c-green" id="kpiPct">—</div>
-      <div class="kpi-sub">do inventário concluído</div>
-    </div>
-    <div class="card">
-      <div class="kpi-label">Servidores ativos</div>
-      <div class="kpi-val" id="kpiSrv">—</div>
-      <div class="kpi-sub" id="kpiSrvSub">participando do inventário</div>
-    </div>
-    <div class="card">
-      <div class="kpi-label">Duplicados</div>
-      <div class="kpi-val c-red" id="kpiDup">—</div>
-      <div class="kpi-sub">precisam atenção</div>
-    </div>
-  </div>
-
-  <!-- BARRA GERAL -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="section-title">Progresso geral do inventário</div>
-    <div class="general-bar-wrap">
-      <div class="general-bar-bg">
-        <div class="general-bar-fill" id="generalBar" style="width:0%"></div>
-      </div>
-      <div class="general-bar-labels">
-        <span id="barLeft">0 encontrados</span>
-        <span id="barPct" style="font-weight:600;color:#f0f2ff">0%</span>
-        <span id="barRight">0 total</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- LINHA 1: Blocos + Estimativa/Alertas -->
-  <div class="grid2">
-    <div class="card">
-      <div class="section-title">Progresso por bloco</div>
-      <div id="blocoProgress"><div class="loading">Carregando...</div></div>
-    </div>
-    <div class="stack-col">
-      <div class="card">
-        <div class="section-title">Estimativa de conclusão</div>
-        <div class="est-grid">
-          <div class="est-item">
-            <div class="est-lbl">Mediana diária</div>
-            <div class="est-val c-blue" id="ritmoHora">—</div>
-            <div class="est-unit">scans/dia</div>
+<main class="dashboard-shell">
+  <div class="dashboard-stack">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="hero-kicker">Painel de gestao</div>
+        <h1 class="hero-title">Visão geral do inventario do campus</h1>
+        <p class="hero-subtitle">
+          Acompanhamento em tempo real do progresso, ritmo de execucao e pontos que precisam atencao da gestao.
+        </p>
+        <div class="hero-meta">
+          <div class="status-pill connecting" id="liveBadge">
+            <span class="status-dot"></span>
+            <span>Conectando...</span>
           </div>
-          <div class="est-item">
-            <div class="est-lbl">Faltam</div>
-            <div class="est-val c-yellow" id="faltamItens">—</div>
-            <div class="est-unit">patrimônios</div>
+          <div class="meta-pill" id="lastUpdate">Carregando dados do inventario...</div>
+          <div class="meta-pill">Campus IFMS</div>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <div class="action-panel">
+          <div class="action-title">Resumo executivo</div>
+          <div class="action-value tone-accent" id="heroPct">-</div>
+          <div class="action-sub" id="heroSummary">
+            Calculando o percentual concluido e os principais sinais operacionais.
           </div>
-          <div class="est-item">
-            <div class="est-lbl">Conclusão</div>
-            <div class="est-val c-green" id="estimativa">—</div>
-            <div class="est-unit" id="estimativaUnit">dias úteis</div>
+          <div class="action-row">
+            <button class="btn btn-primary" onclick="carregarTudo()">Atualizar agora</button>
+            <button class="btn btn-secondary" onclick="window.location.reload()">Recarregar tela</button>
+          </div>
+        </div>
+
+        <div class="overview-panel">
+          <div class="action-title">Pulso atual</div>
+          <div class="overview-grid">
+            <div class="overview-card">
+              <div class="overview-label">Encontrados</div>
+              <div class="overview-value tone-accent" id="heroEnc">-</div>
+              <div class="overview-sub">bens localizados ate agora</div>
+            </div>
+            <div class="overview-card">
+              <div class="overview-label">Pendentes</div>
+              <div class="overview-value tone-yellow" id="heroPend">-</div>
+              <div class="overview-sub">ainda faltando no inventario</div>
+            </div>
+            <div class="overview-card">
+              <div class="overview-label">Equipe ativa</div>
+              <div class="overview-value" id="heroSrv">-</div>
+              <div class="overview-sub">servidores com registro recente</div>
+            </div>
+            <div class="overview-card">
+              <div class="overview-label">Duplicados</div>
+              <div class="overview-value tone-red" id="heroDup">-</div>
+              <div class="overview-sub">casos que pedem revisao</div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="card" style="flex:1">
-        <div class="section-title">Alertas</div>
-        <div id="alertas"><div style="font-size:12px;color:#8891b0">Carregando...</div></div>
+    </section>
+
+    <div id="errorMsg" class="error-msg"></div>
+
+    <section class="kpi-grid">
+      <article class="kpi-card">
+        <div class="kpi-label">Total encontrado</div>
+        <div class="kpi-value tone-accent" id="kpiEnc">-</div>
+        <div class="kpi-sub" id="kpiEncSub">de - patrimonios</div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-label">Progresso geral</div>
+        <div class="kpi-value tone-green" id="kpiPct">-</div>
+        <div class="kpi-sub">do inventario concluido</div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-label">Servidores ativos</div>
+        <div class="kpi-value" id="kpiSrv">-</div>
+        <div class="kpi-sub">participando do inventario</div>
+      </article>
+      <article class="kpi-card">
+        <div class="kpi-label">Duplicados</div>
+        <div class="kpi-value tone-red" id="kpiDup">-</div>
+        <div class="kpi-sub">precisam de atencao</div>
+      </article>
+    </section>
+
+    <section class="panel progress-card">
+      <div class="panel-header">
+        <div>
+          <div class="panel-heading">Visao geral</div>
+          <h2 class="panel-title">Progresso geral do inventario</h2>
+          <p class="panel-sub">Leitura consolidada do campus com base nos bens escaneados e no total previsto na base patrimonial.</p>
+        </div>
+        <div class="panel-tag" id="barPctTag">0%</div>
       </div>
-    </div>
-  </div>
+      <div class="general-bar-wrap">
+        <div class="general-bar-bg">
+          <div class="general-bar-fill" id="generalBar"></div>
+        </div>
+        <div class="general-bar-labels">
+          <span id="barLeft">0 encontrados</span>
+          <strong id="barPct">0%</strong>
+          <span id="barRight">0 total</span>
+        </div>
+      </div>
+    </section>
 
-  <!-- Feed -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="section-title">Feed ao vivo</div>
-    <div id="feedVivo"><div class="loading">Aguardando scans...</div></div>
-  </div>
+    <section class="main-grid">
+      <div class="side-stack">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-heading">Mapa operacional</div>
+              <h2 class="panel-title">Progresso por bloco</h2>
+              <p class="panel-sub">Distribuicao por area para identificar gargalos e blocos ja praticamente encerrados.</p>
+            </div>
+            <div class="panel-tag">Campus inteiro</div>
+          </div>
+          <div id="blocoProgress" class="block-list">
+            <div class="loading-state">Carregando distribuicao por bloco...</div>
+          </div>
+        </article>
 
-</div><!-- .dash -->
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-heading">Tempo real</div>
+              <h2 class="panel-title">Feed ao vivo</h2>
+              <p class="panel-sub">Ultimas leituras recebidas pela equipe de inventario, com destaque para alertas de duplicidade e divergencia de sala.</p>
+            </div>
+            <div class="panel-tag">Ultimos 8 eventos</div>
+          </div>
+          <div id="feedVivo" class="feed-list">
+            <div class="loading-state">Aguardando leituras do inventario...</div>
+          </div>
+        </article>
+      </div>
+
+      <div class="side-stack">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-heading">Projecao</div>
+              <h2 class="panel-title">Estimativa de conclusao</h2>
+              <p class="panel-sub">Baseada na mediana dos dias com volume relevante de leituras registradas.</p>
+            </div>
+          </div>
+          <div class="est-grid">
+            <div class="est-item">
+              <div class="est-label">Mediana diaria</div>
+              <div class="est-value tone-accent" id="ritmoHora">-</div>
+              <div class="est-unit">scans por dia</div>
+            </div>
+            <div class="est-item">
+              <div class="est-label">Faltam</div>
+              <div class="est-value tone-yellow" id="faltamItens">-</div>
+              <div class="est-unit">patrimonios</div>
+            </div>
+            <div class="est-item">
+              <div class="est-label">Conclusao</div>
+              <div class="est-value tone-green" id="estimativa">-</div>
+              <div class="est-unit" id="estimativaUnit">dias uteis</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-heading">Atencao</div>
+              <h2 class="panel-title">Alertas de gestao</h2>
+              <p class="panel-sub">Resumo automatico dos pontos criticos e das areas ja finalizadas.</p>
+            </div>
+          </div>
+          <div id="alertas" class="alert-list">
+            <div class="loading-state">Carregando alertas operacionais...</div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</main>
 
 <script>
 var SUPABASE_URL  = 'https://veazrwcnfamwjnaybpkd.supabase.co';
 var SUPABASE_ANON = 'sb_publishable__PGOsNopOsgVgHROJYlwvw_ZKi31B-8';
 var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// Detecta bloco pelo nome da sala
 function getBloco(sala) {
   if (!sala) return 'Outros';
   var s = sala.toUpperCase();
@@ -204,11 +745,11 @@ function getBloco(sala) {
   if (s.indexOf('(BLOCO B)') > -1) return 'Bloco B';
   if (s.indexOf('(BLOCO C)') > -1) return 'Bloco C';
   if (s.indexOf('(SALAS MODULARES)') > -1) return 'Salas Modulares';
-  return 'Área Externa';
+  return 'Area Externa';
 }
 
 var MIN_SCANS_DIA = 50;
-var BLOCO_ORDER = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Área Externa', 'Outros'];
+var BLOCO_ORDER = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Area Externa', 'Outros'];
 
 function isEncontrado(status) {
   return status === '✅ Encontrado' || status === '🟡 Outro local';
@@ -217,22 +758,23 @@ function isEncontrado(status) {
 function mediana(arr) {
   var sorted = arr.slice().sort(function(a, b){ return a - b; });
   var mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 !== 0 ? sorted[mid] : Math.round((sorted[mid-1] + sorted[mid]) / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
 }
 
 var state = { patrimonios: [], inventario: [] };
 
 async function fetchAllRows(table, select, orderCol, ascending) {
-  var PAGE = 1000, from = 0, result = [];
+  var page = 1000;
+  var from = 0;
+  var result = [];
   while (true) {
-    var q = sb.from(table).select(select).range(from, from + PAGE - 1);
-    // ORDER BY obrigatório para paginação consistente
+    var q = sb.from(table).select(select).range(from, from + page - 1);
     q = q.order(orderCol || 'id', { ascending: !!ascending });
-    var { data, error } = await q;
-    if (error) throw error;
-    result = result.concat(data || []);
-    if (!data || data.length < PAGE) break;
-    from += PAGE;
+    var response = await q;
+    if (response.error) throw response.error;
+    result = result.concat(response.data || []);
+    if (!response.data || response.data.length < page) break;
+    from += page;
   }
   return result;
 }
@@ -240,156 +782,238 @@ async function fetchAllRows(table, select, orderCol, ascending) {
 async function carregarTudo() {
   setBadge('connecting');
   try {
-    var [patsData, invData] = await Promise.all([
+    var results = await Promise.all([
       fetchAllRows('patrimonios', 'numero,sala_suap,status,local_encontrado', 'numero', true),
       fetchAllRows('scans', 'codigo,sala,funcionario,siape,criado_em', 'criado_em', false)
     ]);
 
-    state.patrimonios = patsData;
-    state.inventario  = invData;
+    state.patrimonios = results[0];
+    state.inventario = results[1];
 
     renderTudo();
     setBadge('live');
     document.getElementById('lastUpdate').textContent =
       'Atualizado em ' + new Date().toLocaleTimeString('pt-BR');
-    document.getElementById('errorMsg').style.display = 'none';
-  } catch(err) {
+    hideError();
+  } catch (err) {
     setBadge('error');
-    document.getElementById('errorMsg').style.display = 'block';
-    document.getElementById('errorMsg').textContent = 'Erro ao carregar dados: ' + (err.message || String(err));
+    showError('Erro ao carregar dados: ' + (err.message || String(err)));
   }
 }
 
 function setBadge(type) {
   var el = document.getElementById('liveBadge');
-  el.className = 'badge-live';
-  if (type === 'live')       { el.className += ''; el.textContent = '● ao vivo'; }
-  else if (type === 'connecting') { el.className += ' badge-connecting'; el.textContent = 'conectando...'; }
-  else                        { el.className += ' badge-error';      el.textContent = 'erro'; }
+  if (!el) return;
+
+  el.className = 'status-pill';
+  if (type === 'live') {
+    el.innerHTML = '<span class="status-dot"></span><span>Ao vivo</span>';
+  } else if (type === 'connecting') {
+    el.className += ' connecting';
+    el.innerHTML = '<span class="status-dot"></span><span>Atualizando...</span>';
+  } else {
+    el.className += ' error';
+    el.innerHTML = '<span class="status-dot"></span><span>Erro de conexao</span>';
+  }
 }
 
 function renderTudo() {
   var pats = state.patrimonios;
-  var inv  = state.inventario;
-
-  var total  = pats.length;
-  // Progresso: patrimônios únicos escaneados (tabela scans)
-  var codigosEsc = new Set(inv.map(function(i){ return stripZeros(i.codigo||''); }).filter(Boolean));
-  var enc    = codigosEsc.size;
+  var inv = state.inventario;
+  var total = pats.length;
+  var codigosEsc = new Set(inv.map(function(i){ return stripZeros(i.codigo || ''); }).filter(Boolean));
+  var enc = codigosEsc.size;
   var duplic = pats.filter(function(p){ return p.status === '🔴 DUPLICADO'; }).length;
-  var pct    = total > 0 ? Math.round(enc / total * 100) : 0;
+  var pct = total > 0 ? Math.round(enc / total * 100) : 0;
+  var faltam = Math.max(total - enc, 0);
 
-  // Servidores únicos
   var servMap = {};
-  inv.forEach(function(i){ if (i.funcionario) servMap[i.funcionario] = (servMap[i.funcionario]||0) + 1; });
+  inv.forEach(function(i){
+    if (i.funcionario) servMap[i.funcionario] = (servMap[i.funcionario] || 0) + 1;
+  });
+  var servidoresAtivos = Object.keys(servMap).length;
 
-  // KPIs
-  set('kpiEnc', enc.toLocaleString('pt-BR'));
-  set('kpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimônios');
-  set('kpiPct', pct + '%');
-  set('kpiSrv', Object.keys(servMap).length);
-  set('kpiDup', duplic);
-  document.getElementById('kpiDup').style.color = duplic > 0 ? '#ef4444' : '#22c55e';
+  setText('kpiEnc', enc.toLocaleString('pt-BR'));
+  setText('kpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimonios');
+  setText('kpiPct', pct + '%');
+  setText('kpiSrv', servidoresAtivos.toLocaleString('pt-BR'));
+  setText('kpiDup', duplic.toLocaleString('pt-BR'));
 
-  // Barra geral
+  setText('heroPct', pct + '%');
+  setText('heroEnc', enc.toLocaleString('pt-BR'));
+  setText('heroPend', faltam.toLocaleString('pt-BR'));
+  setText('heroSrv', servidoresAtivos.toLocaleString('pt-BR'));
+  setText('heroDup', duplic.toLocaleString('pt-BR'));
+  setText('heroSummary',
+    pct >= 90 ? 'O campus esta na reta final do inventario, com volume residual de conferencias pendentes.' :
+    pct >= 60 ? 'A operacao avancou bem, mas ainda ha frentes abertas que merecem acompanhamento diario.' :
+    'A cobertura ainda esta em fase de aceleracao e o foco deve permanecer nas frentes com menor progresso.'
+  );
+
   document.getElementById('generalBar').style.width = pct + '%';
-  set('barLeft',  enc.toLocaleString('pt-BR') + ' encontrados');
-  set('barPct',   pct + '%');
-  set('barRight', total.toLocaleString('pt-BR') + ' total');
+  setText('barLeft', enc.toLocaleString('pt-BR') + ' encontrados');
+  setText('barPct', pct + '%');
+  setText('barRight', total.toLocaleString('pt-BR') + ' total');
+  setText('barPctTag', pct + '% concluido');
 
-  // Blocos
+  renderBlocos(pats);
+  renderEstimativa(total, enc, inv);
+  renderAlertas(pats, duplic);
+  renderFeed(inv.slice(0, 8), pats);
+}
+
+function renderBlocos(pats) {
   var blocoData = {};
   pats.forEach(function(p) {
-    var b = getBloco(p.sala_suap);
-    if (!blocoData[b]) blocoData[b] = { total: 0, enc: 0 };
-    blocoData[b].total++;
-    if (isEncontrado(p.status)) blocoData[b].enc++;
+    var bloco = getBloco(p.sala_suap);
+    if (!blocoData[bloco]) blocoData[bloco] = { total: 0, enc: 0 };
+    blocoData[bloco].total += 1;
+    if (isEncontrado(p.status)) blocoData[bloco].enc += 1;
   });
 
-  var blocoHtml = '';
+  var html = '';
   BLOCO_ORDER.forEach(function(bloco) {
-    var d = blocoData[bloco];
-    if (!d || d.total === 0) return;
-    var p   = Math.round(d.enc / d.total * 100);
-    var cor = p >= 80 ? '#22c55e' : p >= 50 ? '#4f8cff' : '#f59e0b';
-    blocoHtml +=
-      '<div class="bloco-row">' +
-        '<div class="bloco-label">' + bloco + '</div>' +
-        '<div class="bar-bg"><div class="bar-fill" style="width:' + p + '%;background:' + cor + '"></div></div>' +
-        '<div class="bar-pct" style="color:' + cor + '">' + p + '%</div>' +
-      '</div>' +
-      '<div class="bloco-sub">' + d.enc + ' / ' + d.total + ' itens</div>';
+    var data = blocoData[bloco];
+    if (!data || data.total === 0) return;
+    var pct = Math.round(data.enc / data.total * 100);
+    var color = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--accent)' : 'var(--yellow)';
+    html +=
+      '<div class="block-item">' +
+        '<div class="block-row">' +
+          '<div class="block-label">' + escHtml(bloco) + '</div>' +
+          '<div class="block-bar"><div class="block-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+          '<div class="block-pct" style="color:' + color + '">' + pct + '%</div>' +
+        '</div>' +
+        '<div class="block-sub">' + data.enc + ' de ' + data.total + ' itens localizados</div>' +
+      '</div>';
   });
-  document.getElementById('blocoProgress').innerHTML =
-    blocoHtml || '<div style="font-size:12px;color:#8891b0">Sem dados de patrimônio</div>';
 
-  // Estimativa — mediana de dias com >= MIN_SCANS_DIA scans
-  var faltam = total - enc;
+  document.getElementById('blocoProgress').innerHTML =
+    html || '<div class="empty-state">Sem dados de patrimonio para distribuir por bloco.</div>';
+}
+
+function renderEstimativa(total, enc, inv) {
+  var faltam = Math.max(total - enc, 0);
   var porDia = {};
-  inv.forEach(function(i) {
-    if (!i.criado_em) return;
-    var dia = i.criado_em.substring(0, 10);
+  inv.forEach(function(item) {
+    if (!item.criado_em) return;
+    var dia = item.criado_em.substring(0, 10);
     porDia[dia] = (porDia[dia] || 0) + 1;
   });
-  var diasValidos = Object.keys(porDia).map(function(d){ return porDia[d]; })
-                          .filter(function(n){ return n >= MIN_SCANS_DIA; });
-  set('faltamItens', faltam.toLocaleString('pt-BR'));
+
+  var diasValidos = Object.keys(porDia)
+    .map(function(dia) { return porDia[dia]; })
+    .filter(function(qtd) { return qtd >= MIN_SCANS_DIA; });
+
+  setText('faltamItens', faltam.toLocaleString('pt-BR'));
+
   if (diasValidos.length === 0) {
-    set('ritmoHora', '—');
-    set('estimativa', '—'); set('estimativaUnit', 'dados insuficientes');
+    setText('ritmoHora', '-');
+    setText('estimativa', '-');
+    setText('estimativaUnit', 'dados insuficientes');
+    return;
+  }
+
+  var medDiaria = mediana(diasValidos);
+  var diasEst = faltam / medDiaria;
+  setText('ritmoHora', medDiaria.toLocaleString('pt-BR'));
+  if (diasEst < 1) {
+    setText('estimativa', '<1');
+    setText('estimativaUnit', 'dia util');
   } else {
-    var medDiaria = mediana(diasValidos);
-    var diasEst   = faltam / medDiaria;
-    set('ritmoHora', medDiaria);
-    if (diasEst < 1)  { set('estimativa', '<1');               set('estimativaUnit', 'dia útil'); }
-    else              { set('estimativa', diasEst.toFixed(1));  set('estimativaUnit', 'dias úteis'); }
+    setText('estimativa', diasEst.toFixed(1).replace('.', ','));
+    setText('estimativaUnit', 'dias uteis');
   }
+}
 
-  // Alertas
-  var alertHtml = '';
-  if (duplic > 0) {
-    alertHtml += '<div class="alert-item alert-red">🔴 ' + duplic + ' patrimônio(s) duplicados precisam atenção</div>';
-  }
-  BLOCO_ORDER.forEach(function(b){
-    var d = blocoData[b];
-    if (d && d.total > 0 && d.enc === d.total)
-      alertHtml += '<div class="alert-item alert-green">✅ ' + b + ' concluído!</div>';
+function renderAlertas(pats, duplic) {
+  var blocoData = {};
+  pats.forEach(function(p) {
+    var bloco = getBloco(p.sala_suap);
+    if (!blocoData[bloco]) blocoData[bloco] = { total: 0, enc: 0 };
+    blocoData[bloco].total += 1;
+    if (isEncontrado(p.status)) blocoData[bloco].enc += 1;
   });
-  if (!alertHtml) alertHtml = '<div style="font-size:12px;color:#8891b0">✅ Tudo sob controle</div>';
-  document.getElementById('alertas').innerHTML = alertHtml;
 
-  // Feed
-  renderFeed(inv.slice(0, 8));
+  var items = [];
+  if (duplic > 0) {
+    items.push('<div class="alert-item alert-red"><strong>Duplicados:</strong> ' + duplic + ' patrimonio(s) precisam de conferencia manual.</div>');
+  }
+
+  BLOCO_ORDER.forEach(function(bloco) {
+    var data = blocoData[bloco];
+    if (!data || data.total === 0) return;
+    var pct = Math.round(data.enc / data.total * 100);
+    if (data.enc === data.total) {
+      items.push('<div class="alert-item alert-green"><strong>' + escHtml(bloco) + ':</strong> bloco concluido com 100% dos itens localizados.</div>');
+    } else if (pct < 35) {
+      items.push('<div class="alert-item alert-yellow"><strong>' + escHtml(bloco) + ':</strong> apenas ' + pct + '% concluido ate agora.</div>');
+    }
+  });
+
+  if (!items.length) {
+    items.push('<div class="alert-item alert-green"><strong>Tudo sob controle:</strong> nao ha alertas criticos no momento.</div>');
+  }
+
+  document.getElementById('alertas').innerHTML = items.join('');
 }
 
-function renderFeed(items) {
-  var pats = state.patrimonios;
-  var feedHtml = items.map(function(item) {
-    var pat    = pats.find(function(p){ return stripZeros(p.numero) === stripZeros(item.codigo); });
-    var isDup  = pat && pat.status === '🔴 DUPLICADO';
-    var isWrong= pat && pat.status === '🟡 Outro local';
-    var dotCls = isDup ? 'dot-red' : isWrong ? 'dot-yellow' : 'dot-green';
-    var extra  = isDup   ? '<span style="color:#ef4444;font-size:10px"> · duplicado!</span>' :
-                 isWrong ? '<span style="color:#f59e0b;font-size:10px"> · sala errada</span>' : '';
-    var hora   = item.criado_em ? new Date(item.criado_em).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'}) : '';
-    return '<div class="feed-item">' +
-      '<div class="feed-dot ' + dotCls + '"></div>' +
-      '<div>' +
-        '<div class="feed-text"><strong>' + escHtml(item.funcionario || 'Servidor') + '</strong>' +
-        ' escaneou <strong>' + escHtml(item.codigo || '?') + '</strong> → ' + escHtml(item.sala || '—') + extra + '</div>' +
-        '<div class="feed-time">' + hora + '</div>' +
-      '</div>' +
-    '</div>';
+function renderFeed(items, pats) {
+  var html = items.map(function(item) {
+    var pat = pats.find(function(p){ return stripZeros(p.numero) === stripZeros(item.codigo); });
+    var isDup = pat && pat.status === '🔴 DUPLICADO';
+    var isWrong = pat && pat.status === '🟡 Outro local';
+    var dotColor = isDup ? 'var(--red)' : isWrong ? 'var(--yellow)' : 'var(--green)';
+    var note = isDup
+      ? '<span class="feed-note tone-red">duplicado</span>'
+      : isWrong
+        ? '<span class="feed-note tone-yellow">sala divergente</span>'
+        : '';
+    var hora = item.criado_em
+      ? new Date(item.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      : '';
+
+    return '' +
+      '<div class="feed-item">' +
+        '<div class="feed-dot" style="background:' + dotColor + '"></div>' +
+        '<div class="feed-text"><strong>' + escHtml(item.funcionario || 'Servidor') + '</strong> escaneou <strong>' + escHtml(item.codigo || '?') + '</strong> em <strong>' + escHtml(item.sala || '-') + '</strong>' + note + '</div>' +
+        '<div class="feed-time">' + escHtml(hora) + '</div>' +
+      '</div>';
   }).join('');
+
   document.getElementById('feedVivo').innerHTML =
-    feedHtml || '<div style="font-size:12px;color:#8891b0">Aguardando scans...</div>';
+    html || '<div class="empty-state">Aguardando scans recentes para alimentar o painel.</div>';
 }
 
-function stripZeros(s) { return String(s || '').replace(/^0+/, ''); }
-function escHtml(s)    { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function set(id, val)  { var el = document.getElementById(id); if (el) el.textContent = val; }
+function stripZeros(s) {
+  return String(s || '').replace(/^0+/, '');
+}
 
-// Realtime
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function setText(id, value) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function showError(message) {
+  var el = document.getElementById('errorMsg');
+  el.style.display = 'block';
+  el.textContent = message;
+}
+
+function hideError() {
+  var el = document.getElementById('errorMsg');
+  el.style.display = 'none';
+  el.textContent = '';
+}
+
 function iniciarRealtime() {
   sb.channel('dashboard-changes')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scans' }, function(payload) {
@@ -397,7 +1021,8 @@ function iniciarRealtime() {
       if (state.inventario.length > 10000) state.inventario.pop();
       renderTudo();
       document.getElementById('lastUpdate').textContent =
-        'Atualizado agora · ' + new Date().toLocaleTimeString('pt-BR');
+        'Atualizado agora em ' + new Date().toLocaleTimeString('pt-BR');
+      setBadge('live');
     })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'patrimonios' }, function(payload) {
       var idx = state.patrimonios.findIndex(function(p){ return p.numero === payload.new.numero; });
@@ -410,9 +1035,9 @@ function iniciarRealtime() {
     });
 }
 
-// Boot
-carregarTudo().then(function(){ iniciarRealtime(); });
-// Fallback: recarrega a cada 5 min
+carregarTudo().then(function() {
+  iniciarRealtime();
+});
 setInterval(carregarTudo, 5 * 60 * 1000);
 </script>
 </body>

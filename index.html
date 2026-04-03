@@ -526,6 +526,67 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 .db-est-unit{font-size:10px;color:var(--text2);margin-top:2px}
 .db-live-badge{font-size:10px;padding:2px 8px;border-radius:12px;font-weight:600;background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
 .db-live-badge.connecting{background:rgba(245,158,11,.15);color:var(--yellow);border-color:rgba(245,158,11,.3)}
+
+/* ── SEARCH / HISTORY / ADMIN / DASHBOARD REFRESH ── */
+.search-hero,.admin-hero,.db-hero{position:relative;overflow:hidden;padding:20px;border-radius:24px;margin-bottom:18px;background:radial-gradient(circle at top right,rgba(255,255,255,.14),transparent 30%),linear-gradient(135deg,#101935 0%,#18244a 48%,#11192f 100%);border:1px solid rgba(91,140,255,.22);box-shadow:var(--sh)}
+.search-hero::after,.admin-hero::after,.db-hero::after{content:'';position:absolute;right:-24px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(91,140,255,.24),transparent 68%)}
+.search-kicker,.admin-kicker,.db-hero-kicker{position:relative;display:inline-flex;padding:6px 10px;border-radius:999px;background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.2);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#b9cbff;margin-bottom:12px}
+.search-hero-title,.admin-hero h3,.db-hero-title{position:relative;font-size:24px;line-height:1.12;letter-spacing:-.03em;font-weight:700}
+.search-hero-sub,.admin-hero p,.db-hero-sub{position:relative;font-size:13px;line-height:1.6;color:var(--text2);margin-top:8px;max-width:36ch}
+.search-panel,.admin-panel-shell{background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);border-radius:22px;padding:16px;box-shadow:var(--sh);margin-bottom:14px}
+.search-input-wrap{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:18px;background:var(--surface);border:1px solid rgba(148,163,184,.14);box-shadow:var(--sh)}
+.search-input-icon{font-size:16px;color:var(--text3);flex-shrink:0}
+.search-input-wrap .room-search{background:transparent;border:none;padding:0;font-size:15px}
+.search-input-wrap .room-search:focus{border:none}
+.search-results{display:flex;flex-direction:column;gap:10px}
+.search-result-card{background:linear-gradient(180deg,rgba(255,255,255,.025),transparent),var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px 14px 13px;box-shadow:var(--sh)}
+.search-result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.search-result-num{font-size:13px;font-weight:700;color:var(--accent);letter-spacing:-.02em}
+.search-result-status{font-size:11px;font-weight:700;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.14)}
+.search-result-desc{font-size:13px;color:var(--text);line-height:1.45}
+.search-result-meta{font-size:11px;color:var(--text2);line-height:1.5;margin-top:8px}
+.hist-hero-actions,.db-hero-meta{position:relative;display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.hero-badge{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(148,163,184,.14);font-size:11px;font-weight:600;color:var(--text)}
+.hist-empty,.search-empty{padding:26px 14px;border-radius:18px;border:1px dashed rgba(148,163,184,.16);background:rgba(255,255,255,.02);text-align:center;color:var(--text2);font-size:13px}
+.admin-tabbar{display:flex;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);border-radius:18px;padding:6px;gap:6px;box-shadow:var(--sh);margin-bottom:14px}
+.admin-tab{flex:1;border:none;background:transparent;border-radius:12px;padding:11px 10px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:-.01em}
+.admin-tab.active{background:rgba(91,140,255,.14);color:var(--text);border:1px solid rgba(91,140,255,.22)}
+.admin-panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.admin-panel-label{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.admin-primary-btn,.admin-secondary-btn,.admin-danger-btn{min-height:42px;border-radius:14px;padding:10px 14px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.admin-primary-btn{background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;color:#fff;box-shadow:0 14px 28px rgba(79,140,255,.22)}
+.admin-secondary-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+.admin-danger-btn{width:100%;background:var(--red);border:none;color:#fff}
+.admin-form-card,.admin-info-card,.admin-dropzone,.admin-map-card,.admin-danger-card{background:linear-gradient(180deg,rgba(255,255,255,.022),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);border-radius:18px;box-shadow:var(--sh)}
+.admin-form-card,.admin-info-card,.admin-map-card,.admin-danger-card{padding:16px}
+.admin-dropzone{padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .2s ease,transform .15s ease;border-style:dashed;border-width:2px}
+.admin-dropzone:active{transform:scale(.995);border-color:var(--accent)}
+.admin-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.admin-inline-actions{display:flex;gap:8px}
+.admin-status-note{font-size:12px;color:var(--text2);text-align:center;margin-bottom:8px}
+.func-badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:700;margin-left:6px;vertical-align:middle}
+.func-badge.admin{background:rgba(91,140,255,.16);border:1px solid rgba(91,140,255,.22);color:#b9cbff}
+.func-badge.inativo{background:rgba(107,114,128,.18);border:1px solid rgba(148,163,184,.16);color:#d1d5db}
+.db-hero-actions{position:relative;display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.db-hero-btn{border:none;border-radius:14px;padding:11px 16px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.db-hero-btn.primary{background:#1D9E75;color:#fff;box-shadow:0 16px 28px rgba(29,158,117,.24)}
+.db-hero-btn.secondary{background:rgba(255,255,255,.04);color:var(--text);border:1px solid rgba(148,163,184,.14)}
+.db-hero-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0 14px}
+.db-hero-stat{padding:14px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.025),transparent),var(--surface);border:1px solid var(--border);box-shadow:var(--sh)}
+.db-hero-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);font-weight:700}
+.db-hero-stat-value{margin-top:8px;font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-.04em}
+.db-kpi-grid{grid-template-columns:repeat(4,1fr);gap:12px}
+.db-kpi,.db-card{border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.025),transparent),var(--surface);border:1px solid rgba(148,163,184,.14);box-shadow:var(--sh)}
+.db-kpi{padding:16px}
+.db-card{padding:16px;margin-bottom:12px}
+.db-est-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.db-est-row > div{padding:14px;border-radius:16px;background:var(--surface2);border:1px solid rgba(148,163,184,.12)}
+.db-feed-shell{margin-top:6px}
+@media(max-width:480px){
+  .admin-grid-2,.db-est-row,.db-hero-grid{grid-template-columns:1fr}
+  .admin-inline-actions{flex-direction:column}
+  .db-kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
@@ -623,7 +684,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
             </svg>
           </span>
           <span class="home-row-main">
-            <span class="home-row-title">Dashboard do gestor</span>
+            <span class="home-row-title">Visão geral</span>
             <span class="home-row-sub">Indicadores e andamento do campus</span>
           </span>
           <span class="row-chevron">&rsaquo;</span>
@@ -820,11 +881,19 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
   </div>
   <div class="sbody">
-    <div class="room-search-wrap" style="position:static;padding-bottom:14px">
-      <input class="room-search" id="buscaInput" type="search" placeholder="Buscar por numero do patrimonio..." autocomplete="off" inputmode="numeric" oninput="debounceBusca(this.value)">
+    <div class="search-hero">
+      <div class="search-kicker">Consulta rapida</div>
+      <div class="search-hero-title">Localize um patrimonio e veja o status mais recente.</div>
+      <div class="search-hero-sub">Busque por numero, confira o local encontrado e identifique divergencias antes de seguir no inventario.</div>
     </div>
-    <div id="buscaResult">
-      <div class="empty" style="padding:32px 0"><div class="empty-ico">&#128269;</div>Digite pelo menos 3 digitos</div>
+    <div class="search-panel">
+      <div class="search-input-wrap">
+        <span class="search-input-icon">🔎</span>
+        <input class="room-search" id="buscaInput" type="search" placeholder="Buscar por numero do patrimonio..." autocomplete="off" inputmode="numeric" oninput="debounceBusca(this.value)">
+      </div>
+    </div>
+    <div id="buscaResult" class="search-results">
+      <div class="search-empty">Digite pelo menos 3 digitos para iniciar a busca.</div>
     </div>
   </div>
 </div>
@@ -835,7 +904,16 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div><div class="topbar-title">Histórico</div><div class="topbar-sub" id="histSub">Sessão atual</div></div>
   </div>
   <div class="sbody">
-    <div id="histList"><div class="empty"><div class="empty-ico">📭</div>Nenhum scan ainda.</div></div>
+    <div class="search-hero">
+      <div class="search-kicker">Memoria da sessao</div>
+      <div class="search-hero-title">Tudo o que foi registrado nesta operacao.</div>
+      <div class="search-hero-sub">Acompanhe os registros sincronizados, os itens sem patrimonio e o que ainda esta pendente de envio.</div>
+      <div class="hist-hero-actions">
+        <span class="hero-badge">Historico local</span>
+        <span class="hero-badge">Sincronizacao progressiva</span>
+      </div>
+    </div>
+    <div id="histList"><div class="hist-empty">Nenhum scan ainda.</div></div>
   </div>
 </div>
 
@@ -1004,22 +1082,27 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   </div>
 
   <!-- Tabs -->
-  <div style="display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0">
+  <div class="admin-tabbar">
     <button class="admin-tab active" id="tabFunc" onclick="adminTab('func')">👥 Funcionários</button>
     <button class="admin-tab" id="tabImport" onclick="adminTab('import')">📦 Importar Patrimônios</button>
     <button class="admin-tab" id="tabReset" onclick="adminTab('reset')">🔄 Resetar</button>
   </div>
 
   <div class="sbody">
+    <div class="admin-hero">
+      <div class="admin-kicker">Gestao do sistema</div>
+      <h3>Controle acessos, importacoes e a seguranca operacional do inventario.</h3>
+      <p>Central unica para preparar a base patrimonial, conceder acesso de gestao e executar operacoes sensiveis com mais clareza.</p>
+    </div>
     <!-- ── ABA: Funcionários ── -->
-    <div id="adminPanelFunc">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:13px;font-weight:700">Servidores cadastrados</div>
-        <button onclick="adminAbrirAddFunc()" style="background:var(--accent);border:none;border-radius:8px;padding:7px 14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer">+ Adicionar</button>
+    <div id="adminPanelFunc" class="admin-panel-shell">
+      <div class="admin-panel-title">
+        <div class="admin-panel-label">Servidores cadastrados</div>
+        <button class="admin-primary-btn" onclick="adminAbrirAddFunc()">+ Adicionar</button>
       </div>
 
       <!-- Form add funcionário (oculto por padrão) -->
-      <div id="addFuncForm" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:12px">
+      <div id="addFuncForm" class="admin-form-card" style="display:none;margin-bottom:12px">
         <div class="field-label">Nome completo</div>
         <input class="field-input" id="addFuncNome" placeholder="Ex: João da Silva" style="margin-bottom:8px">
         <div class="field-label">SIAPE</div>
@@ -1028,9 +1111,9 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
           <input type="checkbox" id="addFuncAdmin" style="width:16px;height:16px;cursor:pointer">
           <label for="addFuncAdmin" style="font-size:12px;color:var(--text2);cursor:pointer">Dar acesso de administrador</label>
         </div>
-        <div style="display:flex;gap:8px">
-          <button onclick="adminSalvarFunc()" style="flex:1;background:var(--accent);border:none;border-radius:8px;padding:10px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Salvar</button>
-          <button onclick="adminFecharAddFunc()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--text2);font-family:'Space Grotesk',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
+        <div class="admin-inline-actions">
+          <button class="admin-primary-btn" style="flex:1" onclick="adminSalvarFunc()">Salvar</button>
+          <button class="admin-secondary-btn" onclick="adminFecharAddFunc()">Cancelar</button>
         </div>
         <div id="addFuncErro" style="color:var(--red);font-size:12px;margin-top:6px"></div>
       </div>
@@ -1039,8 +1122,8 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
 
     <!-- ── ABA: Importar Patrimônios ── -->
-    <div id="adminPanelImport" style="display:none">
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:16px">
+    <div id="adminPanelImport" class="admin-panel-shell" style="display:none">
+      <div class="admin-info-card" style="margin-bottom:16px">
         <div style="font-size:13px;font-weight:700;margin-bottom:6px">📋 Como importar</div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6">
           Selecione o arquivo <strong style="color:var(--text)">.xlsx</strong> exportado do SUAP.<br>
@@ -1051,13 +1134,13 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 
       <!-- Upload area -->
       <div id="importDropArea" onclick="document.getElementById('importFileInput').click()"
-        style="border:2px dashed var(--border);border-radius:var(--r2);padding:32px 16px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:12px">
+        class="admin-dropzone" style="margin-bottom:12px">
         <div style="font-size:36px;margin-bottom:8px">📂</div>
         <div style="font-size:14px;font-weight:600">Toque para selecionar o arquivo</div>
         <div style="font-size:12px;color:var(--text2);margin-top:4px">.xlsx · .xls · .csv</div>
       </div>
       <input type="file" id="importFileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="adminLerPlanilha(this)">
-      <div id="importStatus" style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:8px"></div>
+      <div id="importStatus" class="admin-status-note"></div>
 
       <!-- Preview -->
       <div id="importPreview" style="display:none">
@@ -1067,9 +1150,9 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         </div>
 
         <!-- Mapeamento de colunas -->
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px;margin-bottom:12px">
+        <div class="admin-map-card" style="margin-bottom:12px">
           <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--text2)">MAPEAMENTO DE COLUNAS</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="admin-grid-2">
             <div>
               <div style="font-size:10px;color:var(--text2);margin-bottom:4px">Nº Patrimônio *</div>
               <select id="mapNumero" class="field-input" style="margin:0;padding:8px"></select>
@@ -1090,15 +1173,15 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         </div>
 
         <button onclick="adminImportar()" id="importBtn"
-          style="width:100%;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:10px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
+          class="admin-primary-btn" style="width:100%">
           📥 Importar
         </button>
       </div>
     </div>
 
     <!-- ── ABA: Resetar ── -->
-    <div id="adminPanelReset" style="display:none">
-      <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:var(--r2);padding:16px;margin-bottom:16px">
+    <div id="adminPanelReset" class="admin-panel-shell" style="display:none">
+      <div class="admin-danger-card" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);margin-bottom:16px">
         <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:6px">⚠️ Zona de perigo</div>
         <div style="font-size:12px;color:var(--text2);line-height:1.6">
           Apaga <strong style="color:var(--text)">todos os scans</strong>, itens sem patrimônio e logs.<br>
@@ -1106,8 +1189,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
           Esta ação <strong style="color:var(--red)">não pode ser desfeita</strong>.
         </div>
       </div>
-      <button id="btnResetar" onclick="adminResetar()"
-        style="width:100%;background:var(--red);border:none;border-radius:10px;padding:14px;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;cursor:pointer">
+      <button id="btnResetar" class="admin-danger-btn" onclick="adminResetar()">
         🗑️ Resetar inventário completo
       </button>
       <div id="resetStatus" style="text-align:center;font-size:12px;color:var(--text2);margin-top:10px"></div>
@@ -1122,12 +1204,31 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
   <div class="topbar">
     <button class="back-btn" onclick="goBack()">‹ Voltar</button>
     <div style="flex:1">
-      <div class="topbar-title">📊 Dashboard</div>
+      <div class="topbar-title">Visão geral</div>
       <div class="topbar-sub" id="dbLastUpdate">Carregando...</div>
     </div>
     <span class="db-live-badge connecting" id="dbLiveBadge">atualizando...</span>
   </div>
   <div class="sbody">
+    <div class="db-hero">
+      <div class="db-hero-kicker">Painel do gestor</div>
+      <div class="db-hero-title">Leitura executiva do andamento do campus.</div>
+      <div class="db-hero-sub">Acompanhe a cobertura do inventario, o ritmo da operacao e os sinais que precisam de intervencao imediata.</div>
+      <div class="db-hero-grid">
+        <div class="db-hero-stat">
+          <div class="db-hero-stat-label">Cobertura</div>
+          <div class="db-hero-stat-value" style="color:var(--green)" id="dbHeroPct">—</div>
+        </div>
+        <div class="db-hero-stat">
+          <div class="db-hero-stat-label">Pendentes</div>
+          <div class="db-hero-stat-value" style="color:var(--yellow)" id="dbHeroPend">—</div>
+        </div>
+      </div>
+      <div class="db-hero-actions">
+        <button class="db-hero-btn primary" onclick="carregarDashboard()">Atualizar agora</button>
+        <button class="db-hero-btn secondary" onclick="goBack()">Voltar</button>
+      </div>
+    </div>
 
     <!-- KPIs -->
     <div class="db-kpi-grid">
@@ -4257,7 +4358,249 @@ function dbRenderTudo() {
 }
 
 function dbStripZ(s) { return String(s||'').replace(/^0+/,''); }
+
+// ── UI refresh overrides ────────────────────────────────────────
+function renderHistList() {
+  var el = document.getElementById('histList');
+  var sub = document.getElementById('histSub');
+  if (!el || !sub) return;
+  sub.textContent = state.scans.length + ' registros';
+
+  if (!state.scans.length) {
+    el.innerHTML = '<div class="hist-empty">Nenhum scan ainda.</div>';
+    return;
+  }
+
+  var total = state.scans.length;
+  var scans = state.scans.filter(function(s){ return s.type === 'scan'; }).length;
+  var nopat = state.scans.filter(function(s){ return s.type === 'nopat'; }).length;
+  var sorted = state.scans.slice().reverse();
+
+  el.innerHTML = '<div class="hist-summary">'
+    + '<div class="hist-summary-card"><div class="hist-summary-n">' + total + '</div><div class="hist-summary-l">Registros</div></div>'
+    + '<div class="hist-summary-card"><div class="hist-summary-n">' + scans + '</div><div class="hist-summary-l">Patrimonios</div></div>'
+    + '<div class="hist-summary-card"><div class="hist-summary-n">' + nopat + '</div><div class="hist-summary-l">Sem patrimonio</div></div>'
+    + '</div>'
+    + sorted.map(function(s) {
+      var dot = s.type === 'nopat' ? 'warn' : 'ok';
+      var title = s.type === 'nopat' ? (s.desc || 'Item sem patrimonio') : 'Cod. ' + s.code;
+      var meta = 'Local: ' + s.room + (s.type === 'nopat' ? ' | Estado: ' + s.estado : '');
+      var sync = s.synced ? '<div class="hi-sync done">Sincronizado</div>' : '<div class="hi-sync pending">Pendente</div>';
+      return '<div class="hist-item">'
+        + '<div class="hi-dot ' + dot + '"></div>'
+        + '<div class="hi-info"><div class="hi-title">' + esc(title) + '</div>'
+        + '<div class="hi-meta">' + esc(meta) + '</div>'
+        + sync + '</div>'
+        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'
+        + '<div class="hi-time">' + fmtTime(new Date(s.ts)) + '</div>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+}
+
+function buscarPatrimonioUI(val, contextName) {
+  val = String(val || '').trim();
+  var ctx = getBuscaContext(contextName);
+  var res = ctx.resultEl;
+  var sub = ctx.subEl;
+  if (!res || !sub) return;
+
+  if (!val || val.length < 3) {
+    res.innerHTML = '<div class="search-empty">Digite pelo menos 3 digitos</div>';
+    sub.textContent = 'Digite o numero';
+    return;
+  }
+
+  var numStr = val.replace(/^0+/, '');
+  var localMatch = state.scans.filter(function(s){
+    return s.type === 'scan' && String(s.code).replace(/^0+/,'').indexOf(numStr) > -1;
+  });
+
+  if (localMatch.length) {
+    sub.textContent = localMatch.length + ' resultado(s) local';
+    res.innerHTML = localMatch.map(function(s) {
+      return renderBuscaItem({
+        numero: s.code,
+        descricao: '-',
+        sala: s.sala || s.room,
+        status: '\u2705 Encontrado (local)',
+        quem: s.funcionario || '',
+        data: s.ts
+      });
+    }).join('');
+  } else {
+    res.innerHTML = '<div class="search-empty">Buscando...</div>';
+    sub.textContent = 'Buscando...';
+  }
+
+  if (!state.isOnline || typeof buscarPatrimonioRemoto !== 'function') return;
+
+  buscarPatrimonioRemoto(val)
+    .then(function(data) {
+      if (!data.ok) return;
+      sub.textContent = data.resultados.length + ' resultado(s)';
+      if (!data.resultados.length) {
+        res.innerHTML = '<div class="search-empty">Patrimonio nao encontrado</div>';
+        return;
+      }
+      res.innerHTML = data.resultados.map(renderBuscaItem).join('');
+    })
+    .catch(function(){});
+}
+
+function renderBuscaItem(d) {
+  var corStatus = d.status && d.status.indexOf('✅') > -1 ? 'var(--green)'
+                : d.status && d.status.indexOf('🟡') > -1 ? 'var(--yellow)'
+                : d.status && d.status.indexOf('🔴') > -1 ? 'var(--red)'
+                : 'var(--text2)';
+  var dataFmt = d.data ? (typeof d.data === 'string' ? d.data.substring(0,16) : fmtTime(new Date(d.data))) : '';
+  return '<div class="search-result-card">'
+    + '<div class="search-result-head">'
+    + '<span class="search-result-num">Nº ' + esc(d.numero) + '</span>'
+    + '<span class="search-result-status" style="color:' + corStatus + '">' + esc(d.status || '⏳ Pendente') + '</span>'
+    + '</div>'
+    + '<div class="search-result-desc">' + esc(d.descricao || '—') + '</div>'
+    + '<div class="search-result-meta">📍 ' + esc(d.sala || '—') + (d.quem ? ' · ' + esc(d.quem) : '') + (dataFmt ? ' · ' + esc(dataFmt) : '') + '</div>'
+    + '</div>';
+}
+
+function adminCarregarFunc() {
+  var lista = document.getElementById('funcList');
+  if (!lista) return;
+  lista.innerHTML = '<div class="hist-empty">Carregando servidores...</div>';
+  adminOp('listarFuncionarios', currentUser.siape)
+    .then(function(res) {
+      if (!res.ok) {
+        lista.innerHTML = '<div class="hist-empty">' + escHtml(res.erro || 'Erro ao carregar') + '</div>';
+        return;
+      }
+      var funcs = res.funcionarios || [];
+      if (!funcs.length) {
+        lista.innerHTML = '<div class="hist-empty">Nenhum funcionario cadastrado.</div>';
+        return;
+      }
+      lista.innerHTML = funcs.map(function(f) {
+        var inicial = (f.nome || '?')[0].toUpperCase();
+        var badge = f.admin ? '<span class="func-badge admin">admin</span>' : '';
+        var inativo = !f.ativo ? '<span class="func-badge inativo">inativo</span>' : '';
+        return '<div class="func-item">'
+          + '<div class="func-avatar">' + inicial + '</div>'
+          + '<div style="flex:1">'
+          + '<div class="func-nome">' + escHtml(f.nome) + badge + inativo + '</div>'
+          + '<div class="func-siape">SIAPE: ' + escHtml(f.siape) + '</div>'
+          + '</div>'
+          + (f.siape !== currentUser.siape
+              ? '<button class="func-remove" onclick="adminRemoverFunc(\'' + escHtml(f.siape) + '\',\'' + escHtml(f.nome) + '\')">Remover</button>'
+              : '')
+          + '</div>';
+      }).join('');
+    });
+}
+
+function dbRenderTudo() {
+  var pats  = _dbPats;
+  var inv   = _dbInv;
+  var total = pats.length;
+
+  var codigosEsc = new Set(inv.map(function(i){ return dbStripZ(i.codigo||''); }).filter(Boolean));
+  var enc = codigosEsc.size;
+  var dup = pats.filter(function(p){ return p.status === '🔴 DUPLICADO'; }).length;
+  var pct = total > 0 ? Math.round(enc / total * 100) : 0;
+  var faltam = Math.max(total - enc, 0);
+
+  var servMap = {};
+  inv.forEach(function(i){ if (i.funcionario) servMap[i.funcionario] = (servMap[i.funcionario]||0)+1; });
+  var kpiSrv = Object.keys(servMap).length;
+
+  dbSet('dbKpiEnc', enc.toLocaleString('pt-BR'));
+  dbSet('dbKpiEncSub', 'de ' + total.toLocaleString('pt-BR') + ' patrimônios');
+  dbSet('dbKpiPct', pct + '%');
+  dbSet('dbKpiSrv', kpiSrv);
+  dbSet('dbKpiDup', dup);
+  dbSet('dbHeroPct', pct + '%');
+  dbSet('dbHeroPend', faltam.toLocaleString('pt-BR'));
+  var dupEl = document.getElementById('dbKpiDup');
+  if (dupEl) dupEl.style.color = dup > 0 ? 'var(--red)' : 'var(--green)';
+
+  var genBar = document.getElementById('dbGenBar');
+  if (genBar) genBar.style.width = pct + '%';
+  dbSet('dbBarLeft',  enc.toLocaleString('pt-BR') + ' encontrados');
+  dbSet('dbBarPct',   pct + '%');
+  dbSet('dbBarRight', total.toLocaleString('pt-BR') + ' total');
+
+  var blocoData = {};
+  pats.forEach(function(p) {
+    var b = dbGetBloco(p.sala_suap);
+    if (!blocoData[b]) blocoData[b] = {total:0, enc:0};
+    blocoData[b].total++;
+    if (dbIsEnc(p.status)) blocoData[b].enc++;
+  });
+  var blocoHtml = '';
+  DB_BLOCOS.forEach(function(b) {
+    var d = blocoData[b];
+    if (!d || !d.total) return;
+    var p = Math.round(d.enc / d.total * 100);
+    var cor = p >= 80 ? 'var(--green)' : p >= 50 ? 'var(--accent)' : 'var(--yellow)';
+    blocoHtml +=
+      '<div class="db-bar-row">' +
+        '<div class="db-bar-label">' + b + '</div>' +
+        '<div class="db-bar-bg"><div class="db-bar-fill" style="width:'+p+'%;background:'+cor+'"></div></div>' +
+        '<div class="db-bar-pct" style="color:'+cor+'">'+p+'%</div>' +
+      '</div>' +
+      '<div class="db-bar-sub">'+d.enc+' / '+d.total+' itens</div>';
+  });
+  var blocoEl = document.getElementById('dbBlocos');
+  if (blocoEl) blocoEl.innerHTML = blocoHtml || '<div class="hist-empty">Sem dados</div>';
+
+  var porDia = {};
+  inv.forEach(function(i) {
+    if (!i.criado_em) return;
+    var dia = i.criado_em.substring(0, 10);
+    porDia[dia] = (porDia[dia] || 0) + 1;
+  });
+  var diasValidos = Object.keys(porDia).map(function(d){ return porDia[d]; })
+                          .filter(function(n){ return n >= MIN_SCANS_DIA; });
+  dbSet('dbFaltam', faltam.toLocaleString('pt-BR'));
+  if (diasValidos.length === 0) {
+    dbSet('dbRitmo',  '—');
+    dbSet('dbEstVal', '—'); dbSet('dbEstUnit', 'dados insuficientes');
+  } else {
+    var medDiaria = dbMediana(diasValidos);
+    var diasEst = faltam / medDiaria;
+    dbSet('dbRitmo', medDiaria);
+    if (diasEst < 1)  { dbSet('dbEstVal', '<1');               dbSet('dbEstUnit', 'dia útil'); }
+    else              { dbSet('dbEstVal', diasEst.toFixed(1));  dbSet('dbEstUnit', 'dias úteis'); }
+  }
+
+  var alertHtml = '';
+  if (dup > 0) alertHtml += '<div class="db-alert db-alert-red">🔴 ' + dup + ' patrimônio(s) duplicado(s)</div>';
+  DB_BLOCOS.forEach(function(b) {
+    var d = blocoData[b];
+    if (d && d.total > 0 && d.enc === d.total)
+      alertHtml += '<div class="db-alert db-alert-green">✅ ' + b + ' concluído!</div>';
+  });
+  var alertEl = document.getElementById('dbAlertas');
+  if (alertEl) alertEl.innerHTML = alertHtml || '<div class="hist-empty">Tudo sob controle</div>';
+
+  var feedHtml = inv.slice(0, 10).map(function(item) {
+    var pat = pats.find(function(p){ return dbStripZ(p.numero) === dbStripZ(item.codigo); });
+    var isDup = pat && pat.status === '🔴 DUPLICADO';
+    var isWrong = pat && pat.status === '🟡 Outro local';
+    var dotColor = isDup ? 'var(--red)' : isWrong ? 'var(--yellow)' : 'var(--green)';
+    var extra = isDup ? ' <span style="color:var(--red);font-size:10px">· dup!</span>'
+              : isWrong ? ' <span style="color:var(--yellow);font-size:10px">· sala errada</span>' : '';
+    var hora = item.criado_em ? new Date(item.criado_em).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+    return '<div class="db-feed-item">'
+      + '<div class="db-feed-dot" style="background:'+dotColor+'"></div>'
+      + '<div><div class="db-feed-text"><strong>'+escHtml(item.funcionario||'Servidor')+'</strong> escaneou <strong>'+escHtml(item.codigo||'?')+'</strong> → '+escHtml(item.sala||'—')+extra+'</div>'
+      + '<div class="db-feed-time">'+hora+'</div></div>'
+      + '</div>';
+  }).join('');
+  var feedEl = document.getElementById('dbFeed');
+  if (feedEl) feedEl.innerHTML = feedHtml || '<div class="hist-empty">Sem scans recentes</div>';
+}
 </script>
+<script src="js/ui/enterprise-overrides.js"></script>
 <div class="wrong-room-modal" id="wrongRoomModal">
   <div class="wrong-room-box">
     <div id="wrongRoomMsg"></div>
