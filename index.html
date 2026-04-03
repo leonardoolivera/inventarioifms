@@ -1557,51 +1557,7 @@ window.addEventListener('load', function() {
   });
 
   iniciarApp();
-  updateHomeStatus();
-  updateRoomLabel();
-  updateStats();
-  updateSyncBanner();
-  renderRoomList();
-  renderHistList();
-  renderSettRooms();
-  loadScriptUrl();
-  loadGeminiKey();
-
-  // Aplica versão em todos os elementos
-  ['versionFooter','versionBadge','versionSettings'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.textContent = el.id === 'versionFooter'
-      ? APP_VERSION + ' | Censo'
-      : APP_VERSION;
-  });
-  var vl = document.getElementById('versionLogin');
-  if (vl) vl.textContent = APP_VERSION + ' | Censo';
-
-  window.addEventListener('online',  function(){ state.isOnline=true;  updateSyncBanner(); updateHomeStatus(); syncNow(); });
-  window.addEventListener('offline', function(){ state.isOnline=false; updateSyncBanner(); updateHomeStatus(); });
-
-  // Sync imediato ao abrir se tiver pendentes
-  if (state.isOnline && state.pendingSync.length) {
-    setTimeout(syncNow, 2000);
-  }
-
-  // Auto sync every 30s
-  setInterval(function(){ if(state.isOnline && state.pendingSync.length) syncNow(); }, 30000);
-
-  // Boas-vindas na primeira abertura como app instalado
-  if (window._mostrarBoasVindas) {
-    setTimeout(function() {
-      showToast('ok', '🎉 App instalado com sucesso!', 'Bem-vindo ao Censo');
-    }, 1500);
-  }
-
-  // Verifica atualização após 3s (deixa o app carregar primeiro) e a cada 5min
-  setTimeout(function() {
-    if (state.isOnline) checkForUpdate();
-  }, 3000);
-  setInterval(function() {
-    if (state.isOnline) checkForUpdate();
-  }, 5 * 60 * 1000);
+  bootstrapAppUI();
 });
 
 function updateHomeStatus() {
@@ -4606,6 +4562,7 @@ function dbRenderTudo() {
 <script src="js/utils/format.js"></script>
 <script src="js/core/state.js"></script>
 <script src="js/core/router.js"></script>
+<script src="js/core/bootstrap.js"></script>
 <script src="js/data/salas.js"></script>
 <script src="js/features/busca.js"></script>
 <script src="js/features/salas.js"></script>

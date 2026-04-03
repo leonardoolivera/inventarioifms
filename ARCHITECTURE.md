@@ -27,6 +27,7 @@ Etapa 1 em andamento:
 - extracao inicial de utilitarios em `js/utils/format.js`
 - extracao inicial de estado em `js/core/state.js`
 - extracao de navegacao em `js/core/router.js`
+- extracao de bootstrap em `js/core/bootstrap.js`
 - extracao de dados em `js/data/salas.js`
 - extracao de features em `js/features/busca.js`, `js/features/salas.js`, `js/features/scanner.js`, `js/features/sync.js`, `js/features/nopat.js`, `js/features/admin.js` e `js/features/dashboard.js`
 - inicio da separacao de estilos em `css/base.css`, `css/components.css` e `css/screens.css`
