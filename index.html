@@ -1588,31 +1588,6 @@ function getCurrentRoomDisplay(roomName) {
   };
 }
 
-function showScreen(id) {
-  var cur = document.querySelector('.screen:not(.hidden):not(.slide-left)');
-  if (cur && cur.id !== id) {
-    screenHistory.push(cur.id);
-    cur.classList.add('slide-left');
-  }
-  var next = document.getElementById(id);
-  next.classList.remove('hidden','slide-left');
-
-  // refresh on show
-  if (id === 'scHistory')     renderHistList();
-  if (id === 'scRooms')       renderRoomList();
-  if (id === 'scSettings')    { renderSettRooms(); loadScriptUrl(); }
-  if (id === 'scMinhasSalas') carregarTotaisSUAP(function(){ renderMinhasSalas(); });
-  if (id === 'scCampus' && !campusData) carregarCampus();
-  if (id === 'scHome')      { updateStats(); updateSyncBanner(); }
-  if (id === 'scDashboard') carregarDashboard();
-}
-
-function goBack() {
-  var prev = screenHistory.pop() || 'scHome';
-  var cur  = document.querySelector('.screen:not(.hidden):not(.slide-left)');
-  if (cur) { cur.classList.add('hidden'); cur.classList.remove('slide-left'); }
-  document.getElementById(prev).classList.remove('hidden','slide-left');
-}
 
 // ═══════════════════════════════════════════════
 //  ROOMS
@@ -1973,11 +1948,6 @@ function confirmClear() {
 // ═══════════════════════════════════════════════
 //  UTILS
 // ═══════════════════════════════════════════════
-function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escJ(s){ return String(s||'').replace(/'/g,"\\'"); }
-
-function fmtTime(d){ return d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
 
 // ── Login / SIAPE ─────────────────────────────────────────────
 var currentUser = null; // { siape, nome }
@@ -2810,110 +2780,6 @@ function escHtml(s) {
 }
 
 // ── Verificação de atualização ───────────────────────────────
-var UPDATE_URL = 'https://leonardoolivera.github.io/inventarioifms/index.html';
-var checkUpdateTimer = null;
-
-function checkForUpdate() {
-  // Busca o HTML publicado e extrai a versão
-  fetch(UPDATE_URL + '?nocache=' + Date.now(), { cache: 'no-store' })
-    .then(function(r) { return r.text(); })
-    .then(function(html) {
-      var match = html.match(/APP_VERSION[^'"]*['"]([^'"]+)['"]/);
-      if (!match) return;
-      var remoteVersion = match[1];
-      var localVersion  = APP_VERSION;
-
-      if (remoteVersion !== localVersion) {
-        var msg1 = '🆕 Versão ' + remoteVersion + ' disponível!';
-        var msg2 = 'Você está na ' + localVersion + ' · Toque para atualizar';
-        document.getElementById('updateTitle').textContent = msg1;
-        document.getElementById('updateSub').textContent   = msg2;
-        document.getElementById('updateBanner').classList.add('show');
-        // Também mostra no login se estiver visível
-        var bl = document.getElementById('updateBannerLogin');
-        if (bl) { bl.style.display='flex'; document.getElementById('updateTitleLogin').textContent=msg1; document.getElementById('updateSubLogin').textContent=msg2; }
-      }
-    })
-    .catch(function() {}); // silencioso se offline
-}
-
-function doUpdate() {
-  var pendentes = state.pendingSync.length;
-  if (pendentes > 0) {
-    showToast('ok', 'Atualizando e sincronizando ' + pendentes + ' itens...', 'Aguarde para recarregar');
-    syncNow().finally(function() { recarregarApp(); });
-  } else {
-    recarregarApp();
-  }
-}
-function recarregarApp() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(regs) {
-      regs.forEach(function(reg) { reg.unregister(); });
-      window.location.reload(true);
-    });
-  } else {
-    window.location.reload(true);
-  }
-}
-
-// ── PWA Install prompt ────────────────────────────────────────
-var deferredInstallPrompt = null;
-
-window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  // Só mostra se nunca dispensou
-  if (!localStorage.getItem('installDismissed')) {
-    document.getElementById('installBanner').classList.add('show');
-  }
-});
-
-window.addEventListener('appinstalled', function() {
-  document.getElementById('installBanner').classList.remove('show');
-  deferredInstallPrompt = null;
-  showToast('ok','✅ App instalado!','Acesse pela tela inicial do celular');
-});
-
-function doInstall() {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(function(choice) {
-    if (choice.outcome === 'accepted') {
-      document.getElementById('installBanner').classList.remove('show');
-    }
-    deferredInstallPrompt = null;
-  });
-}
-
-// Abre o app instalado automaticamente após instalar
-window.addEventListener('appinstalled', function() {
-  document.getElementById('installBanner').classList.remove('show');
-  deferredInstallPrompt = null;
-  // Tenta abrir a versão standalone (app instalado)
-  setTimeout(function() {
-    // Se ainda estiver no browser (não standalone), redireciona para o app
-    if (!window.matchMedia('(display-mode: standalone)').matches &&
-        !window.navigator.standalone) {
-      showToast('ok', '✅ App instalado!', 'Procure o ícone na tela inicial do celular');
-    }
-  }, 500);
-});
-
-// Se abriu via standalone após instalar, mostra boas-vindas
-if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-  var primeiraVez = !localStorage.getItem('appAberto');
-  if (primeiraVez) {
-    localStorage.setItem('appAberto', '1');
-    // Será mostrado após o app inicializar
-    window._mostrarBoasVindas = true;
-  }
-}
-
-function dismissInstall() {
-  document.getElementById('installBanner').classList.remove('show');
-  localStorage.setItem('installDismissed', '1');
-}
 
 // ═══════════════════════════════════════════════
 //  DASHBOARD GESTOR
