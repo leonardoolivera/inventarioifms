@@ -1,0 +1,12 @@
+.sync-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sync-dot.online{background:var(--green);box-shadow:0 0 8px var(--green)}
+.sync-dot.offline{background:var(--yellow)}
+.sync-dot.syncing{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.result-toast{position:fixed;top:max(60px,env(safe-area-inset-top));left:12px;right:12px;z-index:999;border-radius:var(--r2);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;transform:translateY(-20px);opacity:0;transition:all .2s;pointer-events:none;box-shadow:var(--sh)}
+.result-toast.show{transform:translateY(0);opacity:1}
+.result-toast.ok{background:#14532d;border:1px solid var(--green)}
+.result-toast.warn{background:#451a03;border:1px solid var(--yellow)}
+.result-toast.dup{background:#1e1b4b;border:1px solid var(--accent2)}
+.field-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;outline:none;margin-bottom:12px;resize:none}
+.field-input:focus{border-color:var(--accent)}
