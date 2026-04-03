@@ -189,6 +189,15 @@ function renderSettRooms() {
   if (btnRevelar) btnRevelar.style.display = ocultas.length ? 'block' : 'none';
 }
 
+function updateRoomLabel() {
+  var room = getCurrentRoomDisplay(state.currentRoom);
+  document.getElementById('currentRoomLabel').textContent = room.title;
+  document.getElementById('currentRoomMeta').textContent = room.meta;
+  document.getElementById('scannerRoomLabel').textContent = room.title;
+  document.getElementById('scanRoomBadge').textContent = 'Local: ' + room.title;
+  document.getElementById('noPatRoom').textContent = room.title || '(sem local)';
+}
+
 function renderMinhasSalas() {
   var meusScans = state.scans.filter(function(s) { return s.type === 'scan'; });
   var meusNopat = state.scans.filter(function(s) { return s.type === 'nopat'; });
