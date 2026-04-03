@@ -27,16 +27,16 @@ Etapa 1 em andamento:
 - extracao inicial de utilitarios em `js/utils/format.js`
 - extracao inicial de estado em `js/core/state.js`
 - extracao de navegacao em `js/core/router.js`
-- extracao de features em `js/features/busca.js`, `js/features/salas.js`, `js/features/scanner.js`, `js/features/admin.js` e `js/features/dashboard.js`
+- extracao de features em `js/features/busca.js`, `js/features/salas.js`, `js/features/scanner.js`, `js/features/sync.js`, `js/features/admin.js` e `js/features/dashboard.js`
 - ajustes visuais compartilhados em `js/ui/enterprise-overrides.js`
 
 ## Proximas extracoes sugeridas
 
-1. `js/features/sync.js`
-2. `js/data/salas.js`
-3. `js/features/nopat.js`
-4. `css/base.css`
-5. `css/components.css` e `css/screens.css`
+1. `js/data/salas.js`
+2. `js/features/nopat.js`
+3. `css/base.css`
+4. `css/components.css`
+5. `css/screens.css`
 
 ## Risco conhecido
 
