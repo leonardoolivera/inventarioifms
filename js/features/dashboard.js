@@ -1,3 +1,77 @@
+var MIN_SCANS_DIA = 50;
+var _dbPats = [];
+var _dbInv  = [];
+var _dbTimer = null;
+
+var DB_BLOCOS = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Área Externa'];
+
+function dbGetBloco(sala) {
+  if (!sala) return 'Outros';
+  var s = sala.toUpperCase();
+  if (s.indexOf('(BLOCO A)') > -1) return 'Bloco A';
+  if (s.indexOf('(BLOCO B)') > -1) return 'Bloco B';
+  if (s.indexOf('(BLOCO C)') > -1) return 'Bloco C';
+  if (s.indexOf('(SALAS MODULARES)') > -1) return 'Salas Modulares';
+  return 'Área Externa';
+}
+
+function dbIsEnc(status) {
+  return status === '✅ Encontrado' || status === '🟡 Outro local';
+}
+
+function dbSet(id, val) {
+  var e = document.getElementById(id);
+  if (e) e.textContent = val;
+}
+
+function dbMediana(arr) {
+  var sorted = arr.slice().sort(function(a, b) { return a - b; });
+  var mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+}
+
+function dbStripZ(s) {
+  return String(s || '').replace(/^0+/, '');
+}
+
+function carregarDashboard() {
+  var badge = document.getElementById('dbLiveBadge');
+  if (badge) {
+    badge.textContent = 'atualizando...';
+    badge.className = 'db-live-badge connecting';
+  }
+
+  Promise.all([
+    sbFetchAll('/rest/v1/patrimonios?select=numero,sala_suap,status'),
+    sbFetchAll('/rest/v1/scans?select=codigo,sala,funcionario,siape,criado_em&order=criado_em.desc')
+  ]).then(function(results) {
+    _dbPats = results[0] || [];
+    _dbInv = results[1] || [];
+    dbRenderTudo();
+    if (badge) {
+      badge.textContent = '● ao vivo';
+      badge.className = 'db-live-badge';
+    }
+    dbSet('dbLastUpdate', 'Atualizado às ' + new Date().toLocaleTimeString('pt-BR'));
+    clearInterval(_dbTimer);
+    _dbTimer = setInterval(function() {
+      var sc = document.getElementById('scDashboard');
+      if (sc && !sc.classList.contains('hidden') && !sc.classList.contains('slide-left')) {
+        carregarDashboard();
+      } else {
+        clearInterval(_dbTimer);
+      }
+    }, 30000);
+  }).catch(function(err) {
+    if (badge) {
+      badge.textContent = 'erro';
+      badge.className = 'db-live-badge connecting';
+    }
+    dbSet('dbLastUpdate', 'Erro ao carregar dados');
+    console.error('[Dashboard]', err);
+  });
+}
+
 function dbRenderTudo() {
   var pats  = _dbPats;
   var inv   = _dbInv;
