@@ -25,16 +25,17 @@ Etapa 1 em andamento:
 
 - guia de organizacao em `docs/organizacao-codigo-enterprise.md`
 - extracao inicial de utilitarios em `js/utils/format.js`
+- extracao inicial de estado em `js/core/state.js`
 - extracao de navegacao em `js/core/router.js`
 - extracao de features em `js/features/busca.js`, `js/features/admin.js` e `js/features/dashboard.js`
 - ajustes visuais compartilhados em `js/ui/enterprise-overrides.js`
 
 ## Proximas extracoes sugeridas
 
-1. `js/core/state.js`
-2. `js/features/salas.js`
-3. `js/features/scanner.js`
-4. `js/features/sync.js`
+1. `js/features/salas.js`
+2. `js/features/scanner.js`
+3. `js/features/sync.js`
+4. `js/data/salas.js`
 5. `css/base.css`, `css/components.css`, `css/screens.css`
 
 ## Risco conhecido
