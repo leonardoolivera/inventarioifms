@@ -1560,70 +1560,6 @@ window.addEventListener('load', function() {
   bootstrapAppUI();
 });
 
-function updateHomeStatus() {
-  var badge = document.getElementById('homeStatusBadge');
-  var textEl = document.getElementById('homeStatusText');
-  if (!badge || !textEl) return;
-  var online = !!state.isOnline;
-  badge.classList.toggle('offline', !online);
-  textEl.textContent = online ? 'Online' : 'Offline';
-}
-
-function getHomeSummary() {
-  var scans = state.scans.filter(function(s){ return s.type === 'scan'; }).length;
-  var porSala = {};
-  state.scans.forEach(function(s) {
-    if (s.type !== 'scan' || !s.room) return;
-    porSala[s.room] = (porSala[s.room] || 0) + 1;
-  });
-
-  var totalSalas = state.rooms.length;
-  var salasConcluidas = Object.keys(porSala).length;
-  var progresso = 0;
-
-  if (suapTotais && Object.keys(suapTotais).length) {
-    var totalBens = 0;
-    totalSalas = Object.keys(suapTotais).length;
-    salasConcluidas = 0;
-
-    Object.keys(suapTotais).forEach(function(sala) {
-      var totalSala = suapTotais[sala] || 0;
-      var feitosSala = Math.max((porSala[sala] || 0), (suapEncontrados && suapEncontrados[sala]) || 0);
-      totalBens += totalSala;
-      if (totalSala > 0 && feitosSala >= totalSala) salasConcluidas++;
-    });
-
-    progresso = totalBens > 0 ? Math.min(100, Math.round((scans / totalBens) * 100)) : 0;
-  } else if (totalSalas > 0) {
-    progresso = Math.min(100, Math.round((salasConcluidas / totalSalas) * 100));
-  }
-
-  return {
-    salasConcluidas: salasConcluidas,
-    totalSalas: totalSalas,
-    bensEscaneados: scans,
-    progresso: progresso
-  };
-}
-
-function renderHomeSummary() {
-  var resumo = getHomeSummary();
-  var roomsDone = document.getElementById('homeRoomsDone');
-  var roomsTotal = document.getElementById('homeRoomsTotal');
-  var assets = document.getElementById('homeAssetsTotal');
-  var pct = document.getElementById('homeProgressPct');
-  var fill = document.getElementById('homeProgressFill');
-  var textEl = document.getElementById('homeProgressText');
-  if (!roomsDone || !roomsTotal || !assets || !pct || !fill) return;
-
-  roomsDone.textContent = resumo.salasConcluidas;
-  roomsTotal.textContent = resumo.totalSalas;
-  assets.textContent = resumo.bensEscaneados;
-  pct.textContent = resumo.progresso + '%';
-  fill.style.width = resumo.progresso + '%';
-  if (textEl) textEl.textContent = resumo.progresso + '% concluido';
-}
-
 // ═══════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════
@@ -2539,43 +2475,6 @@ function testConnection(el) {
       })
       .catch(function(e){ showToast('warn','? Erro de conex?o', e.toString()); });
   });
-}
-
-function renderHistList() {
-  var el = document.getElementById('histList');
-  var sub = document.getElementById('histSub');
-  sub.textContent = state.scans.length + ' registros';
-
-  if (!state.scans.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-ico">&#128228;</div>Nenhum scan ainda.</div>';
-    return;
-  }
-
-  var total = state.scans.length;
-  var scans = state.scans.filter(function(s){ return s.type === 'scan'; }).length;
-  var nopat = state.scans.filter(function(s){ return s.type === 'nopat'; }).length;
-  var sorted = state.scans.slice().reverse();
-
-  el.innerHTML = '<div class="hist-summary">'
-    + '<div class="hist-summary-card"><div class="hist-summary-n">' + total + '</div><div class="hist-summary-l">Registros</div></div>'
-    + '<div class="hist-summary-card"><div class="hist-summary-n">' + scans + '</div><div class="hist-summary-l">Patrimonios</div></div>'
-    + '<div class="hist-summary-card"><div class="hist-summary-n">' + nopat + '</div><div class="hist-summary-l">Sem patrimonio</div></div>'
-    + '</div>'
-    + sorted.map(function(s) {
-      var dot   = s.type === 'nopat' ? 'warn' : 'ok';
-      var title = s.type === 'nopat' ? (s.desc || 'Item sem patrimonio') : 'Cod. ' + s.code;
-      var meta  = 'Local: ' + s.room + (s.type==='nopat' ? ' | Estado: ' + s.estado : '');
-      var sync  = s.synced ? '<div class="hi-sync done">Sincronizado</div>' : '<div class="hi-sync pending">Pendente</div>';
-      return '<div class="hist-item">'
-        + '<div class="hi-dot ' + dot + '"></div>'
-        + '<div class="hi-info"><div class="hi-title">' + esc(title) + '</div>'
-        + '<div class="hi-meta">' + esc(meta) + '</div>'
-        + sync + '</div>'
-        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'
-        + '<div class="hi-time">' + fmtTime(new Date(s.ts)) + '</div>'
-        + '</div>'
-        + '</div>';
-    }).join('');
 }
 
 // ═══════════════════════════════════════════════
@@ -4319,44 +4218,6 @@ function dbRenderTudo() {
 function dbStripZ(s) { return String(s||'').replace(/^0+/,''); }
 
 // ── UI refresh overrides ────────────────────────────────────────
-function renderHistList() {
-  var el = document.getElementById('histList');
-  var sub = document.getElementById('histSub');
-  if (!el || !sub) return;
-  sub.textContent = state.scans.length + ' registros';
-
-  if (!state.scans.length) {
-    el.innerHTML = '<div class="hist-empty">Nenhum scan ainda.</div>';
-    return;
-  }
-
-  var total = state.scans.length;
-  var scans = state.scans.filter(function(s){ return s.type === 'scan'; }).length;
-  var nopat = state.scans.filter(function(s){ return s.type === 'nopat'; }).length;
-  var sorted = state.scans.slice().reverse();
-
-  el.innerHTML = '<div class="hist-summary">'
-    + '<div class="hist-summary-card"><div class="hist-summary-n">' + total + '</div><div class="hist-summary-l">Registros</div></div>'
-    + '<div class="hist-summary-card"><div class="hist-summary-n">' + scans + '</div><div class="hist-summary-l">Patrimonios</div></div>'
-    + '<div class="hist-summary-card"><div class="hist-summary-n">' + nopat + '</div><div class="hist-summary-l">Sem patrimonio</div></div>'
-    + '</div>'
-    + sorted.map(function(s) {
-      var dot = s.type === 'nopat' ? 'warn' : 'ok';
-      var title = s.type === 'nopat' ? (s.desc || 'Item sem patrimonio') : 'Cod. ' + s.code;
-      var meta = 'Local: ' + s.room + (s.type === 'nopat' ? ' | Estado: ' + s.estado : '');
-      var sync = s.synced ? '<div class="hi-sync done">Sincronizado</div>' : '<div class="hi-sync pending">Pendente</div>';
-      return '<div class="hist-item">'
-        + '<div class="hi-dot ' + dot + '"></div>'
-        + '<div class="hi-info"><div class="hi-title">' + esc(title) + '</div>'
-        + '<div class="hi-meta">' + esc(meta) + '</div>'
-        + sync + '</div>'
-        + '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'
-        + '<div class="hi-time">' + fmtTime(new Date(s.ts)) + '</div>'
-        + '</div>'
-        + '</div>';
-    }).join('');
-}
-
 function buscarPatrimonioUI(val, contextName) {
   val = String(val || '').trim();
   var ctx = getBuscaContext(contextName);
