@@ -1436,10 +1436,11 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
 </div>
 
 <script>
-// ── VERSÃO — altere aqui a cada deploy ──────────────────────
+// Version
 var APP_VERSION = 'v9.4';
 var ROOMS_VERSION = 'suap-2026-v4'; // mude isso ao atualizar a lista de salas
-// Aplica versão imediatamente (não espera window.load)
+
+// Aplica a versao sem esperar o load completo.
 document.addEventListener('DOMContentLoaded', function() {
   var el = document.getElementById('versionFooter');
   if (el) el.textContent = APP_VERSION + ' | Censo';
@@ -1447,13 +1448,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (vs) vs.textContent = APP_VERSION;
   var vl = document.getElementById('versionLogin');
   if (vl) vl.textContent = APP_VERSION + ' | Censo';
-  // Detecta link de reset de senha no hash da URL
   verificarResetSenha();
 });
 
-// ═══════════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════════
+// State
 var state = {
   currentRoom: localStorage.getItem('currentRoom') || '',
   rooms: (function() {
@@ -1473,33 +1471,26 @@ var scannerStream = null;
 var quaggaRunning = false;
 var lastScanned = '';
 var lastScannedTime = 0;
-var noPatPhoto  = null;
-var photoCache  = {}; // espelho em memória do IndexedDB (rápido)
+var noPatPhoto = null;
+var photoCache = {};
 var noPatEstado = 'Excelente';
 var toastTimer = null;
 var syncTimer = null;
 
-// ═══════════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════════
-// Intercepta botão físico voltar do celular
+// Init
 window.addEventListener('popstate', function(e) {
-  // Se tiver uma tela aberta que não seja home, volta para ela
   var cur = document.querySelector('.screen:not(.hidden):not(.slide-left)');
   if (cur && cur.id !== 'scHome') {
     e.preventDefault();
     if (cur.id === 'scScanner') { stopScanner(); }
     else { goBack(); }
-    // Empurra estado de volta para manter histórico
     history.pushState(null, '', window.location.href);
   }
 });
-// Empurra estado inicial
+
 history.pushState(null, '', window.location.href);
 
-
 window.addEventListener('load', function() {
-  // Restaura fotos do IndexedDB para o cache em memória
   idbCarregarTodas().then(function(todas) {
     todas.forEach(function(r) { photoCache[r.id] = r.foto; });
     if (todas.length) console.log('IDB: ' + todas.length + ' fotos restauradas');
@@ -1509,48 +1500,7 @@ window.addEventListener('load', function() {
   bootstrapAppUI();
 });
 
-// ═══════════════════════════════════════════════
-//  NAVIGATION
-// ═══════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════
-//  SCANNER
-// ═══════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════
-//  CORE SCAN LOGIC
-// ═══════════════════════════════════════════════
-
-
-// ═══════════════════════════════════════════════
-//  UTILS
-// ═══════════════════════════════════════════════
-
-// ── Login / SIAPE ─────────────────────────────────────────────
 var currentUser = null; // { siape, nome }
-
-
-// ── Busca de patrimônio ──────────────────────────────────────
-
-
-
-// ════════════════════════════════════════════
-//  SCANNER CONTEXT — banner de progresso da sala
-// ════════════════════════════════════════════
-
-
-
-// ══════════════════════════════════════════════════════════════
-//  PAINEL DE ADMINISTRAÇÃO
-// ══════════════════════════════════════════════════════════════
-
-// ── Trocar abas do painel ─────────────────────────────────────
-
-// ── Ler planilha (.xlsx/.xls/.csv) com SheetJS ────────────────
-
-
-// ── UI refresh overrides ────────────────────────────────────────
-
 </script>
 <script src="js/utils/format.js"></script>
 <script src="js/core/state.js"></script>
