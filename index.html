@@ -1500,54 +1500,6 @@ window.addEventListener('popstate', function(e) {
 // Empurra estado inicial
 history.pushState(null, '', window.location.href);
 
-// ── Service Worker — atualização automática ──────────────────
-if ('serviceWorker' in navigator) {
-  var swReloading = false;
-
-  function recarregarSeNecessario() {
-    if (swReloading) return;
-    swReloading = true;
-    window.location.reload(true);
-  }
-
-  navigator.serviceWorker.register('/inventarioifms/sw.js').then(function(reg) {
-
-    // SW novo instalando — quando ativar, recarrega
-    reg.addEventListener('updatefound', function() {
-      var novaSW = reg.installing;
-      if (!novaSW) return;
-      novaSW.addEventListener('statechange', function() {
-        if (novaSW.state === 'activated') {
-          recarregarSeNecessario();
-        }
-      });
-    });
-
-    // Verifica atualização ao abrir e a cada 2min
-    reg.update();
-    setInterval(function() { reg.update(); }, 2 * 60 * 1000);
-
-    // Se já tem SW ativo, verifica versão
-    if (reg.active) {
-      reg.active.postMessage({ type: 'GET_VERSION' });
-    }
-
-  }).catch(function(e) { console.warn('SW register error:', e); });
-
-  // Mensagem do SW (nova versão ativada)
-  navigator.serviceWorker.addEventListener('message', function(e) {
-    if (!e.data) return;
-    if (e.data.type === 'SW_ACTIVATED') {
-      console.log('SW ativado:', e.data.version);
-      recarregarSeNecessario();
-    }
-  });
-
-  // Quando o SW toma controle (após skipWaiting), recarrega
-  navigator.serviceWorker.addEventListener('controllerchange', function() {
-    recarregarSeNecessario();
-  });
-}
 
 window.addEventListener('load', function() {
   // Restaura fotos do IndexedDB para o cache em memória
@@ -1563,84 +1515,6 @@ window.addEventListener('load', function() {
 // ═══════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════
-function toSentenceCase(str) {
-  return String(str || '')
-    .toLocaleLowerCase('pt-BR')
-    .replace(/(^|[\s\/\-])([a-z\u00c0-\u00ff])/g, function(_, sep, chr) {
-      return sep + chr.toLocaleUpperCase('pt-BR');
-    });
-}
-
-function getCurrentRoomDisplay(roomName) {
-  if (!roomName) {
-    return { title: 'Selecionar local', meta: 'Local atual' };
-  }
-  var original = String(roomName).trim();
-  var blockMatch = original.match(/\(([^)]+)\)\s*$/);
-  var block = blockMatch ? toSentenceCase(blockMatch[1].trim()) : '';
-  var title = original.replace(/\s*\([^)]+\)\s*$/, '').trim();
-  title = toSentenceCase(title)
-    .replace(/\bSup\.\b/g, 'Superior')
-    .replace(/\bInf\.\b/g, 'Inferior');
-  return {
-    title: title || 'Selecionar local',
-    meta: block ? 'Local atual \u00b7 ' + block : 'Local atual'
-  };
-}
-
-
-// ═══════════════════════════════════════════════
-//  ROOMS
-// ═══════════════════════════════════════════════
-
-
-
-function selectRoom(name) {
-  if (window._modoComparacao) {
-    window._modoComparacao = false;
-    var title = document.querySelector('#scRooms .topbar-title');
-    if (title) title.textContent = 'Selecionar Local';
-    var sub = document.querySelector('#scRooms .topbar-sub');
-    if (sub) sub.textContent = 'Onde você está agora?';
-    goBack();
-    abrirComparacao(name);
-    return;
-  }
-  state.currentRoom = name;
-  localStorage.setItem('currentRoom', name);
-  wrongRoomStreak = 0;
-  updateRoomLabel();
-  // Se veio do scanner (sem local definido antes), vai direto pra câmera
-  if (window._selecionandoParaScan) {
-    window._selecionandoParaScan = false;
-    abrirTelaScanner();
-    return;
-  }
-  goBack();
-}
-
-
-function addRoom() {
-  var name = prompt('Nome do local:');
-  if (!name || !name.trim()) return;
-  name = name.trim();
-  if (state.rooms.indexOf(name) > -1) { alert('Local já existe.'); return; }
-  state.rooms.push(name);
-  saveRooms();
-  renderRoomList();
-  renderSettRooms();
-}
-
-function removeRoom(name) {
-  if (!confirm('Remover "'+name+'"?')) return;
-  state.rooms = state.rooms.filter(function(r){ return r !== name; });
-  if (state.currentRoom === name) { state.currentRoom = ''; localStorage.removeItem('currentRoom'); updateRoomLabel(); }
-  saveRooms();
-  renderRoomList();
-  renderSettRooms();
-}
-
-function saveRooms() { localStorage.setItem('rooms', JSON.stringify(state.rooms)); }
 
 // ═══════════════════════════════════════════════
 //  SCANNER

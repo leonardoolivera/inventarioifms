@@ -1,4 +1,4 @@
-function abreviarSala(nome) {
+﻿function abreviarSala(nome) {
   if (SALA_MAP[nome]) return SALA_MAP[nome];
   var ab = String(nome || '');
   var bloco = '';
@@ -8,9 +8,87 @@ function abreviarSala(nome) {
     bloco = ab.slice(pi + 1, pf);
     ab = ab.slice(0, pi).trim();
   }
-  return { curto: ab, bloco: bloco, emoji: '📦' };
+  return { curto: ab, bloco: bloco, emoji: '📍' };
 }
 
+function toSentenceCase(str) {
+  return String(str || '')
+    .toLocaleLowerCase('pt-BR')
+    .replace(/(^|[\s\/\-])([a-z\u00c0-\u00ff])/g, function(_, sep, chr) {
+      return sep + chr.toLocaleUpperCase('pt-BR');
+    });
+}
+
+function getCurrentRoomDisplay(roomName) {
+  if (!roomName) {
+    return { title: 'Selecionar local', meta: 'Local atual' };
+  }
+  var original = String(roomName).trim();
+  var blockMatch = original.match(/\(([^)]+)\)\s*$/);
+  var block = blockMatch ? toSentenceCase(blockMatch[1].trim()) : '';
+  var title = original.replace(/\s*\([^)]+\)\s*$/, '').trim();
+  title = toSentenceCase(title)
+    .replace(/\bSup\.\b/g, 'Superior')
+    .replace(/\bInf\.\b/g, 'Inferior');
+  return {
+    title: title || 'Selecionar local',
+    meta: block ? 'Local atual · ' + block : 'Local atual'
+  };
+}
+
+function saveRooms() {
+  localStorage.setItem('rooms', JSON.stringify(state.rooms));
+}
+
+function selectRoom(name) {
+  if (window._modoComparacao) {
+    window._modoComparacao = false;
+    var title = document.querySelector('#scRooms .topbar-title');
+    if (title) title.textContent = 'Selecionar Local';
+    var sub = document.querySelector('#scRooms .topbar-sub');
+    if (sub) sub.textContent = 'Onde voce esta agora?';
+    goBack();
+    abrirComparacao(name);
+    return;
+  }
+  state.currentRoom = name;
+  localStorage.setItem('currentRoom', name);
+  wrongRoomStreak = 0;
+  updateRoomLabel();
+  if (window._selecionandoParaScan) {
+    window._selecionandoParaScan = false;
+    abrirTelaScanner();
+    return;
+  }
+  goBack();
+}
+
+function addRoom() {
+  var name = prompt('Nome do local:');
+  if (!name || !name.trim()) return;
+  name = name.trim();
+  if (state.rooms.indexOf(name) > -1) {
+    alert('Local ja existe.');
+    return;
+  }
+  state.rooms.push(name);
+  saveRooms();
+  renderRoomList();
+  renderSettRooms();
+}
+
+function removeRoom(name) {
+  if (!confirm('Remover "' + name + '"?')) return;
+  state.rooms = state.rooms.filter(function(r) { return r !== name; });
+  if (state.currentRoom === name) {
+    state.currentRoom = '';
+    localStorage.removeItem('currentRoom');
+    updateRoomLabel();
+  }
+  saveRooms();
+  renderRoomList();
+  renderSettRooms();
+}
 function saveRoomPrefs() {
   localStorage.setItem('pinnedRooms', JSON.stringify(state.pinnedRooms));
   localStorage.setItem('hiddenRooms', JSON.stringify(state.hiddenRooms));
@@ -35,7 +113,7 @@ function desocultarBtn(btn) {
 
 function ocultarSala(r, e) {
   if (e) e.stopPropagation();
-  if (!confirm('Ocultar "' + abreviarSala(r).curto + '"?\nVocê poderá reativar em Configurações.')) return;
+  if (!confirm('Ocultar "' + abreviarSala(r).curto + '"?\nVocÃª poderÃ¡ reativar em ConfiguraÃ§Ãµes.')) return;
   if (state.hiddenRooms.indexOf(r) === -1) state.hiddenRooms.push(r);
   var pi = state.pinnedRooms.indexOf(r);
   if (pi > -1) state.pinnedRooms.splice(pi, 1);
@@ -52,7 +130,7 @@ function revelarTodasSalas() {
   if (emptyDiv) emptyDiv.style.display = 'none';
   renderSettRooms();
   renderRoomList();
-  showToast('ok', '👁 Todas as salas reveladas', '');
+  showToast('ok', 'ðŸ‘ Todas as salas reveladas', '');
 }
 
 function desocultar(r) {
@@ -66,7 +144,7 @@ function roomItemHTML(r) {
   var cnt = state.scans.filter(function(s) { return s.room === r; }).length;
   var ab = abreviarSala(r);
   var sel = state.currentRoom === r;
-  var emoji = ab.emoji || '📍';
+  var emoji = ab.emoji || 'ðŸ“';
   var isPinned = state.pinnedRooms.indexOf(r) > -1;
   var modoComp = window._modoComparacao;
   return '<div style="display:flex;align-items:center">'
@@ -79,7 +157,7 @@ function roomItemHTML(r) {
     + '<span class="ri-check">&#10003;</span>'
     + '</div>'
     + (!modoComp
-      ? '<button class="room-pin-btn' + (isPinned ? ' pinned' : '') + '" onclick="togglePin(\'' + escJ(r) + '\',event)" title="' + (isPinned ? 'Desafixar' : 'Fixar no topo') + '">' + (isPinned ? '📌' : '📍') + '</button>'
+      ? '<button class="room-pin-btn' + (isPinned ? ' pinned' : '') + '" onclick="togglePin(\'' + escJ(r) + '\',event)" title="' + (isPinned ? 'Desafixar' : 'Fixar no topo') + '">' + (isPinned ? 'ðŸ“Œ' : 'ðŸ“') + '</button>'
       : '')
     + '</div>';
 }
@@ -123,8 +201,8 @@ function renderRoomList(filtro) {
   if (pinned.length) {
     html += '<div class="room-group room-group-pin">'
       + '<div class="room-group-header" onclick="toggleGroup(this)">'
-      + '<span class="room-group-title">📌 Fixadas</span>'
-      + '<span class="room-group-chevron open">›</span>'
+      + '<span class="room-group-title">ðŸ“Œ Fixadas</span>'
+      + '<span class="room-group-chevron open">â€º</span>'
       + '</div>'
       + '<div class="room-group-items open">'
       + pinned.map(function(r) { return roomItemHTML(r); }).join('')
@@ -139,13 +217,13 @@ function renderRoomList(filtro) {
     porGrupo[g].push(r);
   });
 
-  var ordem = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Área Externa', 'Outros'];
+  var ordem = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Ãrea Externa', 'Outros'];
   ordem.forEach(function(grupo) {
     if (!porGrupo[grupo]) return;
     html += '<div class="room-group">'
       + '<div class="room-group-header" onclick="toggleGroup(this)">'
       + '<span class="room-group-title">' + esc(grupo) + '</span>'
-      + '<span class="room-group-chevron open">›</span>'
+      + '<span class="room-group-chevron open">â€º</span>'
       + '</div>'
       + '<div class="room-group-items open">'
       + porGrupo[grupo].map(function(r) { return roomItemHTML(r); }).join('')
@@ -172,7 +250,7 @@ function renderSettRooms() {
 
   if (ocultas.length) {
     html += '<div class="hidden-rooms-section">'
-      + '<div class="sett-title" style="margin-top:8px">&#128584; Salas ocultas (só para você)</div>';
+      + '<div class="sett-title" style="margin-top:8px">&#128584; Salas ocultas (sÃ³ para vocÃª)</div>';
     html += ocultas.map(function(r) {
       var ab = abreviarSala(r);
       return '<div class="hidden-room-item">'
@@ -217,14 +295,14 @@ function renderMinhasSalas() {
   var elNaoVis = document.getElementById('msSalasNaoVisitadas');
 
   if (!salasVisitadas.length) {
-    elVisit.innerHTML = '<div class="empty" style="padding:24px 0"><div class="empty-ico">📭</div>Você ainda não escaneou nenhuma sala</div>';
+    elVisit.innerHTML = '<div class="empty" style="padding:24px 0"><div class="empty-ico">ðŸ“­</div>VocÃª ainda nÃ£o escaneou nenhuma sala</div>';
     elNaoVis.innerHTML = '';
     return;
   }
 
   salasVisitadas.sort(function(a, b) { return porSala[b] - porSala[a]; });
 
-  var visitHtml = '<div class="ms-section-label">Salas que você visitou</div>';
+  var visitHtml = '<div class="ms-section-label">Salas que vocÃª visitou</div>';
   salasVisitadas.forEach(function(sala) {
     var ab = abreviarSala(sala);
     var feitos = porSala[sala];
@@ -233,12 +311,12 @@ function renderMinhasSalas() {
     var cor = pct === null ? 'var(--accent)' : pct >= 90 ? 'var(--green)' : pct >= 50 ? 'var(--accent)' : 'var(--yellow)';
     var countTxt = total > 0 ? feitos + ' / ' + total : feitos + ' itens';
     var subTxt = total > 0
-      ? pct + '% · ' + (total - feitos) + ' pendentes' + (pct === 100 ? ' · ✅ Concluído' : '')
+      ? pct + '% Â· ' + (total - feitos) + ' pendentes' + (pct === 100 ? ' Â· âœ… ConcluÃ­do' : '')
       : (ab.bloco || '');
 
     visitHtml += '<div class="ms-sala-card" onclick="showCampusDetalhe(\'' + escJ(sala) + '\')">'
       + '<div class="ms-sala-header">'
-      + '<div class="ms-sala-name">' + (ab.emoji || '📍') + ' ' + esc(ab.curto) + '</div>'
+      + '<div class="ms-sala-name">' + (ab.emoji || 'ðŸ“') + ' ' + esc(ab.curto) + '</div>'
       + '<div class="ms-sala-count" style="color:' + cor + '">' + countTxt + '</div>'
       + '</div>'
       + '<div class="ms-sala-bar-bg"><div class="ms-sala-bar" style="width:' + (pct !== null ? pct : Math.min(100, feitos * 10)) + '%;background:' + cor + '"></div></div>'
@@ -260,13 +338,13 @@ function renderMinhasSalas() {
     return tb - ta;
   });
 
-  var naoHtml = '<div class="ms-section-label">Salas não visitadas (' + naoVisitadas.length + ')</div>';
+  var naoHtml = '<div class="ms-section-label">Salas nÃ£o visitadas (' + naoVisitadas.length + ')</div>';
   naoVisitadas.slice(0, 15).forEach(function(sala) {
     var ab = abreviarSala(sala);
     var total = suapTotais ? (suapTotais[sala] || 0) : 0;
     naoHtml += '<div class="ms-nao-item">'
-      + '<span style="font-size:14px">' + (ab.emoji || '📍') + '</span>'
-      + '<div class="ms-nao-name">' + esc(ab.curto) + (ab.bloco ? ' · ' + esc(ab.bloco) : '') + '</div>'
+      + '<span style="font-size:14px">' + (ab.emoji || 'ðŸ“') + '</span>'
+      + '<div class="ms-nao-name">' + esc(ab.curto) + (ab.bloco ? ' Â· ' + esc(ab.bloco) : '') + '</div>'
       + (total ? '<div class="ms-nao-count">' + total + ' itens</div>' : '')
       + '</div>';
   });
@@ -295,17 +373,17 @@ function showCampusDetalhe(sala) {
 }
 
 function carregarCampus(cb) {
-  document.getElementById('campusList').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>';
+  document.getElementById('campusList').innerHTML = '<div class="empty"><div class="empty-ico">â³</div>Carregando...</div>';
   getComparacaoSala().then(function(res) {
     if (!res.ok) {
-      document.getElementById('campusList').innerHTML = '<div class="empty">⚠️ Erro ao carregar</div>';
+      document.getElementById('campusList').innerHTML = '<div class="empty">âš ï¸ Erro ao carregar</div>';
       return;
     }
     campusData = res.porSala || {};
     renderCampus('');
     if (cb) cb();
   }).catch(function() {
-    document.getElementById('campusList').innerHTML = '<div class="empty">❌ Sem conexão</div>';
+    document.getElementById('campusList').innerHTML = '<div class="empty">âŒ Sem conexÃ£o</div>';
   });
 }
 
@@ -316,7 +394,7 @@ function filtrarCampus(filtro) {
 function renderCampus(filtro) {
   if (!campusData) return;
   var todasSalas = state.rooms || [];
-  var ordem = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Área Externa'];
+  var ordem = ['Bloco A', 'Bloco B', 'Bloco C', 'Salas Modulares', 'Ãrea Externa'];
   var porGrupo = {};
   todasSalas.forEach(function(sala) {
     var ab = abreviarSala(sala);
@@ -341,10 +419,10 @@ function renderCampus(filtro) {
       var enc = itens.filter(function(i) { return i[2] === 'correto' || i[2] === 'outro_local'; }).length;
       var pct = total > 0 ? Math.min(100, Math.round(enc / total * 100)) : 0;
       var cor = pct >= 90 ? 'var(--green)' : pct >= 50 ? 'var(--accent)' : 'var(--yellow)';
-      var foot = total > 0 ? enc + ' / ' + total + (pct === 100 ? ' · ✅' : ' · ' + (total - enc) + ' pendentes') : 'Sem dados SUAP';
+      var foot = total > 0 ? enc + ' / ' + total + (pct === 100 ? ' Â· âœ…' : ' Â· ' + (total - enc) + ' pendentes') : 'Sem dados SUAP';
       html += '<div class="campus-sala-card" id="ccard-' + encodeURIComponent(sala) + '" onclick="toggleCampusSala(\'' + escJ(sala) + '\',this)">'
         + '<div class="campus-sala-header">'
-        + '<div class="campus-sala-emoji">' + (ab.emoji || '📍') + '</div>'
+        + '<div class="campus-sala-emoji">' + (ab.emoji || 'ðŸ“') + '</div>'
         + '<div class="campus-sala-info"><div class="campus-sala-name">' + esc(ab.curto) + '</div>'
         + (ab.bloco ? '<div class="campus-sala-bloco">' + esc(ab.bloco) + '</div>' : '')
         + '</div>'
@@ -357,11 +435,11 @@ function renderCampus(filtro) {
   });
 
   if (!totalSalas) {
-    html = '<div class="empty" style="padding:32px 0"><div class="empty-ico">🔍</div>Nenhuma sala encontrada</div>';
+    html = '<div class="empty" style="padding:32px 0"><div class="empty-ico">ðŸ”</div>Nenhuma sala encontrada</div>';
   }
 
   document.getElementById('campusList').innerHTML = html;
-  document.getElementById('campusSub').textContent = totalSalas + ' salas · ' + (Object.keys(campusData).length ? Object.keys(campusData).length + ' com dados' : 'Carregando dados...');
+  document.getElementById('campusSub').textContent = totalSalas + ' salas Â· ' + (Object.keys(campusData).length ? Object.keys(campusData).length + ' com dados' : 'Carregando dados...');
 }
 
 function toggleCampusSala(sala, card) {
@@ -387,14 +465,14 @@ function abrirDetalheCampus(sala, card) {
     return;
   }
 
-  var icons = { correto: '✅', outro_local: '🟡', nao_localizado: '❌', pendente: '⏳' };
+  var icons = { correto: 'âœ…', outro_local: 'ðŸŸ¡', nao_localizado: 'âŒ', pendente: 'â³' };
   var mostrar = itens.slice(0, 8);
   var detailHtml = '<div class="campus-detail">'
     + mostrar.map(function(it) {
       return '<div class="campus-detail-row">'
         + '<div class="campus-detail-num">' + esc(it[0]) + '</div>'
         + '<div class="campus-detail-desc">' + esc(it[1]) + '</div>'
-        + '<div class="campus-detail-status">' + (icons[it[2]] || '•') + '</div>'
+        + '<div class="campus-detail-status">' + (icons[it[2]] || 'â€¢') + '</div>'
         + '</div>';
     }).join('')
     + (itens.length > 8 ? '<div style="font-size:10px;color:var(--text2);text-align:center;padding-top:6px">+ ' + (itens.length - 8) + ' itens</div>' : '')
@@ -438,3 +516,5 @@ function carregarTotaisSUAP(callback) {
 function showProgress() {
   showMinhasSalas();
 }
+
+
