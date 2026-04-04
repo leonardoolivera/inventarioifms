@@ -418,8 +418,10 @@ body{position:relative}
 .comp-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
 /* ── PIN / HIDE ROOMS ── */
-.room-pin-btn{background:none;border:none;font-size:16px;cursor:pointer;padding:4px 6px;color:var(--text3);flex-shrink:0}
-.room-pin-btn.pinned{color:#f59e0b}
+.room-pin-btn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.03);border:1px solid rgba(148,163,184,.12);border-radius:12px;font-size:15px;cursor:pointer;padding:0;color:#8f9bb8;flex-shrink:0;box-shadow:0 10px 22px rgba(3,8,20,.14);transition:transform .16s,border-color .16s,background .16s,color .16s}
+.room-pin-btn:hover{border-color:rgba(91,140,255,.24);background:rgba(91,140,255,.08);color:#d7e2ff}
+.room-pin-btn.pinned{color:#fbbf24;border-color:rgba(251,191,36,.28);background:rgba(251,191,36,.08)}
+.room-pin-btn:active{transform:translateY(1px)}
 .room-group-pin{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r2);margin-bottom:8px}
 .room-group-pin .room-group-header{padding:6px 4px}
 .room-group-pin .room-group-title{color:#f59e0b}

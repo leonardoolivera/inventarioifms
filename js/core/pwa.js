@@ -1,5 +1,6 @@
 var deferredInstallPrompt = null;
 var swReloading = false;
+var UPDATE_URL = window.UPDATE_URL || '/inventarioifms/index.html';
 
 function recarregarSeNecessario() {
   if (swReloading) return;

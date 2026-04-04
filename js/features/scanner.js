@@ -74,11 +74,20 @@ function startCamera() {
           processScan(code);
         });
       } catch (e) {
-        showToast('warn', 'Scanner indisponível', 'Use entrada manual');
+        showToast('warn', 'Scanner indisponivel', 'Use a entrada manual');
       }
     }
   }).catch(function(e) {
-    showToast('warn', 'Câmera negada', 'Permita o acesso à câmera nas configurações');
+    var title = 'Camera indisponivel';
+    var sub = 'Use a entrada manual para continuar';
+    if (e && (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError')) {
+      title = 'Camera bloqueada';
+      sub = 'Permita o acesso a camera nas configuracoes';
+    } else if (e && (e.name === 'NotFoundError' || e.name === 'DevicesNotFoundError')) {
+      title = 'Camera nao encontrada';
+      sub = 'Conecte uma camera ou use a entrada manual';
+    }
+    showToast('warn', title, sub);
     console.error(e);
   });
 }
