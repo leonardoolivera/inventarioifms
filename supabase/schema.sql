@@ -11,10 +11,16 @@ CREATE TABLE funcionarios (
   id        SERIAL PRIMARY KEY,
   siape     TEXT NOT NULL UNIQUE,
   nome      TEXT NOT NULL,
+  email     TEXT UNIQUE,
+  pin       TEXT,
   admin     BOOLEAN DEFAULT FALSE,
   ativo     BOOLEAN DEFAULT TRUE,
   criado_em TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE funcionarios
+  ADD CONSTRAINT funcionarios_pin_format_chk
+  CHECK (pin IS NULL OR pin ~ '^\d{4,6}$');
 
 -- ── Patrimônios SUAP (importados manualmente) ─────────────────
 CREATE TABLE patrimonios (

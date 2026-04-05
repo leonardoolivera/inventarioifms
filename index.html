@@ -1287,6 +1287,8 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <input class="field-input" id="addFuncNome" placeholder="Ex: João da Silva" style="margin-bottom:8px">
         <div class="field-label">SIAPE</div>
         <input class="field-input" id="addFuncSiape" type="tel" placeholder="Ex: 1234567" inputmode="numeric" style="margin-bottom:8px">
+        <div class="field-label">PIN inicial</div>
+        <input class="field-input" id="addFuncPin" type="password" maxlength="6" placeholder="4 a 6 numeros" inputmode="numeric" style="margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
           <input type="checkbox" id="addFuncAdmin" style="width:16px;height:16px;cursor:pointer">
           <label for="addFuncAdmin" style="font-size:12px;color:var(--text2);cursor:pointer">Dar acesso de administrador</label>
@@ -1550,11 +1552,15 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="login-label">Digite seu SIAPE</div>
       <input class="login-input" id="siapeInput" type="tel" maxlength="7"
         placeholder="0000000" autocomplete="off" inputmode="numeric"
-        onkeydown="if(event.key==='Enter')fazerLogin()">
+        onkeydown="if(event.key==='Enter'){var pin=document.getElementById('pinInput'); if(pin && pin.style.display!=='none') pin.focus(); else fazerLogin();}">
+      <div class="login-label" id="pinLabel" style="margin-top:10px;display:none">PIN</div>
+      <input class="login-input" id="pinInput" type="password" maxlength="6"
+        placeholder="0000" autocomplete="current-password" inputmode="numeric"
+        style="display:none" onkeydown="if(event.key==='Enter')fazerLogin()">
       <div class="login-error" id="loginError"></div>
       <button class="login-btn" id="loginBtn" onclick="fazerLogin()">Entrar</button>
     </div>
-    <div style="font-size:11px;color:var(--text3);text-align:center">
+    <div style="font-size:11px;color:var(--text3);text-align:center" id="siapeLoginHelp">
       Use seu numero SIAPE para acessar
     </div>
     <button onclick="mostrarLoginAdmin()" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;margin-top:10px;font-family:'Space Grotesk',sans-serif;display:block;margin-left:auto;margin-right:auto">
@@ -1699,6 +1705,7 @@ var currentUser = null; // { siape, nome }
 <script src="js/features/nopat.js"></script>
 <script src="js/features/admin.js"></script>
 <script src="js/features/dashboard.js"></script>
+<script src="js/features/security.js"></script>
 <script src="js/ui/enterprise-overrides.js"></script>
 <div class="wrong-room-modal" id="wrongRoomModal">
   <div class="wrong-room-box">
