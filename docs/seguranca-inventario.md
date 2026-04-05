@@ -11,6 +11,7 @@ Este projeto iniciou uma fase de endurecimento de seguranca com foco em tres fre
 - suporte de frontend para login por `SIAPE + PIN`
 - Edge Function dedicada para autenticar SIAPE sem expor o PIN no cliente
 - cadastro de `PIN inicial` na tela administrativa
+- troca de PIN pelo proprio servidor em `Configuracoes`
 - coluna `pin` prevista no schema
 - pacote SQL em [security-hardening.sql](/C:/Users/leo-a/OneDrive/Documentos/New%20project/inventarioifms/supabase/security-hardening.sql)
 

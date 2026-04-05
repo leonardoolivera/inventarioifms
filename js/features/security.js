@@ -215,4 +215,85 @@ window.adminSalvarFunc = function() {
     });
 };
 
+window.alterarMeuPin = function() {
+  var atual = (document.getElementById('currentPinInput').value || '').trim();
+  var novo = (document.getElementById('newPinInput').value || '').trim();
+  var confirma = (document.getElementById('confirmNewPinInput').value || '').trim();
+  var btn = document.getElementById('changePinBtn');
+  var statusEl = document.getElementById('changePinStatus');
+
+  if (!currentUser || !currentUser.siape) {
+    if (statusEl) statusEl.textContent = 'Faca login novamente para alterar o PIN.';
+    return;
+  }
+
+  if (!/^\d{4,6}$/.test(atual)) {
+    if (statusEl) statusEl.textContent = 'Informe o PIN atual com 4 a 6 numeros.';
+    return;
+  }
+
+  if (!/^\d{4,6}$/.test(novo)) {
+    if (statusEl) statusEl.textContent = 'O novo PIN deve ter 4 a 6 numeros.';
+    return;
+  }
+
+  if (novo !== confirma) {
+    if (statusEl) statusEl.textContent = 'A confirmacao do novo PIN nao confere.';
+    return;
+  }
+
+  if (novo === atual) {
+    if (statusEl) statusEl.textContent = 'Escolha um PIN diferente do atual.';
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Alterando...';
+  }
+  if (statusEl) statusEl.textContent = 'Validando seu PIN atual...';
+
+  fetch(SUPABASE_URL + '/functions/v1/change-pin', {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON,
+      'Authorization': 'Bearer ' + SUPABASE_ANON,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      siape: currentUser.siape,
+      currentPin: atual,
+      newPin: novo
+    })
+  })
+    .then(function(r) {
+      return r.text().then(function(body) {
+        var res = {};
+        try { res = body ? JSON.parse(body) : {}; } catch (_) {}
+        if (!r.ok) return { ok: false, erro: res.erro || res.error || ('HTTP ' + r.status) };
+        return res;
+      });
+    })
+    .then(function(res) {
+      if (!res.ok) {
+        if (statusEl) statusEl.textContent = res.erro || 'Nao foi possivel alterar o PIN.';
+        return;
+      }
+      document.getElementById('currentPinInput').value = '';
+      document.getElementById('newPinInput').value = '';
+      document.getElementById('confirmNewPinInput').value = '';
+      if (statusEl) statusEl.textContent = 'PIN alterado com sucesso.';
+      showToast('ok', 'PIN atualizado', 'Seu acesso foi protegido com o novo PIN');
+    })
+    .catch(function(err) {
+      if (statusEl) statusEl.textContent = 'Erro ao alterar PIN: ' + String(err);
+    })
+    .finally(function() {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Alterar meu PIN';
+      }
+    });
+};
+
 updateSecurityLoginUI();

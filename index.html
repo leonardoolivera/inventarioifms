@@ -1169,6 +1169,17 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
       </div>
     </div>
     <div class="sett-section">
+      <div class="sett-title">Seguranca</div>
+      <div class="admin-form-card" id="changePinCard" style="margin-bottom:12px">
+        <div class="field-label">PIN atual</div>
+        <input class="field-input" id="currentPinInput" type="password" maxlength="6" placeholder="Digite seu PIN atual" inputmode="numeric" style="margin-bottom:8px">
+        <div class="field-label">Novo PIN</div>
+        <input class="field-input" id="newPinInput" type="password" maxlength="6" placeholder="4 a 6 numeros" inputmode="numeric" style="margin-bottom:8px">
+        <div class="field-label">Confirmar novo PIN</div>
+        <input class="field-input" id="confirmNewPinInput" type="password" maxlength="6" placeholder="Repita o novo PIN" inputmode="numeric" style="margin-bottom:12px">
+        <button class="cfg-btn" id="changePinBtn" onclick="alterarMeuPin()">Alterar meu PIN</button>
+        <div id="changePinStatus" style="font-size:12px;color:var(--text2);margin-top:8px">Use um PIN numerico de 4 a 6 digitos.</div>
+      </div>
       <div class="sett-title">?? Banco de dados</div>
       <button class="cfg-btn sec" onclick="testConnection(this)">Testar conexão com Supabase</button>
       <button class="cfg-btn sec" id="testIABtn" onclick="testarIA()">🧪 Testar IA (Gemini)</button>
