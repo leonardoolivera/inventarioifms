@@ -78,6 +78,19 @@ describe('auth module', () => {
     expect(elements.get('loginWrap').style.display).toBe('flex');
   });
 
+  it('restores saved user and resets invalid hidden room state', () => {
+    ctx.state.hiddenRooms = ['ALMOXARIFADO (Bloco A)', 'BIBLIOTECA (Bloco A)'];
+    ctx.state.pinnedRooms = ['BIBLIOTECA (Bloco A)'];
+    localStorage.setItem('currentUser', JSON.stringify({ siape: '2394174', nome: 'Leonardo Alexandre', admin: false }));
+
+    ctx.aplicarUsuario = vi.fn();
+    ctx.iniciarApp();
+
+    expect(ctx.state.hiddenRooms).toEqual([]);
+    expect(ctx.state.pinnedRooms).toEqual([]);
+    expect(ctx.aplicarUsuario).toHaveBeenCalledWith(expect.objectContaining({ siape: '2394174' }));
+  });
+
   it('applies user data and reveals admin affordances', () => {
     ctx.aplicarUsuario({ siape: '2394174', nome: 'Leonardo Alexandre', admin: true });
 
@@ -102,6 +115,15 @@ describe('auth module', () => {
     expect(ctx.renderHistList).toHaveBeenCalled();
   });
 
+  it('validates siape length before attempting login', () => {
+    elements.get('siapeInput').value = '123';
+
+    ctx.fazerLogin();
+
+    expect(elements.get('loginError').textContent).toContain('SIAPE');
+    expect(ctx.loginSiape).not.toHaveBeenCalled();
+  });
+
   it('switches to admin login and authenticates admin account', async () => {
     ctx.mostrarLoginAdmin();
     elements.get('adminEmailInput').value = 'gestor@ifms.edu.br';
@@ -113,6 +135,26 @@ describe('auth module', () => {
     expect(elements.get('loginCardSiape').style.display).toBe('none');
     expect(ctx.loginEmail).toHaveBeenCalledWith('gestor@ifms.edu.br', '123456');
     expect(elements.get('adminBtn').style.display).toBe('block');
+  });
+
+  it('returns to siape login and validates admin credentials presence', () => {
+    ctx.mostrarLoginAdmin();
+    ctx.mostrarLoginSiape();
+    ctx.fazerLoginAdmin();
+
+    expect(elements.get('loginCardAdmin').style.display).toBe('none');
+    expect(elements.get('loginCardSiape').style.display).toBe('');
+    expect(elements.get('loginErrorAdmin').textContent).toContain('Preencha email e senha');
+  });
+
+  it('sends recovery email when requested from admin login', async () => {
+    elements.get('adminEmailInput').value = 'gestor@ifms.edu.br';
+
+    ctx.abrirRecuperarSenha();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(ctx.recuperarSenha).toHaveBeenCalledWith('gestor@ifms.edu.br');
+    expect(ctx.showToast).toHaveBeenCalledWith('ok', 'Email enviado!', expect.any(String));
   });
 
   it('opens recovery modal and saves a new password', async () => {
@@ -131,6 +173,32 @@ describe('auth module', () => {
     expect(elements.get('loginWrap').style.display).toBe('flex');
   });
 
+  it('validates password reset form branches', () => {
+    elements.get('novaSenhaInput').value = '123';
+    elements.get('confirmarSenhaInput').value = '123';
+    ctx.salvarNovaSenha();
+    expect(elements.get('novaSenhaErro').textContent).toContain('pelo menos 6');
+
+    elements.get('novaSenhaInput').value = '123456';
+    elements.get('confirmarSenhaInput').value = '654321';
+    ctx.salvarNovaSenha();
+    expect(elements.get('novaSenhaErro').textContent).toContain('coincidem');
+  });
+
+  it('logs out after confirmation and focuses siape input', () => {
+    localStorage.setItem('currentUser', JSON.stringify({ siape: '2394174' }));
+    ctx.currentUser = { siape: '2394174', nome: 'Leonardo Alexandre' };
+    ctx.state.pendingSync = [{ id: 1 }];
+
+    ctx.fazerLogout();
+
+    expect(localStorage.getItem('currentUser')).toBeNull();
+    expect(elements.get('loginWrap').style.display).toBe('flex');
+    expect(timeouts[0].ms).toBe(300);
+    timeouts[0].fn();
+    expect(elements.get('siapeInput').focus).toHaveBeenCalled();
+  });
+
   it('merges scanned history without duplicating ids', () => {
     ctx.state.scans = [{ id: 'a-1', type: 'scan' }];
 
@@ -143,5 +211,14 @@ describe('auth module', () => {
     expect(ctx.saveScans).toHaveBeenCalled();
     expect(ctx.updateStats).toHaveBeenCalled();
     expect(ctx.renderHistList).toHaveBeenCalled();
+  });
+
+  it('does not rewrite history when server scans are all duplicated', () => {
+    ctx.state.scans = [{ id: 'a-1', type: 'scan' }];
+
+    ctx.carregarHistoricoServidor([{ id: 'a-1', type: 'scan' }]);
+
+    expect(ctx.saveScans).not.toHaveBeenCalled();
+    expect(ctx.updateStats).not.toHaveBeenCalled();
   });
 });

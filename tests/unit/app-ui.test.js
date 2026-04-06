@@ -25,7 +25,8 @@ describe('app ui helpers', () => {
       ['progTotal', { textContent: '' }],
       ['progSalas', { textContent: '' }],
       ['progNopat', { textContent: '' }],
-      ['progRoomList', { innerHTML: '' }]
+      ['progRoomList', { innerHTML: '' }],
+      ['scanFlash', { className: '', classList: { remove: vi.fn() } }]
     ]);
 
     ctx = runLegacyScript('js/features/app-ui.js', {
@@ -204,5 +205,56 @@ describe('app ui helpers', () => {
     expect(elements.get('progNopat').textContent).toBe(1);
     expect(elements.get('progRoomList').innerHTML).toContain('BIBLIOTECA');
     expect(elements.get('progTempoEstimado').style.display).toBe('block');
+  });
+
+  it('keeps local session intact when clear is cancelled', () => {
+    ctx.confirm = vi.fn(() => false);
+
+    ctx.confirmClear();
+
+    expect(ctx.state.scans).toHaveLength(2);
+    expect(ctx.saveScans).not.toHaveBeenCalled();
+  });
+
+  it('handles busy state for non-button items', () => {
+    const arrow = { innerHTML: '>', dataset: {} };
+    const sub = { textContent: 'Original', dataset: {} };
+    const card = {
+      tagName: 'DIV',
+      classList: { toggle: vi.fn() },
+      querySelector: vi.fn((selector) => {
+        if (selector === '.si-arrow') return arrow;
+        if (selector === '.si-sub') return sub;
+        return null;
+      })
+    };
+
+    ctx.setActionBusy(card, true, 'Atualizando...');
+    expect(sub.textContent).toBe('Atualizando...');
+
+    ctx.setActionBusy(card, false, 'Atualizando...');
+    expect(arrow.innerHTML).toBe('>');
+    expect(sub.textContent).toBe('Original');
+  });
+
+  it('shows warnings when spreadsheet url is missing and flashes scan feedback', async () => {
+    const button = {
+      tagName: 'BUTTON',
+      disabled: false,
+      innerHTML: 'Testar',
+      dataset: {},
+      classList: { toggle: vi.fn() }
+    };
+
+    const testPromise = ctx.testarPlanilha(button);
+    while (timeouts.length) {
+      const timer = timeouts.shift();
+      timer.fn();
+    }
+    await testPromise;
+    expect(elements.get('toastTitle').textContent).toContain('URL nao configurada');
+
+    ctx.flashScan('ok');
+    expect(elements.get('scanFlash').className).toContain('show');
   });
 });

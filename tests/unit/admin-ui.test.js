@@ -125,4 +125,28 @@ describe('admin ui helpers', () => {
     expect(ctx.adminOp).toHaveBeenCalledWith('resetarInventario', '2394174');
     expect(elements.get('resetStatus').textContent).toContain('Resetado');
   });
+
+  it('renders employee actions and supports pin reset flow', async () => {
+    ctx.adminOp = vi.fn((action) => {
+      if (action === 'listarFuncionarios') {
+        return Promise.resolve({
+          ok: true,
+          funcionarios: [
+            { siape: '111', nome: 'Maria Silva', admin: false, ativo: true },
+            { siape: '2394174', nome: 'Leonardo Alexandre', admin: true, ativo: true }
+          ]
+        });
+      }
+      if (action === 'resetPinFuncionario') return Promise.resolve({ ok: true });
+      return Promise.resolve({ ok: true });
+    });
+
+    ctx.adminCarregarFunc();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(elements.get('funcList').innerHTML).toContain('Redefinir PIN');
+
+    ctx.adminResetarPinFunc('111', 'Maria Silva');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(ctx.showToast).toHaveBeenCalledWith('ok', 'PIN redefinido', expect.stringContaining('0246'));
+  });
 });
