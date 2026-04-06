@@ -5,10 +5,12 @@ describe('scanner helpers', () => {
   let elements;
   let ctx;
   let stream;
+  let stoppedTrack;
 
   beforeEach(() => {
+    stoppedTrack = vi.fn();
     stream = {
-      getTracks: () => [{ stop: vi.fn() }]
+      getTracks: () => [{ stop: stoppedTrack }]
     };
     elements = new Map([
       ['manualInput', { value: '86889' }],
@@ -66,6 +68,7 @@ describe('scanner helpers', () => {
     await Promise.resolve();
 
     expect(ctx.navigator.mediaDevices.getUserMedia).toHaveBeenCalled();
+    expect(ctx.quaggaRunning).toBe(false);
   });
 
   it('opens scanner with active room and binds camera stream', async () => {
@@ -79,5 +82,29 @@ describe('scanner helpers', () => {
     expect(ctx.showScreen).toHaveBeenCalledWith('scScanner');
     expect(elements.get('scannerVideo').srcObject).toBe(stream);
     expect(ctx.atualizarContextoScanner).toHaveBeenCalled();
+  });
+
+  it('shows permission warning when camera access is denied', async () => {
+    ctx.navigator.mediaDevices.getUserMedia = vi.fn().mockRejectedValue(Object.assign(new Error('blocked'), { name: 'NotAllowedError' }));
+
+    ctx.startCamera();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(ctx.quaggaRunning).toBe(false);
+  });
+
+  it('stops active scanner resources and returns to previous screen', () => {
+    ctx.quaggaRunning = true;
+    ctx.scannerStream = stream;
+    ctx.mlkitLoop = 123;
+    ctx.zxingReader = { reset: vi.fn() };
+
+    ctx.stopScanner();
+
+    expect(stoppedTrack).toHaveBeenCalled();
+    expect(ctx.zxingReader).toBeNull();
+    expect(elements.get('iosOverlay').style.display).toBe('none');
+    expect(ctx.goBack).toHaveBeenCalled();
   });
 });

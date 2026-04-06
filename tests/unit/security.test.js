@@ -101,6 +101,35 @@ describe('security helpers', () => {
     expect(ctx.aplicarUsuario).toHaveBeenCalled();
   });
 
+  it('rejects invalid pin format before contacting backend', () => {
+    elements.get('pinInput').value = '12';
+
+    ctx.fazerLogin();
+
+    expect(elements.get('loginError').textContent).toContain('PIN de 4 a 6 numeros');
+    expect(ctx.fetch).not.toHaveBeenCalled();
+  });
+
+  it('shows throttle warning after too many auth attempts', () => {
+    elements.get('pinInput').value = '0246';
+    for (let i = 0; i < ctx.AUTH_MAX_ATTEMPTS; i++) ctx.registerAuthFailure('siape');
+
+    ctx.fazerLogin();
+
+    expect(elements.get('loginError').textContent).toContain('Muitas tentativas');
+    expect(ctx.fetch).not.toHaveBeenCalled();
+  });
+
+  it('validates funcionario form before saving', () => {
+    elements.get('addFuncNome').value = 'Servidor Teste';
+    elements.get('addFuncSiape').value = 'abc123';
+
+    ctx.adminSalvarFunc();
+
+    expect(ctx.adminOp).not.toHaveBeenCalled();
+    expect(ctx.showToast).toHaveBeenCalledWith('warn', 'SIAPE deve conter apenas numeros', '');
+  });
+
   it('validates and changes user pin successfully', async () => {
     elements.get('currentPinInput').value = '0246';
     elements.get('newPinInput').value = '1357';
@@ -121,5 +150,16 @@ describe('security helpers', () => {
     );
     expect(elements.get('changePinStatus').textContent).toContain('sucesso');
     expect(ctx.showToast).toHaveBeenCalledWith('ok', 'PIN atualizado', expect.any(String));
+  });
+
+  it('blocks pin change when confirmation does not match', () => {
+    elements.get('currentPinInput').value = '0246';
+    elements.get('newPinInput').value = '1357';
+    elements.get('confirmNewPinInput').value = '9753';
+
+    ctx.alterarMeuPin();
+
+    expect(elements.get('changePinStatus').textContent).toContain('nao confere');
+    expect(ctx.fetch).not.toHaveBeenCalledWith(expect.stringContaining('/functions/v1/change-pin'), expect.anything());
   });
 });
