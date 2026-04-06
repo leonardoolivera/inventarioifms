@@ -11,7 +11,9 @@ describe('router helpers', () => {
       ['scHome', { id: 'scHome', classList: { add: vi.fn(), remove: vi.fn() } }],
       ['scHistory', { id: 'scHistory', classList: { add: vi.fn(), remove: vi.fn() } }],
       ['scSettings', { id: 'scSettings', classList: { add: vi.fn(), remove: vi.fn() } }],
-      ['scDashboard', { id: 'scDashboard', classList: { add: vi.fn(), remove: vi.fn() } }]
+      ['scDashboard', { id: 'scDashboard', classList: { add: vi.fn(), remove: vi.fn() } }],
+      ['scMinhasSalas', { id: 'scMinhasSalas', classList: { add: vi.fn(), remove: vi.fn() } }],
+      ['scCampus', { id: 'scCampus', classList: { add: vi.fn(), remove: vi.fn() } }]
     ]);
     currentScreen = screens.get('scHome');
 
@@ -65,5 +67,29 @@ describe('router helpers', () => {
     expect(currentScreen.classList.add).toHaveBeenCalledWith('hidden');
     expect(currentScreen.classList.remove).toHaveBeenCalledWith('slide-left');
     expect(screens.get('scDashboard').classList.remove).toHaveBeenCalledWith('hidden', 'slide-left');
+  });
+
+  it('loads home, campus and minhas salas dependencies when requested', () => {
+    ctx.showScreen('scHome');
+    expect(ctx.updateStats).toHaveBeenCalled();
+    expect(ctx.updateSyncBanner).toHaveBeenCalled();
+
+    ctx.showScreen('scMinhasSalas');
+    expect(ctx.carregarTotaisSUAP).toHaveBeenCalled();
+    expect(ctx.renderMinhasSalas).toHaveBeenCalled();
+
+    ctx.showScreen('scCampus');
+    expect(ctx.carregarCampus).toHaveBeenCalled();
+  });
+
+  it('ignores navigation when target screen does not exist and falls back to home on back', () => {
+    ctx.showScreen('scMissing');
+    expect(ctx.screenHistory).toEqual(['scHome']);
+
+    ctx.screenHistory = [];
+    currentScreen = screens.get('scDashboard');
+    ctx.goBack();
+
+    expect(screens.get('scHome').classList.remove).toHaveBeenCalledWith('hidden', 'slide-left');
   });
 });

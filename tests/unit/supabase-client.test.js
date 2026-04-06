@@ -115,4 +115,62 @@ describe('supabase client helpers', () => {
     expect(recovery).toEqual({ ok: true });
     expect(change).toEqual({ ok: true });
   });
+
+  it('supports duplicate checks, totals and room comparison helpers', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify([
+        { status: 'Encontrado', local_encontrado: 'BIBLIOTECA (Bloco A)', encontrado_por: 'Leo' }
+      ]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([
+        { sala_suap: 'ALMOXARIFADO (Bloco A)', total: 10, correto: 6, outro_local: 1 }
+      ]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([
+        {
+          numero: '86889',
+          descricao: 'Estante de aço',
+          sala_suap: 'ALMOXARIFADO (Bloco A)',
+          status: '✅ Encontrado',
+          local_encontrado: 'ALMOXARIFADO (Bloco A)',
+          encontrado_por: 'Leonardo Alexandre'
+        }
+      ]), { status: 200 }));
+
+    const duplicate = await ctx.checkDuplicate('86889');
+    const totals = await ctx.getTotalPorSala();
+    const comparacao = await ctx.getComparacaoSala();
+
+    expect(duplicate).toEqual(expect.objectContaining({ ok: true, duplicado: true }));
+    expect(totals).toEqual({ ok: true, salas: [{ sala_suap: 'ALMOXARIFADO (Bloco A)', total: 10, correto: 6, outro_local: 1 }] });
+    expect(comparacao.ok).toBe(true);
+    expect(comparacao.porSala['ALMOXARIFADO (Bloco A)']).toHaveLength(1);
+  });
+
+  it('supports siape login, room correction and connection ping', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify([
+        { siape: '2394174', nome: 'Leonardo Alexandre', admin: true }
+      ]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([{ id: 1 }]), { status: 200 }));
+
+    const login = await ctx.loginSiape('02394174');
+    const corrige = await ctx.corrigirSala(['1', '2'], 'BIBLIOTECA (Bloco A)');
+    const ping = await ctx.testConnectionSupabase();
+
+    expect(login).toEqual(expect.objectContaining({ ok: true, siape: '2394174', admin: true }));
+    expect(corrige).toEqual({ ok: true, corrigidos: 2 });
+    expect(ping).toEqual({ ok: true, msg: 'Conexão OK' });
+  });
+
+  it('propagates edge function helpers and upload failures', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(JSON.stringify({ ok: true }), { status: 200 }))
+      .mockResolvedValueOnce(new Response('', { status: 500 }));
+
+    const desc = await ctx.descreverFoto('image/jpeg', 'ZmFrZQ==');
+    await expect(ctx.uploadFoto('item-2', 'data:image/jpeg;base64,ZmFrZQ==')).rejects.toThrow('Upload falhou: 500');
+
+    expect(desc).toEqual({ ok: true });
+  });
 });
