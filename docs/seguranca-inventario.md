@@ -12,6 +12,7 @@ Este projeto iniciou uma fase de endurecimento de seguranca com foco em tres fre
 - Edge Function dedicada para autenticar SIAPE sem expor o PIN no cliente
 - cadastro de `PIN inicial` na tela administrativa
 - troca de PIN pelo proprio servidor em `Configuracoes`
+- PIN padrao operacional `0246` quando o gestor cadastrar apenas nome + SIAPE
 - coluna `pin` prevista no schema
 - pacote SQL em [security-hardening.sql](/C:/Users/leo-a/OneDrive/Documentos/New%20project/inventarioifms/supabase/security-hardening.sql)
 

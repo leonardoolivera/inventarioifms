@@ -36,8 +36,8 @@ Deno.serve(async (req) => {
         return json({ ok: false, erro: 'SIAPE e nome sao obrigatorios' });
       }
 
-      const pinValue = pin == null || String(pin).trim() === '' ? null : String(pin).trim();
-      if (pinValue && !/^\d{4,6}$/.test(pinValue)) {
+      const pinValue = pin == null || String(pin).trim() === '' ? '0246' : String(pin).trim();
+      if (!/^\d{4,6}$/.test(pinValue)) {
         return json({ ok: false, erro: 'PIN deve ter de 4 a 6 numeros' });
       }
 

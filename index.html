@@ -1298,8 +1298,9 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
         <input class="field-input" id="addFuncNome" placeholder="Ex: João da Silva" style="margin-bottom:8px">
         <div class="field-label">SIAPE</div>
         <input class="field-input" id="addFuncSiape" type="tel" placeholder="Ex: 1234567" inputmode="numeric" style="margin-bottom:8px">
-        <div class="field-label">PIN inicial</div>
-        <input class="field-input" id="addFuncPin" type="password" maxlength="6" placeholder="4 a 6 numeros" inputmode="numeric" style="margin-bottom:8px">
+        <div class="field-label">PIN inicial (opcional)</div>
+        <input class="field-input" id="addFuncPin" type="password" maxlength="6" placeholder="Padrao: 0246" inputmode="numeric" style="margin-bottom:6px">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Se deixar em branco, o acesso inicial sera criado com o PIN padrao 0246.</div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
           <input type="checkbox" id="addFuncAdmin" style="width:16px;height:16px;cursor:pointer">
           <label for="addFuncAdmin" style="font-size:12px;color:var(--text2);cursor:pointer">Dar acesso de administrador</label>

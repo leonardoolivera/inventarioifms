@@ -1,4 +1,4 @@
-window.AUTH_REQUIRE_PIN = window.AUTH_REQUIRE_PIN === true;
+window.AUTH_REQUIRE_PIN = true;
 window.AUTH_ALLOW_LEGACY_FALLBACK = window.AUTH_ALLOW_LEGACY_FALLBACK !== false;
 window.AUTH_SESSION_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 window.AUTH_MAX_ATTEMPTS = 6;
