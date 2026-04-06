@@ -73,6 +73,27 @@ export async function mockSupabase(page) {
         return;
       }
 
+      if (body.action === 'importarPatrimonios') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            ok: true,
+            importados: (body.data && body.data.rows ? body.data.rows.length : 0)
+          })
+        });
+        return;
+      }
+
+      if (body.action === 'resetarInventario') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ ok: true })
+        });
+        return;
+      }
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
