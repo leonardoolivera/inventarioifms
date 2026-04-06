@@ -2,3 +2,7 @@ supabase/.temp/
 supabase.exe
 supabase_cli.tar.gz
 temp_remote_policy_fix.sql
+node_modules/
+coverage/
+playwright-report/
+test-results/
