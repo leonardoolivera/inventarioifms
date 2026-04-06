@@ -4,15 +4,21 @@ import { runLegacyScript } from '../helpers/load-legacy-script.js';
 describe('app ui helpers', () => {
   let elements;
   let ctx;
+  let timeouts;
 
   beforeEach(() => {
     localStorage.clear();
+    timeouts = [];
 
     elements = new Map([
       ['toast', { className: '', classList: { remove: vi.fn() } }],
       ['toastIco', { textContent: '' }],
       ['toastTitle', { textContent: '' }],
       ['toastSub', { textContent: '' }],
+      ['undoCode', { textContent: '' }],
+      ['undoSub', { textContent: '' }],
+      ['undoBar', { classList: { add: vi.fn(), remove: vi.fn() } }],
+      ['undoProg', { style: { transition: '', width: '' } }],
       ['scannerRoomContext', { style: { display: 'none' } }],
       ['scannerContextText', { innerHTML: '', textContent: '' }],
       ['progTempoEstimado', { style: { display: 'none' }, innerHTML: '' }],
@@ -47,14 +53,24 @@ describe('app ui helpers', () => {
       escJ: (value) => String(value || ''),
       histBtn: vi.fn(),
       confirm: vi.fn(() => true),
+      prompt: vi.fn(() => 'https://script.google.com/macros/s/test/exec'),
+      fetch: vi.fn(() => Promise.resolve()),
+      URL: { createObjectURL: vi.fn(() => 'blob:test') },
+      Blob,
       document: {
         getElementById(id) {
           return elements.get(id) || null;
         },
         createElement() {
-          return { click: vi.fn() };
+          return { click: vi.fn(), href: '', download: '' };
         }
-      }
+      },
+      setTimeout: vi.fn((fn, ms) => {
+        timeouts.push({ fn, ms });
+        return timeouts.length;
+      }),
+      clearTimeout: vi.fn(),
+      clearInterval: vi.fn()
     });
     ctx.suapTotais = { 'ALMOXARIFADO (Bloco A)': 10 };
   });
@@ -84,5 +100,57 @@ describe('app ui helpers', () => {
     expect(ctx.saveScans).toHaveBeenCalled();
     expect(elements.get('toastTitle').textContent).toBe('Sessão limpa');
     expect(elements.get('toastSub').textContent).toBe('Histórico apagado');
+  });
+
+  it('shows undo bar and removes the last entry on undo', () => {
+    ctx.lastEntry = { id: '1' };
+
+    ctx.showUndoBar('86889', 'ALMOXARIFADO');
+    expect(elements.get('undoCode').textContent).toContain('86889');
+    expect(elements.get('undoBar').classList.add).toHaveBeenCalledWith('show');
+
+    ctx.undoLast();
+    expect(ctx.state.scans).toHaveLength(1);
+    expect(ctx.state.pendingSync).toEqual(['2']);
+    expect(ctx.updateSyncBanner).toHaveBeenCalled();
+    expect(elements.get('toastTitle').textContent).toContain('Desfeito');
+  });
+
+  it('wraps async action feedback around buttons', async () => {
+    const button = {
+      tagName: 'BUTTON',
+      disabled: false,
+      innerHTML: 'Salvar',
+      dataset: {},
+      classList: { toggle: vi.fn() }
+    };
+
+    const promise = ctx.withActionFeedback(button, 'Carregando...', () => 'ok');
+    timeouts[0].fn();
+
+    await expect(promise).resolves.toBe('ok');
+    expect(button.classList.toggle).toHaveBeenCalledWith('busy', true);
+    expect(button.classList.toggle).toHaveBeenLastCalledWith('busy', false);
+    expect(button.innerHTML).toBe('Salvar');
+  });
+
+  it('stores spreadsheet url and exports csv', async () => {
+    const button = {
+      tagName: 'BUTTON',
+      disabled: false,
+      innerHTML: 'Configurar',
+      dataset: {},
+      classList: { toggle: vi.fn() }
+    };
+
+    const promise = ctx.configurarPlanilhaUrl(button);
+    timeouts[0].fn();
+    await promise;
+
+    expect(ctx.state.scriptUrl).toContain('script.google.com');
+    expect(localStorage.getItem('scriptUrl')).toContain('script.google.com');
+
+    ctx.exportCSV();
+    expect(ctx.URL.createObjectURL).toHaveBeenCalled();
   });
 });
