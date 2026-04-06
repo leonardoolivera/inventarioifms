@@ -4,11 +4,15 @@ import { runLegacyScript } from '../helpers/load-legacy-script.js';
 describe('scanner helpers', () => {
   let elements;
   let ctx;
+  let stream;
 
   beforeEach(() => {
+    stream = {
+      getTracks: () => [{ stop: vi.fn() }]
+    };
     elements = new Map([
       ['manualInput', { value: '86889' }],
-      ['scannerVideo', { play: vi.fn().mockResolvedValue(undefined), paused: false, ended: false, videoWidth: 640, videoHeight: 480 }],
+      ['scannerVideo', { play: vi.fn().mockResolvedValue(undefined), paused: false, ended: false, videoWidth: 640, videoHeight: 480, set srcObject(value) { this._srcObject = value; }, get srcObject() { return this._srcObject; } }],
       ['iosOverlay', { style: { display: '' } }],
       ['toast', { className: '', classList: { remove: vi.fn() } }],
       ['toastIco', { textContent: '' }],
@@ -62,5 +66,18 @@ describe('scanner helpers', () => {
     await Promise.resolve();
 
     expect(ctx.navigator.mediaDevices.getUserMedia).toHaveBeenCalled();
+  });
+
+  it('opens scanner with active room and binds camera stream', async () => {
+    ctx.state.currentRoom = 'ALMOXARIFADO (Bloco A)';
+    ctx.navigator.mediaDevices.getUserMedia = vi.fn().mockResolvedValue(stream);
+
+    ctx.startScanner();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(ctx.showScreen).toHaveBeenCalledWith('scScanner');
+    expect(elements.get('scannerVideo').srcObject).toBe(stream);
+    expect(ctx.atualizarContextoScanner).toHaveBeenCalled();
   });
 });

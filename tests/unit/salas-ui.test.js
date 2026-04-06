@@ -86,4 +86,19 @@ describe('salas ui helpers', () => {
     expect(localStorage.getItem('currentRoom')).toBe('BIBLIOTECA (Bloco A)');
     expect(ctx.abrirTelaScanner).toHaveBeenCalled();
   });
+
+  it('renders settings list and can hide then reveal rooms', () => {
+    ctx.renderSettRooms();
+    expect(elements.get('settRoomList').innerHTML).toContain('Almoxarifado');
+
+    ctx.ocultarSala('BIBLIOTECA (Bloco A)');
+    expect(ctx.state.hiddenRooms).toContain('BIBLIOTECA (Bloco A)');
+
+    ctx.renderSettRooms();
+    expect(elements.get('btnRevelarSalas').style.display).toBe('block');
+
+    ctx.revelarTodasSalas();
+    expect(ctx.state.hiddenRooms).toEqual([]);
+    expect(ctx.state.pinnedRooms).toEqual([]);
+  });
 });
