@@ -68,6 +68,19 @@ Deno.serve(async (req) => {
       return json({ ok: true });
     }
 
+    if (action === 'resetPinFuncionario') {
+      const { siape: incomingSiape } = data || {};
+      if (!incomingSiape) {
+        return json({ ok: false, erro: 'SIAPE nao informado para resetar o PIN' });
+      }
+      const { error } = await supabase
+        .from('funcionarios')
+        .update({ pin: '0246', ativo: true })
+        .eq('siape', String(incomingSiape).replace(/^0+/, ''));
+      if (error) return json({ ok: false, erro: error.message });
+      return json({ ok: true });
+    }
+
     if (action === 'importarPatrimonios') {
       const rows = (data?.rows || []).map((r: Record<string, string>) => ({
         numero: String(r.numero || '').trim().replace(/\.0$/, ''),

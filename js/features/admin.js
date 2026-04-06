@@ -27,14 +27,18 @@ function adminCarregarFunc() {
         var inicial = (f.nome || '?')[0].toUpperCase();
         var badge = f.admin ? '<span class="func-badge admin">admin</span>' : '';
         var inativo = !f.ativo ? '<span class="func-badge inativo">inativo</span>' : '';
+        var canManage = f.siape !== currentUser.siape;
         return '<div class="func-item">'
           + '<div class="func-avatar">' + inicial + '</div>'
           + '<div style="flex:1">'
           + '<div class="func-nome">' + escHtml(f.nome) + badge + inativo + '</div>'
           + '<div class="func-siape">SIAPE: ' + escHtml(f.siape) + '</div>'
           + '</div>'
-          + (f.siape !== currentUser.siape
-              ? '<button class="func-remove" onclick="adminRemoverFunc(\'' + escHtml(f.siape) + '\',\'' + escHtml(f.nome) + '\')">Remover</button>'
+          + (canManage
+              ? '<div class="admin-inline-actions">'
+                + '<button class="func-remove" style="color:var(--accent);border-color:rgba(91,140,255,.28)" onclick="adminResetarPinFunc(\'' + escHtml(f.siape) + '\',\'' + escHtml(f.nome) + '\')">Redefinir PIN</button>'
+                + '<button class="func-remove" onclick="adminRemoverFunc(\'' + escHtml(f.siape) + '\',\'' + escHtml(f.nome) + '\')">Remover</button>'
+                + '</div>'
               : '')
           + '</div>';
       }).join('');
@@ -93,6 +97,23 @@ function adminRemoverFunc(siape, nome) {
         return;
       }
       showToast('ok', 'Funcionario removido', nome);
+      adminCarregarFunc();
+    })
+    .catch(function(err) {
+      showToast('erro', 'Erro: ' + err, '');
+    });
+}
+
+function adminResetarPinFunc(siape, nome) {
+  if (!confirm('Redefinir o PIN de "' + nome + '" para 0246?\n\nO servidor devera usar esse PIN padrao no proximo acesso e depois podera trocá-lo no app.')) return;
+
+  adminOp('resetPinFuncionario', currentUser.siape, { siape: siape })
+    .then(function(res) {
+      if (!res.ok) {
+        showToast('erro', 'Erro ao redefinir PIN', res.erro || '');
+        return;
+      }
+      showToast('ok', 'PIN redefinido', nome + ' · PIN temporario 0246');
       adminCarregarFunc();
     })
     .catch(function(err) {
