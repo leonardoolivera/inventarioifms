@@ -153,4 +153,56 @@ describe('app ui helpers', () => {
     ctx.exportCSV();
     expect(ctx.URL.createObjectURL).toHaveBeenCalled();
   });
+
+  it('tests and triggers spreadsheet sync through configured url', async () => {
+    ctx.state.scriptUrl = 'https://script.google.com/macros/s/test/exec';
+    const button = {
+      tagName: 'BUTTON',
+      disabled: false,
+      innerHTML: 'Sincronizar',
+      dataset: {},
+      classList: { toggle: vi.fn() }
+    };
+
+    const testPromise = ctx.testarPlanilha(button);
+    while (timeouts.length) {
+      const timer = timeouts.shift();
+      timer.fn();
+    }
+    await testPromise;
+
+    const syncPromise = ctx.sincronizarPlanilha(true, button);
+    while (timeouts.length) {
+      const timer = timeouts.shift();
+      timer.fn();
+    }
+    await syncPromise;
+
+    expect(ctx.fetch).toHaveBeenCalledWith(expect.stringContaining('?action=ping'), { mode: 'no-cors' });
+    expect(ctx.fetch).toHaveBeenCalledWith(expect.stringContaining('syncPlanilha&token='), { mode: 'no-cors' });
+    expect(elements.get('toastTitle').textContent).toContain('Atualizacao');
+  });
+
+  it('renders progress rooms and tempo estimado summary', () => {
+    ctx.state.scans = [
+      { id: '1', type: 'scan', room: 'ALMOXARIFADO (Bloco A)', ts: new Date().toISOString() },
+      { id: '2', type: 'scan', room: 'ALMOXARIFADO (Bloco A)', ts: new Date().toISOString() },
+      { id: '3', type: 'scan', room: 'BIBLIOTECA (Bloco A)', ts: new Date().toISOString() },
+      { id: '4', type: 'scan', room: 'BIBLIOTECA (Bloco A)', ts: new Date().toISOString() },
+      { id: '5', type: 'scan', room: 'BIBLIOTECA (Bloco A)', ts: new Date().toISOString() },
+      { id: '6', type: 'nopat', room: 'BIBLIOTECA (Bloco A)', ts: new Date().toISOString() }
+    ];
+    ctx.suapTotais = {
+      'ALMOXARIFADO (Bloco A)': 10,
+      'BIBLIOTECA (Bloco A)': 12
+    };
+
+    ctx.renderProgressRooms();
+
+    expect(elements.get('progTotal').textContent).toBe(6);
+    expect(elements.get('progSalas').textContent).toBe(2);
+    expect(elements.get('progNopat').textContent).toBe(1);
+    expect(elements.get('progRoomList').innerHTML).toContain('BIBLIOTECA');
+    expect(elements.get('progTempoEstimado').style.display).toBe('block');
+  });
 });

@@ -87,6 +87,16 @@ describe('salas ui helpers', () => {
     expect(ctx.abrirTelaScanner).toHaveBeenCalled();
   });
 
+  it('routes room selection to comparison mode when enabled', () => {
+    ctx.window._modoComparacao = true;
+
+    ctx.selectRoom('BIBLIOTECA (Bloco A)');
+
+    expect(ctx.window._modoComparacao).toBe(false);
+    expect(ctx.goBack).toHaveBeenCalled();
+    expect(ctx.abrirComparacao).toHaveBeenCalledWith('BIBLIOTECA (Bloco A)');
+  });
+
   it('renders settings list and can hide then reveal rooms', () => {
     ctx.renderSettRooms();
     expect(elements.get('settRoomList').innerHTML).toContain('Almoxarifado');
@@ -100,5 +110,17 @@ describe('salas ui helpers', () => {
     ctx.revelarTodasSalas();
     expect(ctx.state.hiddenRooms).toEqual([]);
     expect(ctx.state.pinnedRooms).toEqual([]);
+  });
+
+  it('adds and removes custom rooms', () => {
+    ctx.prompt = vi.fn(() => 'NOVA SALA');
+    ctx.document.querySelector = vi.fn(() => null);
+
+    ctx.addRoom();
+    expect(ctx.state.rooms).toContain('NOVA SALA');
+    expect(localStorage.getItem('rooms')).toContain('NOVA SALA');
+
+    ctx.removeRoom('NOVA SALA');
+    expect(ctx.state.rooms).not.toContain('NOVA SALA');
   });
 });
