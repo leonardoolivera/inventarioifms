@@ -97,6 +97,18 @@ describe('nopat helpers', () => {
     expect(picker.style.display).toBe('none');
   });
 
+  it('changes estado chip selection and closes modal', () => {
+    const otherChip = { classList: { add: vi.fn(), remove: vi.fn() } };
+    ctx.document.querySelectorAll = vi.fn(() => [excellentChip, otherChip]);
+
+    ctx.selectEstado('Regular', otherChip);
+    ctx.closeNoPatModal();
+
+    expect(ctx.noPatEstado).toBe('Regular');
+    expect(otherChip.classList.add).toHaveBeenCalledWith('selected');
+    expect(modalClasses.remove).toHaveBeenCalledWith('show');
+  });
+
   it('saves nopat item and updates local state', () => {
     elements.get('noPatDesc').value = 'Monitor 19';
     ctx.noPatEstado = 'Bom';
@@ -118,5 +130,14 @@ describe('nopat helpers', () => {
     expect(ctx.addToPendingSync).toHaveBeenCalled();
     expect(modalClasses.remove).toHaveBeenCalledWith('show');
     expect(ctx.navigator.vibrate).toHaveBeenCalled();
+  });
+
+  it('requires description before saving', () => {
+    elements.get('noPatDesc').value = '';
+
+    ctx.saveNoPat();
+
+    expect(elements.get('noPatDesc').focus).toHaveBeenCalled();
+    expect(ctx.state.scans).toHaveLength(0);
   });
 });

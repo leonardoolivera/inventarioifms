@@ -16,7 +16,12 @@ describe('salas ui helpers', () => {
       ['currentRoomMeta', { textContent: '' }],
       ['scannerRoomLabel', { textContent: '' }],
       ['scanRoomBadge', { textContent: '' }],
-      ['noPatRoom', { textContent: '' }]
+      ['noPatRoom', { textContent: '' }],
+      ['msTotal', { textContent: '' }],
+      ['msNopat', { textContent: '' }],
+      ['msSalas', { textContent: '' }],
+      ['msSalasVisitadas', { innerHTML: '' }],
+      ['msSalasNaoVisitadas', { innerHTML: '' }]
     ]);
 
     ctx = runLegacyScript('js/features/salas.js', {
@@ -42,10 +47,15 @@ describe('salas ui helpers', () => {
       abrirTelaScanner: vi.fn(),
       renderSettRooms: vi.fn(),
       showToast: vi.fn(),
+      showCampusDetalhe: vi.fn(),
       confirm: vi.fn(() => true),
       alert: vi.fn(),
       prompt: vi.fn(() => ''),
       roomIcon: vi.fn(() => '📍'),
+      suapTotais: {
+        'ALMOXARIFADO (Bloco A)': 10,
+        'BIBLIOTECA (Bloco A)': 8
+      },
       document: {
         getElementById(id) {
           return elements.get(id) || null;
@@ -122,5 +132,17 @@ describe('salas ui helpers', () => {
 
     ctx.removeRoom('NOVA SALA');
     expect(ctx.state.rooms).not.toContain('NOVA SALA');
+  });
+
+  it('renders visited and unvisited rooms summary', () => {
+    ctx.state.scans.push({ room: 'BIBLIOTECA (Bloco A)', type: 'scan' });
+    ctx.state.scans.push({ room: 'BIBLIOTECA (Bloco A)', type: 'nopat' });
+
+    ctx.renderMinhasSalas();
+
+    expect(elements.get('msTotal').textContent).toBe(2);
+    expect(elements.get('msNopat').textContent).toBe(1);
+    expect(elements.get('msSalas').textContent).toBe(2);
+    expect(elements.get('msSalasVisitadas').innerHTML).toContain('Biblioteca');
   });
 });
