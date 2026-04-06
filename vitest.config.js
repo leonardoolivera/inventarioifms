@@ -10,7 +10,13 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['js/**/*.js', 'supabase/client.js'],
-      exclude: ['js/data/**/*.js']
+      exclude: ['js/data/**/*.js'],
+      thresholds: {
+        lines: 18,
+        functions: 30,
+        branches: 50,
+        statements: 18
+      }
     }
   }
 });
