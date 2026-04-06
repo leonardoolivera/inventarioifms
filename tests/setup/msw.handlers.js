@@ -63,5 +63,13 @@ export const handlers = [
       });
     }
     return HttpResponse.json({ ok: false, erro: 'Credenciais invalidas' }, { status: 401 });
+  }),
+
+  http.post(`${SUPABASE_URL}/functions/v1/change-pin`, async ({ request }) => {
+    const body = await request.json();
+    if (body.siape === '2394174' && body.currentPin === '0246' && body.newPin === '1357') {
+      return HttpResponse.json({ ok: true });
+    }
+    return HttpResponse.json({ ok: false, erro: 'PIN atual invalido' }, { status: 401 });
   })
 ];

@@ -57,6 +57,22 @@ export async function mockSupabase(page) {
     }
 
     if (pathname.endsWith('/functions/v1/admin-ops')) {
+      const body = request.postDataJSON() || {};
+      if (body.action === 'listarFuncionarios') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            ok: true,
+            funcionarios: [
+              { siape: '2394174', nome: 'Leonardo Alexandre', admin: true, ativo: true },
+              { siape: '1234567', nome: 'Maria Gestora', admin: false, ativo: true }
+            ]
+          })
+        });
+        return;
+      }
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -67,7 +83,9 @@ export async function mockSupabase(page) {
 
     if (pathname.endsWith('/rest/v1/funcionarios')) {
       const siape = (url.searchParams.get('siape') || '').replace('eq.', '');
-      const rows = siape === defaultUser.siape ? [defaultUser] : [{ id: 1 }];
+      const rows = siape
+        ? (siape === defaultUser.siape ? [defaultUser] : [])
+        : [{ id: 1 }];
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -103,6 +121,30 @@ export async function mockSupabase(page) {
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify(payload)
+      });
+      return;
+    }
+
+    if (pathname.endsWith('/rest/v1/scans')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify([
+          {
+            codigo: '86889',
+            sala: 'ALMOXARIFADO (Bloco A)',
+            funcionario: 'Leonardo Alexandre',
+            siape: '2394174',
+            criado_em: '2026-04-05T12:00:00.000Z'
+          },
+          {
+            codigo: '86890',
+            sala: 'BIBLIOTECA (Bloco A)',
+            funcionario: 'Maria Gestora',
+            siape: '1234567',
+            criado_em: '2026-04-05T12:10:00.000Z'
+          }
+        ])
       });
       return;
     }
